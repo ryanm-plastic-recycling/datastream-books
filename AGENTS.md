@@ -18,6 +18,16 @@ If a decision in this file conflicts with `docs/decisions/datastream-books-decis
 
 Datastream Books is an internal finance/accounting application replacing the legacy Macola system. Built on Microsoft Dataverse (model-driven app) + Azure SQL (immutable ledger). Multi-entity from day one. Sister application to Datastream ERP (operations). Finance System Owner is Pam. Built with audit-defensibility as a core architectural requirement, not an afterthought.
 
+## Branching Policy
+
+This is a solo-developer project. Do not create branches.
+Work directly on main.
+Do not use git worktrees.
+Commit and push to main.
+
+If you have meaningful changes to commit, commit them in logical chunks to main directly.
+Multiple commits in a single session are fine; branches are not.
+
 ## Operating Principles
 
 ### Be Direct and Outcome-Focused
