@@ -1,8 +1,8 @@
 # Finance System Replacement: Decision Memo
 
-**To:** [President]
-**From:** [Your Name]
-**Re:** Macola Replacement — Build Datastream Books vs. Buy Business Central
+**To:** Brandon Shaw
+**From:** Ryan McCauley
+**Re:** Macola Replacement — Build Datastream Books vs. HoosAI or Business Central
 **Date:** May 19, 2026
 
 ---
