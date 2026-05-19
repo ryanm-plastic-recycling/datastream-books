@@ -1,0 +1,266 @@
+# ============================================================
+# Datastream Books .gitignore
+# Covers: Dataverse solutions, .NET plugins, PCF/React, PowerShell,
+#         Windows/IDE noise, secrets
+# ============================================================
+
+# ============================================================
+# Secrets & Local Config (NEVER COMMIT)
+# ============================================================
+*.env
+.env
+.env.*
+*.secret
+*.secrets
+secrets.json
+appsettings.local.json
+appsettings.Development.json
+local.settings.json
+**/connectionstrings.json
+**/credentials.json
+*.pfx
+*.p12
+*.key
+*.pem
+.pac/
+.user
+
+# ============================================================
+# Power Platform CLI / Dataverse
+# ============================================================
+# pac CLI artifacts
+.pac/
+*.tmp.pac
+
+# Solution packaging artifacts (we commit unpacked solution, not zips)
+*.zip
+!docs/**/*.zip
+solution/bin/
+solution/obj/
+solution/temp/
+
+# pac solution unpack output cache
+**/SolutionPackage/
+**/SolutionExport/
+
+# Power Platform Build Tools artifacts
+out/
+out-debug/
+
+# ============================================================
+# .NET (Plugins)
+# ============================================================
+# Build outputs
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio
+.vs/
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+*.suo
+*.ncrunch*
+.*crunch*.local.xml
+
+# NuGet
+*.nupkg
+*.snupkg
+**/packages/*
+!**/packages/build/
+*.nuget.props
+*.nuget.targets
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]uild/
+[Bb]uilds/
+artifacts/
+
+# Test results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+*.coverage
+*.coveragexml
+TestResults/
+.coverlet/
+
+# StyleCop
+StyleCopReport.xml
+
+# Files built by Visual Studio
+*_i.c
+*_p.c
+*_h.h
+*.ilk
+*.meta
+*.obj
+*.iobj
+*.pch
+*.pdb
+*.ipdb
+*.pgc
+*.pgd
+*.rsp
+*.sbr
+*.tlb
+*.tli
+*.tlh
+*.tmp
+*.tmp_proj
+*_wpftmp.csproj
+*.log
+*.tlog
+*.vspscc
+*.vssscc
+.builds
+*.pidb
+*.svclog
+*.scc
+
+# ============================================================
+# Node / PCF / React
+# ============================================================
+node_modules/
+**/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.npm/
+.yarn/
+.pnp.*
+
+# Build outputs
+dist/
+build/
+out/
+.next/
+.nuxt/
+.cache/
+.parcel-cache/
+
+# PCF specific
+**/generated/
+**/Generated/
+**/.pcf/
+
+# TypeScript
+*.tsbuildinfo
+
+# ============================================================
+# Azure SQL / Database
+# ============================================================
+*.dacpac
+*.bacpac
+*.sqlproj.user
+*.publish.xml
+
+# ============================================================
+# Windows / OS / IDE
+# ============================================================
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Visual Studio Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/*.code-snippets
+.history/
+*.code-workspace
+
+# JetBrains Rider
+.idea/
+*.sln.iml
+
+# ============================================================
+# PowerShell
+# ============================================================
+*.ps1.bak
+*.psm1.bak
+
+# ============================================================
+# Logs & Temp
+# ============================================================
+*.log
+logs/
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+.tmp/
+temp/
+
+# ============================================================
+# Generated Documentation
+# ============================================================
+_site/
+.docfx/
+docs/api/
+docs/_build/
+
+# ============================================================
+# Local Development Data
+# ============================================================
+# Anything in a "local" folder is developer-specific
+local/
+.local/
+**/local-config/
+
+# Test data (large files; reference data is fine)
+test-data/*.csv
+test-data/*.xlsx
+!test-data/sample-*.csv
+!test-data/sample-*.xlsx
+
+# ============================================================
+# Backups
+# ============================================================
+*.bak
+*.backup
+*.orig
+*.rej
+
+# ============================================================
+# Allow specific files that might otherwise be ignored
+# ============================================================
+!.gitkeep
+!.gitignore
+!.github/
+!.editorconfig
