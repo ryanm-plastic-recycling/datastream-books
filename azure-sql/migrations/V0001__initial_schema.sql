@@ -1,0 +1,68 @@
+-- =============================================================================
+-- Migration: V0001__initial_schema.sql
+-- Author:    Initial scaffold (Phase 1)
+-- Date:      2026-05-19
+-- =============================================================================
+-- Purpose:
+--   Initialize the Datastream Books Azure SQL database with non-data
+--   infrastructure: schemas, baseline roles, and metadata tables that
+--   subsequent migrations depend on.
+--
+-- Scope of this migration (PLACEHOLDER — to be expanded before first apply):
+--   1. Database-level GUARDRAILS
+--      - Set ANSI options for deterministic computed columns and hashing
+--      - Set RECOVERY model (FULL — required for PITR + long-term retention)
+--   2. SCHEMAS
+--      - ledger      : append-only financial ledger objects
+--      - audit       : audit events, integrity checkpoints
+--      - reporting   : data mart views and materialized aggregates
+--      - reference   : reference data tables (currencies, account types)
+--      - staging     : transient ETL/loader tables (NOT part of the audit envelope)
+--   3. ROLES
+--      - rl_app_writer  : Dataverse plugin service principal — INSERT ledger only
+--      - rl_app_reader  : Reporting / read-only access
+--      - rl_admin       : Schema-change role (humans, via deployment pipeline only)
+--      - DENY UPDATE, DELETE, TRUNCATE on ledger.* to ALL roles including rl_admin
+--        (see V0002 — enforced per-table because role-level DENY does not exist
+--         in Azure SQL for object-modifying DML; we use OBJECT-scoped DENY)
+--   4. EXTENSIONS / EXTENDED PROPERTIES
+--      - MS_Description on every ledger/audit table created in later migrations
+--   5. SYSTEM METADATA
+--      - dbo.SchemaMigrations(MigrationId, AppliedAtUtc, AppliedBy, ChecksumSha256)
+--        : single source of truth for which migrations have been applied
+--
+-- Out of scope of THIS migration (will be added in subsequent migrations):
+--   - GeneralLedgerEntries table          → V0002
+--   - LedgerIntegrityCheckpoints          → V0003 (planned)
+--   - PeriodCloseAttestation              → V0004 (planned)
+--   - AuditEvents                         → V0005 (planned)
+--   - ReportSnapshots                     → V0006 (planned)
+--   - Historical Macola archive tables    → V0010+ (planned, before cutover)
+--
+-- Idempotency:
+--   This migration must be safely re-runnable. Every CREATE statement uses
+--   IF NOT EXISTS or equivalent existence check.
+--
+-- Apply order:
+--   This is the first migration. No prerequisites.
+--
+-- =============================================================================
+-- ROLLBACK NOTES
+-- =============================================================================
+-- This migration creates infrastructure (schemas, roles, metadata table).
+-- It does NOT create any append-only ledger objects (those start in V0002).
+-- A rollback at the V0001 stage is therefore safe:
+--
+--   DROP TABLE IF EXISTS dbo.SchemaMigrations;
+--   -- Drop roles only if no users are assigned:
+--   --   DROP ROLE rl_app_writer;
+--   --   DROP ROLE rl_app_reader;
+--   --   DROP ROLE rl_admin;
+--   -- Schemas should NOT be dropped casually after later migrations have
+--   -- created objects inside them. Once V0002+ have run, rollback of V0001
+--   -- requires first rolling back V0002+ — see each migration's rollback
+--   -- block for the reverse-order procedure.
+-- =============================================================================
+
+-- TODO: implement schemas, roles, SchemaMigrations table.
+--       Do not apply this migration as-is — it is a placeholder.

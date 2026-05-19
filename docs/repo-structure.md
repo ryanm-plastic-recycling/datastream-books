@@ -28,10 +28,10 @@ datastream-books/
 │
 ├── .github/
 │   └── workflows/                         ← GitHub Actions for CI/CD
-│       ├── deploy-dev.yml                 ← Auto-deploy on feature branch push
-│       ├── deploy-build.yml               ← Deploy on PR merge to main
-│       ├── deploy-test.yml                ← Manual deploy to test env
-│       └── deploy-prod.yml                ← Manual deploy to prod with approval
+│       ├── deploy-dev.yml                 ← Auto-deploy on feature branch push (today)
+│       ├── deploy-build.yml               ← FUTURE: deploy on PR merge to main (added when PRI-Books-Build sandbox is provisioned)
+│       ├── deploy-test.yml                ← FUTURE: manual deploy to test env (added when PRI-Books-Test sandbox is provisioned, before finance UAT)
+│       └── deploy-prod.yml                ← FUTURE: manual deploy to prod with approval (added when first production-bound code merges)
 │
 ├── docs/
 │   ├── decisions/
@@ -197,10 +197,12 @@ For initial development with single PRI-Books environment: work in feature branc
 - Include rollback comments
 
 ### Solution Components
-- Solution name: `DatastreamBooks` (display) / `datastreambooks` (internal)
-- Publisher prefix: `dsb`
-- Tables: `dsb_<TableName>` (PascalCase after prefix)
-- Schema names lowercase: `dsb_journalentry`
+- Solution display name: `Datastream Books`
+- Solution unique name: `DatastreamBooks`
+- Publisher: `Ryan McCauley` (unique name `RyanMcCauley`) — shared with PRI-Datastream ERP
+- Publisher prefix: `rm`
+- Customization option-value prefix: `12619` (matches ERP)
+- Tables and columns: all lowercase after the prefix (`rm_journalentry`, `rm_entityid`)
 
 ---
 

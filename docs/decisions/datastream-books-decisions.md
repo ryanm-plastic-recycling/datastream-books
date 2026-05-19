@@ -17,7 +17,7 @@
 - **Tenant account:** ryanm@plastic-recycling.net
 - **GitHub repo:** `datastream-books`
 - **Finance System Owner:** Pam (controller-level accountant)
-- **Executive Sponsor:** CFO
+- **Executive Sponsor:** President
 
 ---
 
@@ -92,7 +92,7 @@ All four auth profiles confirmed active via `pac auth list`.
 | 29 | 2026-05-19 | PRI-Books-Dev sandbox deployed and authenticated | Dev environment ready |
 | 30 | 2026-05-19 | **Pam designated as Finance System OWNER (not consultant)** | **Mirrors Datastream ERP departmental owner pattern** |
 | 31 | 2026-05-19 | **ChangeRequest must support multi-image attachments** | **Concrete evidence beats verbal description** |
-| 32 | 2026-05-19 | **CFO is executive sponsor; rollout meeting with President, COO, CFO** | **Cascades ownership framing from top** |
+| 32 | 2026-05-19 | **President is executive sponsor; rollout meeting with President and COO** | **Cascades ownership framing from top** |
 
 ---
 
@@ -154,9 +154,9 @@ The historical pattern of "complain, then escalate" exists because the person fe
 Without ownership: "IT didn't listen to us" (victim framing, escalation incentive)
 With ownership: "I haven't worked through that workflow yet" (owner framing, problem-solving incentive)
 
-When Pam escalates to the CFO, the CFO must reinforce ownership: "Pam, you own this. What do you need from IT to make it work?" — not "IT, why isn't this working for Pam?"
+When Pam escalates to the President (Executive Sponsor), the President must reinforce ownership: "Pam, you own this. What do you need from IT to make it work?" — not "IT, why isn't this working for Pam?"
 
-This conversation must happen with the CFO during the rollout meeting.
+This conversation must happen with the President during the rollout meeting.
 
 ### Ownership Artifacts (Pam's Name On Them)
 
@@ -212,29 +212,29 @@ For each feature ready for finance review:
 6. Recommendation (Accept / Accept with conditions / Reject)
 7. Date and signature
 
-### Rollout Meeting: President, COO, CFO
+### Rollout Meeting: President and COO
 
-Before kickoff, IT + CFO meet with President and COO to:
+Before kickoff, IT meets with the President (Executive Sponsor) and COO to:
 
 1. Confirm Datastream Books project direction (per president memo)
 2. **Confirm Pam as Finance System Owner**, mirroring ERP ownership pattern
-3. Confirm CFO will introduce ownership role to Pam directly
+3. Confirm the President will introduce the ownership role to Pam directly
 4. Confirm leadership response to escalations: reinforce ownership, not rescue
 5. Review executive questionnaire and assignment of answers
 6. Confirm budget envelope and timeline expectations
 
-The CFO introducing ownership to Pam is critical — not IT. Endorsement from above lands differently than a tap from IT.
+The President introducing ownership to Pam is critical — not IT. Endorsement from above lands differently than a tap from IT.
 
 ### Failure Mode to Watch
 
-If Pam cannot or will not accept ownership — insisting on critic role rather than owner — this is a serious early signal. Surface to CFO at month 1, not month 6.
+If Pam cannot or will not accept ownership — insisting on critic role rather than owner — this is a serious early signal. Surface to the President (Executive Sponsor) at month 1, not month 6.
 
 ### Escalation Protocol
 
 If, after 2 months of disciplined engagement, the escalation pattern persists:
 
 1. Document specific instances (dates, what was bypassed, where it should have gone)
-2. Raise with CFO as a process risk, not a personality complaint
+2. Raise with the President (Executive Sponsor) as a process risk, not a personality complaint
 3. Project should not bear the cost of an unworkable dynamic
 4. Becomes an HR/management issue, not a project issue
 
@@ -500,8 +500,8 @@ Paginated reports for formal financial statements, dashboards, cross-entity anal
 
 ## Pre-Migration Projects (Parallel With Build)
 
-1. **CFO + IT + President/COO rollout meeting:** Confirm ownership framing, Pam as System Owner, escalation handling
-2. **CFO introduces ownership role to Pam directly** (not IT)
+1. **President + COO + IT rollout meeting:** Confirm ownership framing, Pam as System Owner, escalation handling
+2. **President (Executive Sponsor) introduces ownership role to Pam directly** (not IT)
 3. **COA Pre-Population:** IT proposes draft; Pam reviews and signs off
 4. **Vendor Master Strategy:** "Add as needed" — Pam reviews approach
 5. **Entity Documentation:** Pam coordinates with executive team
@@ -534,8 +534,8 @@ See `executive-questionnaire.md`.
 | Document AI accuracy insufficient for headcount story | Medium | Phase 2 only; pilot before committing |
 | Leahy ACH service unavailable post-Macola | High | NACHA file generation built in v1 |
 | Change management not actually used | Medium | Built into workflow such that changes can't happen without it |
-| **Pam refuses ownership role** | **High** | **CFO introduces role, reinforces in escalations. Surface at month 1 if Pam resists. Not a project issue if persistent — becomes HR.** |
-| **Leadership rescues Pam from ownership during escalations** | **High** | **CFO/President/COO rollout meeting sets escalation handling protocol upfront** |
+| **Pam refuses ownership role** | **High** | **President (Executive Sponsor) introduces role, reinforces in escalations. Surface at month 1 if Pam resists. Not a project issue if persistent — becomes HR.** |
+| **Leadership rescues Pam from ownership during escalations** | **High** | **President + COO rollout meeting sets escalation handling protocol upfront** |
 | Managed env constraints surprise developer | Mitigated | PRI-Books-Dev sandbox established as proper source |
 
 ---
@@ -603,7 +603,7 @@ Assumptions: 15 users, 5-year horizon, existing M365 base licensing.
 - **PRI-Books** — Dataverse production environment (managed)
 - **PRI-Books-Dev** — Dataverse dev sandbox (unmanaged)
 - **Pam** — Finance System Owner
-- **CFO** — Executive Sponsor
+- **President** — Executive Sponsor
 - **MVP** — General Ledger, AP, AR, basic reporting, multi-entity
 - **SoD** — Segregation of Duties
 - **CR** — Change Request
@@ -627,4 +627,5 @@ Assumptions: 15 users, 5-year horizon, existing M365 base licensing.
 | 2026-05-19 | Document AI strategy, Track1099, Graph API, NACHA in v1, multi-entity confirmed |
 | 2026-05-19 | PRI-Books env deployed and authenticated |
 | 2026-05-19 | PRI-Books-Dev sandbox added; finance SME engagement protocol established |
-| 2026-05-19 | **PRI-Books-Dev authenticated. Pam reframed from SME to System OWNER (mirrors ERP pattern). ChangeRequest design includes multi-image attachment support. Executive rollout meeting scheduled with President, COO, CFO. CFO confirmed as executive sponsor. Strategy phase complete.** |
+| 2026-05-19 | **PRI-Books-Dev authenticated. Pam reframed from SME to System OWNER (mirrors ERP pattern). ChangeRequest design includes multi-image attachment support. Executive rollout meeting scheduled with President and COO. President confirmed as executive sponsor. Strategy phase complete.** |
+| 2026-05-19 | **Phase 1 begun. Repo skeleton built (.gitkeep placeholders for all empty folders per repo-structure.md). Dataverse solution initialized with `Ryan McCauley` / `rm` publisher (verified against PRI-Datastream ERP via solution export from pri-dev; option-value prefix `12619` matched to ERP for cross-solution consistency). Plugin projects scaffolded (`DatastreamBooks.Plugins` net462 + `DatastreamBooks.Plugins.Tests` net48 with xUnit + FluentAssertions + FakeXrmEasy). First SQL migrations drafted: V0001 (initial schema placeholder), V0002 (`ledger.GeneralLedgerEntries` with DENY UPDATE/DELETE, hash-chain columns, indexes, and full rollback notes). First GitHub Actions workflow `deploy-dev.yml` stubbed with required secrets documented. Foundational PowerShell scripts created: setup-dev, auth-env, pull-solution, push-solution, run-sql-migration. Architecture docs authored: data-model, security-model, immutability-design. Controls docs authored: sod-matrix, approval-policies, audit-controls. All remaining CFO references in this decision log corrected to President (Executive Sponsor) following the recent sponsor change. New principle added to AGENTS.md: "Verification is mandatory, not optional" (codified after the publisher prefix had to be reverted from a guessed value to the verified ERP-matching value).** |

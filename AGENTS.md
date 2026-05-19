@@ -82,10 +82,14 @@ pac auth select --name pri-books-dev
 
 ## Solution Conventions
 
-- **Solution name:** `DatastreamBooks` (display) / `datastreambooks` (internal)
-- **Publisher prefix:** `dsb`
-- **Table prefix:** `dsb_` (e.g., `dsb_journalentry`)
-- **Schema names:** lowercase after prefix (`dsb_journalentry`, not `dsb_JournalEntry`)
+- **Solution display name:** `Datastream Books`
+- **Solution unique name:** `DatastreamBooks`
+- **Publisher display name:** `Ryan McCauley`
+- **Publisher unique name:** `RyanMcCauley` (shared with the PRI-Datastream ERP solution for cross-solution table reference compatibility)
+- **Publisher prefix:** `rm`
+- **Customization option-value prefix:** `12619` (matches PRI-Datastream so option-set values are consistent across both solutions)
+- **Table prefix:** `rm_` (e.g., `rm_journalentry`)
+- **Schema names:** all lowercase after the prefix — `rm_journalentry`, **not** `rm_JournalEntry`. Dataverse stores logical/schema names lowercase regardless, so author them lowercase to avoid drift between source and runtime.
 - **Always unpack solutions** before committing: `pac solution unpack`
 - **Never commit packed solution zips** — only unpacked XML/YAML
 
@@ -194,8 +198,8 @@ npm run build
 
 | Item | Convention | Example |
 |---|---|---|
-| Dataverse table | `dsb_<entity>` | `dsb_journalentry` |
-| Dataverse column | `dsb_<columnname>` | `dsb_entityid` |
+| Dataverse table | `rm_<entity>` (all lowercase) | `rm_journalentry` |
+| Dataverse column | `rm_<columnname>` (all lowercase) | `rm_entityid` |
 | C# plugin class | `<Action><Entity>Plugin` | `PostJournalEntryPlugin` |
 | SQL table | PascalCase | `GeneralLedgerEntries` |
 | SQL column | PascalCase | `EntityId`, `RowHash` |
@@ -241,6 +245,7 @@ All production-affecting changes go through the in-app `ChangeRequest` workflow 
 4. **Server-side over client-side.** Plugins over Power Automate.
 5. **Immutability through architecture.** Not through promises.
 6. **Documentation in the repo.** Not in chat, not in email, not in heads.
+7. **Verification is mandatory, not optional.** When a prompt or runbook asks you to verify a value — publisher, prefix, environment name, credential, schema — run the verification before proceeding. Do not substitute a value from `AGENTS.md`, training data, or a prior prompt for an actual lookup. Documented values can be stale; live environments are the source of truth. If verification surfaces a discrepancy, **stop and surface it** rather than silently picking one. The cost of an extra `pac` (or equivalent) command is seconds; the cost of an incorrect configuration baked into a solution is hours of cleanup. This principle was added after a real incident on this project where assumed publisher values (`dsb` prefix) had to be reverted to the correct ERP-matching values (`rm` prefix) after a solution rebuild.
 
 ## File Maintenance
 

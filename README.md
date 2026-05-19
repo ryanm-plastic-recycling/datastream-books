@@ -125,8 +125,9 @@ Deployments go through GitHub Actions. Do not deploy manually to `pri-books`.
 
 ## Project Status
 
-**Phase:** Pre-build (Strategy phase complete)
-**Current focus:** Pre-build executive alignment, finance owner onboarding, design sprint kickoff
+**Phase:** Phase 1 — Design sprint + repo setup (in progress)
+**Current focus:** Repo skeleton built; Dataverse solution initialized (`Ryan McCauley` publisher, `rm` prefix — shared with PRI-Datastream ERP); plugin project scaffolded; initial Azure SQL ledger migration (V0002) and immutability architecture drafted; first deploy-to-dev workflow stubbed; foundational PowerShell scripts in place; architecture and controls docs authored.
+**Strategy phase:** Complete (executive memo signed off, environments stood up, Pam confirmed as Finance System Owner).
 **Target cutover:** Fiscal year-end (date TBD per executive questionnaire)
 **Estimated total timeline:** 10–14 months
 

@@ -1,0 +1,95 @@
+# Datastream Books — Security Model
+
+> Placeholder structure. Role definitions are listed; SoD details and field-
+> level security designs land here as they are designed. Cross-reference:
+> [`../controls/sod-matrix.md`](../controls/sod-matrix.md).
+
+## Authentication
+
+- Microsoft Entra ID (decision log §5, §28)
+- No local accounts in Dataverse
+- pac CLI authenticates via interactive browser flow for humans; via app
+  registration (federated identity preferred) for GitHub Actions
+
+## Authorization Model
+
+Dataverse security roles are defined in `solution/src/Roles/` (created as we
+build each feature). Roles are additive: a user may hold multiple. SoD
+enforcement is in plugin code (`CreatedBy != ApprovedBy`, etc.) — role
+membership alone is not enough to bypass it.
+
+### Role List (v1)
+
+From decision log §E — Segregation of Duties:
+
+| Role | Can | Cannot |
+|---|---|---|
+| **JE Entry** | Create and edit JE drafts; submit for approval | Approve, Post, Void |
+| **JE Approve** | Approve JEs created by others (SoD: `CreatedBy != ApprovedBy`) | Create or post JEs they approved |
+| **JE Post** | Post approved JEs (SoD: `ApprovedBy != PostedBy`) | Create, approve, void |
+| **JE Void** | Void a posted JE (creates a reversing entry; never deletes) | Edit posted entries |
+| **Period Close** | Close an open period (writes attestation hash) | Reopen periods |
+| **Period Reopen** | Reopen a closed (not locked) period (elevated; logs audit event) | Close periods (held in JE Approve / Controller role) |
+| **Vendor Setup** | Create new vendor records (SoD with bank-info change) | Edit vendor banking info |
+| **Vendor Bank Change** | Edit vendor banking info (SoD with vendor setup; dual-approval per ApprovalPolicy) | Create vendors |
+| **Wire Initiate** | Initiate a wire transfer JE | Approve their own wires |
+| **Wire Approve** | Approve a wire transfer JE (SoD: `InitiatedBy != ApprovedBy`) | Initiate wires they approve |
+
+A separate **Controller** role inherits across `JE Approve`, `Period Close`,
+`Period Reopen`, and the right to approve high-threshold approvals per
+[`../controls/approval-policies.md`](../controls/approval-policies.md). The
+person holding Controller is the same person in real-world terms (Pam, today),
+but the *role* exists independently so the same SoD rules apply if Controller
+duties are delegated.
+
+### Where SoD Lives (System-Enforced, Not Honor System)
+
+| Rule | Enforced by | Bypass surface |
+|---|---|---|
+| `CreatedBy != ApprovedBy` for JEs above the approval threshold | `ApproveJournalEntryPlugin` (Dataverse) | None — plugin rejects the approve action |
+| `ApprovedBy != PostedBy` for posted JEs | `PostJournalEntryPlugin` (Dataverse) | None — same |
+| `VendorBankChange` dual approval | `ApproveVendorBankChangePlugin` | None — same |
+| `Wire Initiate != Wire Approve` | `ApproveWirePlugin` | None — same |
+| `RequestedBy != ApprovedBy != AssignedTo` for ChangeRequests | `ChangeRequestApprovalPlugin` | None — same |
+
+If a single user holds both roles (e.g., a small team), the plugin still
+fires the SoD check by comparing user GUIDs at the moment of action. The
+right answer in that case is **add a second human**, not bypass the rule —
+documented in the SoD matrix.
+
+## Field-Level Security
+
+To be designed. Initial candidates:
+
+| Field | Restriction |
+|---|---|
+| `rm_entity.rm_ein` | Encrypted at rest; visible only to Controller and SystemAdmin |
+| Vendor banking info | Visible only to `Vendor Bank Change` role (TBD design) |
+| Posted ledger amounts in restricted accounts (e.g., payroll suspense, M&A) | TBD — driven by approval policy |
+
+## Privileged Identity Management
+
+- No standing admin access to PRI-Books (production). Admin actions go via
+  the deployment pipeline OR a time-bound elevation request through Entra PIM
+  (TBD — PIM workflow design).
+- `rl_admin` (Azure SQL) is held by named individuals only; assignments are
+  reviewed quarterly. See [`../runbooks/change-management.md`](../runbooks/change-management.md)
+  (to be authored).
+
+## What This Document Will Cover When Complete
+
+- Detailed role-by-permission matrix for every Dataverse table in the v1 scope
+- Field-level security profiles per role
+- Privilege escalation paths and the approvals required for each
+- Entra group → Dataverse role mappings
+- Service-principal inventory (GitHub Actions, plugin sandbox, SQL migration runner)
+- Quarterly access-review process owner and cadence
+
+## See Also
+
+- [`data-model.md`](data-model.md)
+- [`immutability-design.md`](immutability-design.md)
+- [`../controls/sod-matrix.md`](../controls/sod-matrix.md)
+- [`../controls/approval-policies.md`](../controls/approval-policies.md)
+- [`../controls/audit-controls.md`](../controls/audit-controls.md)
+- Decision log §E (SoD), §H (Dev/Prod separation), §J (Change Management)

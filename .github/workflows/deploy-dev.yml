@@ -1,0 +1,178 @@
+# =============================================================================
+# Datastream Books — Deploy to PRI-Books-Dev
+# =============================================================================
+# Trigger:
+#   - Push to any feature/* branch  (auto-deploy from active development)
+#   - Manual via workflow_dispatch   (re-run a specific commit on demand)
+#
+# What it does (TODO — pipeline body is a stub until secrets and Power Platform
+# Build Tools setup is finalized):
+#
+#   1. Checkout the repo
+#   2. Set up .NET SDK 8 (host build), pac CLI, Node LTS
+#   3. Build the plugin assembly (DatastreamBooks.Plugins) and run its tests
+#   4. Pack the unpacked solution under solution/src into a managed zip
+#   5. Authenticate pac to PRI-Books-Dev using federated credentials
+#   6. Import the solution to PRI-Books-Dev (publishing customizations)
+#   7. Register the freshly built plugin assembly in Dataverse
+#   8. (Future, once Azure SQL DB exists) apply pending SQL migrations
+#
+# Required GitHub Secrets (configure in repo settings → Secrets and variables):
+#
+#   POWER_PLATFORM_TENANT_ID         Azure AD tenant id (GUID)
+#   POWER_PLATFORM_APPLICATION_ID    App registration client id used for
+#                                    federated/service-principal auth to
+#                                    Dataverse. Must have System Customizer
+#                                    or higher in PRI-Books-Dev.
+#   POWER_PLATFORM_CLIENT_SECRET     Client secret for the above app reg.
+#                                    PREFER federated credentials (OIDC) over
+#                                    a long-lived secret — see Required GitHub
+#                                    Variables below.
+#   POWER_PLATFORM_ENVIRONMENT_URL   https://booksdev.crm.dynamics.com/
+#
+#   AZURE_SQL_SERVER                 (future) <name>.database.windows.net
+#   AZURE_SQL_DATABASE               (future) DatastreamBooksDev
+#   AZURE_SQL_MIGRATION_PRINCIPAL    (future) AAD object id of the migration
+#                                    runner SP (must hold db_ddladmin)
+#
+# Required GitHub Variables (non-secret config):
+#
+#   POWER_PLATFORM_SOLUTION_NAME     DatastreamBooks
+#   USE_OIDC                         "true" once federated identity is wired
+#                                    up between this repo and the Azure AD
+#                                    app reg (see docs/runbooks/cicd-auth.md
+#                                    — to be authored).
+#
+# Security stance:
+#   - Never echo secrets to logs (use ::add-mask:: if a secret must transit a
+#     bash variable)
+#   - Pin all third-party actions to a commit SHA before going to main
+#   - PRI-Books (production) is NEVER deployed from this workflow — see
+#     deploy-prod.yml (to be authored when first production-bound code merges)
+# =============================================================================
+
+name: Deploy to PRI-Books-Dev
+
+on:
+  push:
+    branches:
+      - 'feature/**'
+      - 'claude/**'
+  workflow_dispatch:
+    inputs:
+      commit_sha:
+        description: 'Commit SHA to deploy (defaults to HEAD of triggering branch)'
+        required: false
+        default: ''
+
+concurrency:
+  # Serialize deploys to dev — solution imports are not safe to run concurrently
+  group: deploy-dev
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write  # required if/when we switch to OIDC federated auth
+
+jobs:
+  build-and-deploy:
+    name: Build, test, and deploy to PRI-Books-Dev
+    runs-on: windows-latest
+
+    env:
+      DOTNET_NOLOGO: 'true'
+      DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+      SOLUTION_NAME: ${{ vars.POWER_PLATFORM_SOLUTION_NAME || 'DatastreamBooks' }}
+      ENVIRONMENT_URL: ${{ secrets.POWER_PLATFORM_ENVIRONMENT_URL }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.commit_sha || github.sha }}
+
+      - name: Set up .NET SDK 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Set up Node.js LTS
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Power Platform CLI
+        run: dotnet tool install --global Microsoft.PowerApps.CLI.Tool
+        shell: pwsh
+
+      # -----------------------------------------------------------------
+      # Build + test plugin assembly
+      # -----------------------------------------------------------------
+      - name: Restore plugin solution
+        run: dotnet restore plugins/DatastreamBooks.Plugins/DatastreamBooks.Plugins.csproj
+        shell: pwsh
+
+      - name: Build plugin assembly
+        run: dotnet build plugins/DatastreamBooks.Plugins/DatastreamBooks.Plugins.csproj -c Release --no-restore
+        shell: pwsh
+
+      - name: Restore plugin tests
+        run: dotnet restore plugins/DatastreamBooks.Plugins.Tests/DatastreamBooks.Plugins.Tests.csproj
+        shell: pwsh
+
+      - name: Run plugin unit tests
+        run: dotnet test plugins/DatastreamBooks.Plugins.Tests/DatastreamBooks.Plugins.Tests.csproj -c Release --no-build --logger "trx;LogFileName=plugin-tests.trx"
+        shell: pwsh
+        continue-on-error: false  # tests must pass; fail the deploy if they don't
+
+      # -----------------------------------------------------------------
+      # Pack and import Dataverse solution
+      # -----------------------------------------------------------------
+      - name: Pack solution (managed)
+        # TODO: refine zip output path; pac solution pack should target
+        #       a workflow-temp folder, not commit anything back.
+        run: |
+          pac solution pack `
+            --folder solution/src `
+            --zipfile "$env:RUNNER_TEMP/$env:SOLUTION_NAME.zip" `
+            --packagetype Managed
+        shell: pwsh
+
+      - name: Authenticate pac to PRI-Books-Dev
+        # TODO: switch this to OIDC federated identity (USE_OIDC=true) once
+        #       the federated credential is set up on the app reg. Until then,
+        #       client-secret auth is the fallback.
+        run: |
+          pac auth create `
+            --name github-actions-dev `
+            --url "$env:ENVIRONMENT_URL" `
+            --tenant "${{ secrets.POWER_PLATFORM_TENANT_ID }}" `
+            --applicationId "${{ secrets.POWER_PLATFORM_APPLICATION_ID }}" `
+            --clientSecret "${{ secrets.POWER_PLATFORM_CLIENT_SECRET }}"
+        shell: pwsh
+
+      - name: Import solution to PRI-Books-Dev
+        run: |
+          pac solution import `
+            --path "$env:RUNNER_TEMP/$env:SOLUTION_NAME.zip" `
+            --force-overwrite `
+            --publish-changes `
+            --activate-plugins
+        shell: pwsh
+
+      # -----------------------------------------------------------------
+      # Future steps (placeholders — uncomment when prerequisites exist)
+      # -----------------------------------------------------------------
+      # - name: Apply pending Azure SQL migrations
+      #   run: pwsh ./scripts/run-sql-migration.ps1 -Environment dev
+      #   env:
+      #     AZURE_SQL_SERVER:   ${{ secrets.AZURE_SQL_SERVER }}
+      #     AZURE_SQL_DATABASE: ${{ secrets.AZURE_SQL_DATABASE }}
+
+      - name: Upload plugin test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: plugin-test-results
+          path: '**/TestResults/*.trx'
+          if-no-files-found: warn

@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>DatastreamBooks.Plugins.Tests</RootNamespace>
+    <AssemblyName>DatastreamBooks.Plugins.Tests</AssemblyName>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <Authors>Ryan McCauley</Authors>
+    <Company>Ryan McCauley</Company>
+    <Product>Datastream Books</Product>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Test runner -->
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Include="xunit" Version="2.6.6" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.6" />
+
+    <!-- Dataverse SDK (matched to plugin project) -->
+    <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies" Version="9.0.2.*" />
+
+    <!-- Plugin unit testing framework. FakeXrmEasy v2 is the last MIT-licensed version
+         compatible with net48 / Dataverse 9.x. The v3+ versions are commercial. -->
+    <PackageReference Include="FakeXrmEasy" Version="1.59.1" />
+
+    <!-- Assertions -->
+    <PackageReference Include="FluentAssertions" Version="6.12.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DatastreamBooks.Plugins\DatastreamBooks.Plugins.csproj" />
+  </ItemGroup>
+
+</Project>
