@@ -106,6 +106,10 @@ jobs:
         run: dotnet restore plugins/DatastreamBooks.Plugins.Tests/DatastreamBooks.Plugins.Tests.csproj
         shell: pwsh
 
+      - name: Build plugin tests
+        run: dotnet build plugins/DatastreamBooks.Plugins.Tests/DatastreamBooks.Plugins.Tests.csproj -c Release --no-restore
+        shell: pwsh
+
       - name: Run plugin unit tests
         run: dotnet test plugins/DatastreamBooks.Plugins.Tests/DatastreamBooks.Plugins.Tests.csproj -c Release --no-build --logger "trx;LogFileName=plugin-tests.trx"
         shell: pwsh
