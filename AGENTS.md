@@ -105,6 +105,40 @@ pac auth select --name pri-books-dev
 - **Always unpack solutions** before committing: `pac solution unpack`
 - **Never commit packed solution zips** — only unpacked XML/YAML
 
+## Reference Data
+
+The repo holds two kinds of reference material under `docs/reference/`:
+
+1. **Books reference data** — chart-of-accounts seed CSVs, fiscal-calendar
+   seeds, and other inputs the build will use to populate Datastream Books.
+   These get loaded into Books and become part of the system.
+
+2. **ERP metadata reference** — a *read-only* snapshot of the
+   PRI-Datastream (ERP) solution's table, column, and relationship metadata,
+   under [`docs/reference/erp-metadata/`](docs/reference/erp-metadata/).
+   This describes the ERP solution, **not** Datastream Books. It is here
+   because Books shares the `rm` publisher with ERP and we want to follow
+   the naming and shape patterns the operations team is already using.
+
+### Rules for `docs/reference/erp-metadata/`
+
+- ⛔ **These files are NOT the Books schema.** Do not implement these tables
+  in Books. Do not copy column definitions into `solution/src/`.
+- ⛔ Do not run any `pac`, SQL, or Power Platform command that mutates ERP
+  based on these files. They are a point-in-time snapshot.
+- ✅ Read freely when designing Books tables — match patterns where it
+  makes sense (master-data column shape, naming, etc.).
+- ✅ Refresh as-needed (not scheduled). Add a dated row to the file inventory
+  in `docs/reference/erp-metadata/README.md` on every refresh — don't
+  silently overwrite.
+- ✅ For the patterns extracted from these files, see
+  [`docs/architecture/erp-pattern-notes.md`](docs/architecture/erp-pattern-notes.md).
+
+If a Books table needs to *reference* an ERP table (e.g., AR pointing at
+`rm_customer`), that's a Dataverse lookup across solutions — design it as
+a read-only relationship and document the ownership boundary in the
+table's data-model entry.
+
 ## Code Conventions
 
 ### C# Plugins
