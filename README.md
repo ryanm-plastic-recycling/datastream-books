@@ -10,7 +10,7 @@
 - **Strategic context:** Advances The Lighthouse IT modernization strategy
 - **Companion system:** Datastream ERP (operations)
 - **Finance System Owner:** Pam
-- **Executive Sponsor:** CFO
+- **Executive Sponsor:** President
 - **Technical Lead:** ryanm@plastic-recycling.net
 
 ## Why This Exists
