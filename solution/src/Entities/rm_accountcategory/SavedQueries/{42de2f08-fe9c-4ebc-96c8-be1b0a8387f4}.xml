@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<savedqueries xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <savedquery>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>0</CanBeDeleted>
+    <isquickfindquery>1</isquickfindquery>
+    <isprivate>0</isprivate>
+    <isdefault>1</isdefault>
+    <savedqueryid>{42de2f08-fe9c-4ebc-96c8-be1b0a8387f4}</savedqueryid>
+    <layoutxml>
+      <grid name="resultset" jump="rm_accountcategoryname" select="1" icon="1" preview="1">
+        <row name="result" id="rm_accountcategoryid">
+          <cell name="rm_accountcategoryname" width="300" />
+          <cell name="createdon" width="125" />
+        </row>
+      </grid>
+    </layoutxml>
+    <querytype>4</querytype>
+    <fetchxml>
+      <fetch version="1.0" mapping="logical">
+        <entity name="rm_accountcategory">
+          <attribute name="rm_accountcategoryid" />
+          <attribute name="rm_accountcategoryname" />
+          <attribute name="createdon" />
+          <order attribute="rm_accountcategoryname" descending="false" />
+          <filter type="and">
+            <condition attribute="statecode" operator="eq" value="0" />
+          </filter>
+          <filter type="or" isquickfindfields="1">
+            <condition attribute="rm_accountcategoryname" operator="like" value="{0}" />
+          </filter>
+        </entity>
+      </fetch>
+    </fetchxml>
+    <IntroducedVersion>1.0</IntroducedVersion>
+    <LocalizedNames>
+      <LocalizedName description="Quick Find Active Account Categories" languagecode="1033" />
+    </LocalizedNames>
+  </savedquery>
+</savedqueries>
