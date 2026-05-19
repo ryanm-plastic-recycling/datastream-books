@@ -12,6 +12,8 @@ Before any code change, read in order:
 3. `docs/repo-structure.md` — repo layout reference
 4. This file (`AGENTS.md`) — operating instructions
 
+**Before working with reference data:** If you find yourself reading or referring to anything under `docs/reference/`, read that folder's own `README.md` first. Reference data describes other systems, not Datastream Books, and must not be confused with Books schema.
+
 If a decision in this file conflicts with `docs/decisions/datastream-books-decisions.md`, the decisions document wins. Update this file to match.
 
 ## Project Context (One-Paragraph Summary)
