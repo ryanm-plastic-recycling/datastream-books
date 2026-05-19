@@ -1,38 +1,28 @@
-<?xml version="1.0" encoding="utf-8"?>
-<ImportExportXml version="9.1.0.643" SolutionPackageVersion="9.1" languagecode="1033" generatedBy="CrmLive" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ImportExportXml version="9.2.26024.146" SolutionPackageVersion="9.2" languagecode="1033" generatedBy="CrmLive" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" OrganizationVersion="9.2.26024.146" OrganizationSchemaType="Full" CRMServerServiceabilityVersion="9.2.26052.00130">
   <SolutionManifest>
-    <!-- Unique Name of Cds Solution-->
     <UniqueName>DatastreamBooks</UniqueName>
     <LocalizedNames>
-      <!-- Localized Solution Name in language code -->
       <LocalizedName description="Datastream Books" languagecode="1033" />
     </LocalizedNames>
     <Descriptions>
       <Description description="Internal finance and accounting application replacing Macola. Multi-entity GL, AP, AR, immutable hash-chained ledger. Sister solution to PRI-Datastream (ERP), sharing the RyanMcCauley publisher." languagecode="1033" />
     </Descriptions>
     <Version>1.0</Version>
-    <!-- Solution Package Type: Unmanaged(0)/Managed(1)/Both(2)-->
-    <Managed>2</Managed>
+    <Managed>0</Managed>
     <Publisher>
-      <!-- Unique Publisher Name of Cds Solution -->
       <UniqueName>RyanMcCauley</UniqueName>
       <LocalizedNames>
-        <!-- Localized Cds Publisher Name in language code-->
         <LocalizedName description="Ryan McCauley" languagecode="1033" />
       </LocalizedNames>
       <Descriptions>
-        <!-- Description of Cds Publisher in language code -->
         <Description description="Ryan McCauley - publisher shared with PRI-Datastream (ERP). Customization prefix 'rm' is intentional for cross-solution table compatibility." languagecode="1033" />
       </Descriptions>
       <EMailAddress xsi:nil="true"></EMailAddress>
       <SupportingWebsiteUrl xsi:nil="true"></SupportingWebsiteUrl>
-      <!-- Customization Prefix for the Cds Publisher-->
       <CustomizationPrefix>rm</CustomizationPrefix>
-      <!-- Derived Option Value Prefix for the Customization Prefix of Cds Publisher -->
-      <!-- Matched to PRI-Datastream (ERP) publisher's existing prefix (12619) to keep option-set values consistent across both solutions sharing the RyanMcCauley publisher. -->
       <CustomizationOptionValuePrefix>12619</CustomizationOptionValuePrefix>
       <Addresses>
-        <!-- Address of the Publisher-->
         <Address>
           <AddressNumber>1</AddressNumber>
           <AddressTypeCode>1</AddressTypeCode>
@@ -91,7 +81,19 @@
         </Address>
       </Addresses>
     </Publisher>
-    <RootComponents />
-    <MissingDependencies />
+    <RootComponents>
+      <RootComponent type="1" schemaName="rm_accountcategory" behavior="0" />
+      <RootComponent type="1" schemaName="rm_accounttype" behavior="0" />
+      <RootComponent type="1" schemaName="rm_entity" behavior="0" />
+      <RootComponent type="1" schemaName="rm_fiscalperiod" behavior="0" />
+      <RootComponent type="1" schemaName="rm_fiscalyear" behavior="0" />
+      <RootComponent type="1" schemaName="systemuser" behavior="1" />
+    </RootComponents>
+    <MissingDependencies>
+      <MissingDependency>
+        <Required type="1" schemaName="systemuser" displayName="SystemUser" parentSchemaName="" solution="msdyn_OmnichannelBotEnablerPatch (1.5.27.8)" />
+        <Dependent type="1" schemaName="systemuser" displayName="SystemUser" />
+      </MissingDependency>
+    </MissingDependencies>
   </SolutionManifest>
 </ImportExportXml>
