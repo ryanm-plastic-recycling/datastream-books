@@ -146,7 +146,7 @@ All changes that affect finance behavior require Pam's signoff via the in-app Ch
 
 - **Finance System Owner:** Pam
 - **Technical Lead:** ryanm@plastic-recycling.net
-- **Executive Sponsor:** CFO
+- **Executive Sponsor:** President
 
 For issues, use the in-app Change Request system once deployed. Until then, contact the Technical Lead.
 
