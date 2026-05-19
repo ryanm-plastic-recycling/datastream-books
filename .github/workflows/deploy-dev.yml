@@ -121,15 +121,20 @@ jobs:
       - name: Azure login (federated / OIDC)
         uses: azure/login@v2
         with:
-          client-id:       ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id:       ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          # The datastream-books-cicd SP has Dataverse permissions only
-          # (System Administrator on PRI-Books-Dev) and no Azure RBAC role
-          # on the subscription. azure/login otherwise fails with
-          # "No subscriptions found". When this workflow eventually needs
-          # Azure RBAC (e.g., to read Key Vault for SQL passwords), grant
-          # the SP a least-privilege role and drop this flag.
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          # subscription-id is intentionally omitted. The datastream-books-cicd
+          # SP has Dataverse permissions only (System Administrator on
+          # PRI-Books-Dev via pac admin assign-user) and no Azure RBAC role
+          # on the subscription. Passing subscription-id triggers
+          # az account set, which requires RBAC; the SP can't see the
+          # subscription and login fails. allow-no-subscriptions tells the
+          # action to skip the set-subscription step entirely.
+          #
+          # When this workflow eventually needs Azure RBAC (e.g., to read
+          # Key Vault for SQL passwords), grant the SP a least-privilege
+          # role (e.g., Key Vault Secrets User on kv-datastream-books),
+          # restore subscription-id here, and drop allow-no-subscriptions.
           allow-no-subscriptions: true
 
       # -----------------------------------------------------------------
