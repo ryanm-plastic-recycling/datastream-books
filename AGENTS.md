@@ -247,6 +247,16 @@ All production-affecting changes go through the in-app `ChangeRequest` workflow 
 6. **Documentation in the repo.** Not in chat, not in email, not in heads.
 7. **Verification is mandatory, not optional.** When a prompt or runbook asks you to verify a value — publisher, prefix, environment name, credential, schema — run the verification before proceeding. Do not substitute a value from `AGENTS.md`, training data, or a prior prompt for an actual lookup. Documented values can be stale; live environments are the source of truth. If verification surfaces a discrepancy, **stop and surface it** rather than silently picking one. The cost of an extra `pac` (or equivalent) command is seconds; the cost of an incorrect configuration baked into a solution is hours of cleanup. This principle was added after a real incident on this project where assumed publisher values (`dsb` prefix) had to be reverted to the correct ERP-matching values (`rm` prefix) after a solution rebuild.
 
+## Branching Policy
+
+This is a solo-developer project. Do not create branches.
+Work directly on main.
+Do not use git worktrees.
+Commit and push to main.
+
+If you have meaningful changes to commit, commit them in logical chunks to main directly.
+Multiple commits in a single session are fine; branches are not.
+
 ## File Maintenance
 
 Update this file when:
