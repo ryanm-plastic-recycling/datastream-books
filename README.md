@@ -125,11 +125,13 @@ Deployments go through GitHub Actions. Do not deploy manually to `pri-books`.
 
 ## Project Status
 
-**Phase:** Phase 1 — Design sprint + repo setup (in progress)
-**Current focus:** Repo skeleton built; Dataverse solution initialized (`Ryan McCauley` publisher, `rm` prefix — shared with PRI-Datastream ERP); plugin project scaffolded; initial Azure SQL ledger migration (V0002) and immutability architecture drafted; first deploy-to-dev workflow stubbed; foundational PowerShell scripts in place; architecture and controls docs authored.
+**Phase:** Phase 1 — Design sprint + repo setup — **complete**
+**Phase 2 (next):** Azure SQL Dev DB provisioning + first real Dataverse tables (`rm_entity`, `rm_fiscalperiod`, possibly `rm_chartofaccount`), informed by the ERP patterns documented at [`docs/architecture/erp-pattern-notes.md`](docs/architecture/erp-pattern-notes.md).
+**Phase 1 deliverables:** Repo skeleton; Dataverse solution initialized with verified `Ryan McCauley` / `rm` publisher (shared with PRI-Datastream ERP); plugin + test project scaffolding; V0001/V0002 SQL migration drafts (including the append-only hash-chained ledger); GitHub Actions deploy-dev workflow stub; PowerShell scripts (setup-dev, auth-env, pull-solution, push-solution, run-sql-migration); architecture and controls docs (data-model, security-model, immutability-design, sod-matrix, approval-policies, audit-controls); ERP metadata reference snapshot at [`docs/reference/erp-metadata/`](docs/reference/erp-metadata/).
 **Strategy phase:** Complete (executive memo signed off, environments stood up, Pam confirmed as Finance System Owner).
 **Target cutover:** Fiscal year-end (date TBD per executive questionnaire)
 **Estimated total timeline:** 10–14 months
+**Session log:** [`docs/session-logs/2026-05-19-phase-1-foundation.md`](docs/session-logs/2026-05-19-phase-1-foundation.md)
 
 ## Contributing
 
