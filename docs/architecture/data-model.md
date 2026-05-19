@@ -51,25 +51,29 @@ Legal-entity master. One row per legal entity (operating company, real-estate
 holding, etc.). See executive questionnaire §1 — exact list pending Pam +
 executive input.
 
+As built in Phase 3 (2026-05-19):
+
 | Column | Type | Notes |
 |---|---|---|
 | `rm_entityid` | Unique Identifier (PK) | Used by every transactional table |
-| `rm_name` | Single Line of Text | Display name |
-| `rm_legalname` | Single Line of Text | Legal name as registered |
-| `rm_ein` | Single Line of Text (encrypted) | Federal EIN — encrypted at rest |
-| `rm_entitytype` | Choice | Operating / RealEstate / Holding / Other |
-| `rm_stateofregistration` | Choice | US state |
-| `rm_fiscalyearendmonth` | Whole Number | 1–12 |
-| `rm_basecurrency` | Single Line of Text | ISO 4217; v1 = 'USD' |
-| `rm_status` | Choice | Active / Inactive |
-| `rm_isconsolidationtarget` | Yes/No | Eligible for the consolidation tool |
+| `rm_entityname` | Single Line of Text (200) | Primary display name (ApplicationRequired) |
+| `rm_entitycode` | Single Line of Text (20) | Short stable code for documents/reports (ApplicationRequired) |
+| `rm_entityshort` | Single Line of Text (30) | Abbreviated label for compact UI |
+| `rm_entitydesc` | Multiple Lines of Text (1000) | Long description |
+| `rm_ein` | Single Line of Text (20) | Federal EIN — field-level security applied via role definitions (see security-model.md). Not column-encrypted in Phase 3 build; revisit before adding any real entity data. |
+| `rm_entitytype` | Choice | Operating / Real Estate / Holding / Other (ApplicationRequired) |
+| `rm_entitytypename` | Virtual | Auto-generated label companion |
+| `rm_stateregistration` | Single Line of Text (2) | Two-letter US state code |
+| `rm_fiscalyearendmonth` | Whole Number (1–12) | Pairs with `rm_fiscalyearendday` to express month-day |
+| `rm_fiscalyearendday` | Whole Number (1–31) | Pairs with `rm_fiscalyearendmonth` |
+| `rm_isactive` | Yes/No (default Yes) | Separates active legal entities from historical ones |
+| `rm_isactivename` | Virtual | Auto-generated label companion |
+
+**Out of Phase 3 scope (deferred):** `rm_basecurrency`, `rm_isconsolidationtarget`, `rm_legalname` — these were on the original v1 wish list but were not part of the Phase 3 build. v1 is USD-only per the decision log so `rm_basecurrency` can wait; the others are nice-to-haves.
 
 **Rationale:**
-- `rm_ein` is encrypted because EINs are sensitive identifiers under our
-  insurance and audit posture. Display-level masking is also enforced by
-  field-level security in the role definitions.
-- Fiscal year end is stored as a *month* (1–12) so we can compute period
-  boundaries without storing a parallel calendar.
+- **EIN storage.** `rm_ein` is a plain Single Line of Text in the Phase 3 build, not a column-encrypted attribute. Dataverse column encryption requires Premium tier and an explicit enablement step we have not yet done. Until that's set up, no real EIN values should be entered. Field-level security via the security role definitions provides read-restriction at the principal level.
+- **Fiscal year end as month + day, not as a date.** Dataverse has no month-day-only column type. The only date types (DateOnly / DateTime) carry a calendar year. A sentinel-year approach (e.g., always store as 2024-12-31) requires every consumer to know the convention and ignore the year — easy to forget, and year-bound comparisons go subtly wrong. Two integers are unambiguous. Combination validation (e.g., 2-30 is invalid; 2-29 only valid in leap years) is enforced by a plugin in Phase 4, not by the column itself.
 
 **Relationships:**
 - `rm_entity` 1—* `rm_fiscalperiod`
