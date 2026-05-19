@@ -116,7 +116,8 @@ Deployments go through GitHub Actions. Do not deploy manually to `pri-books`.
 
 | Document | Purpose |
 |---|---|
-| `docs/decisions/datastream-books-decisions.md` | Living project decision log — read this first |
+| `docs/roadmap.md` | Current phase, completed phases, future phases — read this first for state |
+| `docs/decisions/datastream-books-decisions.md` | Living project decision log |
 | `docs/memos/president-memo.md` | Executive decision memo |
 | `docs/memos/executive-questionnaire.md` | Outstanding items requiring executive input |
 | `docs/repo-structure.md` | Full repo structure reference |
@@ -125,13 +126,10 @@ Deployments go through GitHub Actions. Do not deploy manually to `pri-books`.
 
 ## Project Status
 
-**Phase:** Phase 1 — Design sprint + repo setup — **complete**
-**Phase 2 (next):** Azure SQL Dev DB provisioning + first real Dataverse tables (`rm_entity`, `rm_fiscalperiod`, possibly `rm_chartofaccount`), informed by the ERP patterns documented at [`docs/architecture/erp-pattern-notes.md`](docs/architecture/erp-pattern-notes.md).
-**Phase 1 deliverables:** Repo skeleton; Dataverse solution initialized with verified `Ryan McCauley` / `rm` publisher (shared with PRI-Datastream ERP); plugin + test project scaffolding; V0001/V0002 SQL migration drafts (including the append-only hash-chained ledger); GitHub Actions deploy-dev workflow stub; PowerShell scripts (setup-dev, auth-env, pull-solution, push-solution, run-sql-migration); architecture and controls docs (data-model, security-model, immutability-design, sod-matrix, approval-policies, audit-controls); ERP metadata reference snapshot at [`docs/reference/erp-metadata/`](docs/reference/erp-metadata/).
-**Strategy phase:** Complete (executive memo signed off, environments stood up, Pam confirmed as Finance System Owner).
+For current focus, completed work, and future phases, see **[`docs/roadmap.md`](docs/roadmap.md)** — the single source of truth for project state.
+
 **Target cutover:** Fiscal year-end (date TBD per executive questionnaire)
 **Estimated total timeline:** 10–14 months
-**Session log:** [`docs/session-logs/2026-05-19-phase-1-foundation.md`](docs/session-logs/2026-05-19-phase-1-foundation.md)
 
 ## Contributing
 

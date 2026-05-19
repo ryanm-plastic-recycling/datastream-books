@@ -30,6 +30,22 @@ Commit and push to main.
 If you have meaningful changes to commit, commit them in logical chunks to main directly.
 Multiple commits in a single session are fine; branches are not.
 
+## Pull Before Any Work
+
+Before making any local changes or commits — whether in this session or any future session — first run:
+
+```powershell
+git fetch origin && git pull origin main
+```
+
+This ensures local main is current with remote. Skipping this step risks merge commits and history confusion when other Claude Code sessions or manual edits have pushed changes since last sync.
+
+## Roadmap Maintenance
+
+At the end of every session, update [`docs/roadmap.md`](docs/roadmap.md) to reflect the project's current state. Move newly-completed work into "Completed Phases" (most recent at top). Update "Current Phase" to reflect the next focus. Add new "Future Phases" placeholders if any surfaced during the session.
+
+This is mandatory, not optional — the roadmap is the project's single source of truth for state and direction.
+
 ## Operating Principles
 
 ### Be Direct and Outcome-Focused
