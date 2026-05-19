@@ -1,43 +1,35 @@
 -- =============================================================================
 -- Migration: V0002__general_ledger_entries.sql
--- Author:    Initial draft (Phase 1)
 -- Date:      2026-05-19
 -- =============================================================================
 -- Purpose:
---   Create the append-only ledger.GeneralLedgerEntries table — the immutable
---   posted transaction record that backs Datastream Books's financial
---   statements. Every posted journal-entry line writes exactly one row
---   here, atomically with the Dataverse post (server-side plugin enforces
---   atomicity).
+--   Create ledger.GeneralLedgerEntries — the append-only, hash-chained posted
+--   transaction record that backs Datastream Books's financial statements.
+--   Every posted journal-entry line writes exactly one row here, atomically
+--   with the Dataverse post (server-side plugin enforces atomicity).
 --
 -- References:
---   - docs/decisions/datastream-books-decisions.md, "Immutability Architecture"
---     sections A (Append-Only Transaction Ledger) and B (Hash-Chained Records)
---   - docs/architecture/immutability-design.md (to be authored — Phase 1)
+--   - docs/decisions/datastream-books-decisions.md "Immutability Architecture" A and B
+--   - docs/architecture/immutability-design.md
 --
 -- Key design properties:
---   1. APPEND-ONLY at the SQL role level. UPDATE and DELETE are denied to
---      every role and the dbo schema owner. Corrections happen via reversing
---      entries (a second row with negated amounts and ReversedByEntryId set).
---   2. HASH-CHAINED. Each row's RowHash = SHA-256 of (canonical row payload +
---      PreviousRowHash). The chain is anchored per-entity (independent chain
---      per EntityId) to allow per-entity verification and bulk loads.
---      Genesis row's PreviousRowHash is 0x00..00 (32 zero bytes).
---   3. MULTI-ENTITY from day one. Every row carries EntityId; no global
---      assumption.
---   4. USD-only in v1 (Amount is decimal(19,4); currency is metadata only).
---      Schema is future-proofed via the CurrencyCode column.
---   5. Posted by the Dataverse plugin acting as a SQL principal
---      (rl_app_writer). Direct INSERT from any human account is denied.
+--   1. APPEND-ONLY: UPDATE/DELETE/REFERENCES/ALTER denied to public. DENY beats
+--      GRANT, so even db_owner cannot UPDATE without first REVOKEing the DENY
+--      (an auditable DDL event).
+--   2. HASH-CHAINED per EntityId. RowHash = SHA-256(canonical payload || PreviousRowHash).
+--   3. MULTI-ENTITY from row zero. EntityId on every row.
+--   4. USD-only in v1 (CurrencyCode is metadata for forward compatibility).
+--
+-- GRANTs vs DENYs in this migration:
+--   - DENY UPDATE/DELETE/REFERENCES/ALTER TO public is set here (universal).
+--   - GRANT INSERT/SELECT to the four dsb_* users happens in V0003. We do NOT
+--     reference any user/role that does not yet exist.
 --
 -- Idempotency:
---   IF NOT EXISTS gates all CREATE statements. Re-running is safe.
+--   IF NOT EXISTS gates the table, indexes, and extended property. Safe to re-run.
 --
--- =============================================================================
--- PREREQUISITES (must run first)
--- =============================================================================
---   V0001 — creates the `ledger` schema and the rl_app_writer / rl_app_reader
---           roles. This migration assumes both exist.
+-- Prerequisites:
+--   V0001 must have created the `ledger` schema and dbo.SchemaMigrations.
 -- =============================================================================
 
 SET ANSI_NULLS ON;
@@ -81,7 +73,7 @@ BEGIN
         AccountName             NVARCHAR(200)    NOT NULL,    -- Denormalized for reporting
 
         -- ----- Amount (USD only in v1; currency is metadata) -----
-        DebitAmount             DECIMAL(19,4)    NOT NULL CONSTRAINT DF_GLE_DebitAmount DEFAULT 0,
+        DebitAmount             DECIMAL(19,4)    NOT NULL CONSTRAINT DF_GLE_DebitAmount  DEFAULT 0,
         CreditAmount            DECIMAL(19,4)    NOT NULL CONSTRAINT DF_GLE_CreditAmount DEFAULT 0,
         CurrencyCode            CHAR(3)          NOT NULL CONSTRAINT DF_GLE_CurrencyCode DEFAULT 'USD',
 
@@ -91,31 +83,28 @@ BEGIN
         SourceDocumentRef       NVARCHAR(100)    NULL,        -- e.g., Bill #, Invoice #, Bank Stmt ID
 
         -- ----- Inter-company linkage -----
-        InterCompanyPairId      UNIQUEIDENTIFIER NULL,        -- NULL unless this row is part of an IC pair
-        InterCompanyEntityId    UNIQUEIDENTIFIER NULL,        -- Counter-entity for IC entries
+        InterCompanyPairId      UNIQUEIDENTIFIER NULL,
+        InterCompanyEntityId    UNIQUEIDENTIFIER NULL,
 
         -- ----- Reversal linkage -----
-        ReversesEntryId         BIGINT           NULL,        -- If this row is a reversal, points to original EntryId
-        ReversedByEntryId       BIGINT           NULL,        -- Set when a later reversal points back; populated via
-                                                              -- one-shot trigger on the *reversal* INSERT (NOT an UPDATE
-                                                              -- of the original — see ReversalLinkage section below).
+        ReversesEntryId         BIGINT           NULL,        -- Forward pointer (immutability-safe). Use a view to
+                                                              -- expose "is this original reversed?" — see notes below.
+        ReversedByEntryId       BIGINT           NULL,        -- Reserved column; never UPDATEd. Future view supersedes.
 
         -- ----- Identity of poster -----
-        PostedByUserId          UNIQUEIDENTIFIER NOT NULL,    -- Azure AD object id of the posting user (NOT the SP)
-        PostedByPrincipalName   NVARCHAR(200)    NOT NULL,    -- UPN at post time (denormalized; survives renames)
+        PostedByUserId          UNIQUEIDENTIFIER NOT NULL,
+        PostedByPrincipalName   NVARCHAR(200)    NOT NULL,
 
         -- ----- Approval chain (denormalized for audit) -----
-        ApprovedByUserId        UNIQUEIDENTIFIER NULL,        -- NULL if no approval required by policy
+        ApprovedByUserId        UNIQUEIDENTIFIER NULL,
         ApprovedByPrincipalName NVARCHAR(200)    NULL,
         ApprovedAtUtc           DATETIME2(3)     NULL,
 
-        -- ----- Hash chain (see CONSTRAINTS + COMPUTED COLUMN below) -----
+        -- ----- Hash chain -----
         PreviousRowHash         BINARY(32)       NOT NULL,    -- 32 zero bytes for the per-entity genesis row
-        RowHash                 BINARY(32)       NOT NULL,    -- SHA-256 of canonical payload || PreviousRowHash;
-                                                              -- supplied by the writing plugin; validated by
-                                                              -- the nightly verifier job (see V0003+ when added).
+        RowHash                 BINARY(32)       NOT NULL,    -- Computed by the writing plugin
 
-        -- ----- PK + table-level constraints -----
+        -- ----- Constraints -----
         CONSTRAINT PK_GeneralLedgerEntries
             PRIMARY KEY CLUSTERED (EntryId),
 
@@ -133,15 +122,12 @@ BEGIN
         CONSTRAINT CK_GeneralLedgerEntries_SourceModule
             CHECK (SourceModule IN ('GL','AP','AR','FA','BANK','SYS')),
 
-        -- A reversal references a prior entry; an entry being reversed cannot
-        -- itself already be a reversal (we use the *original* as the anchor).
         CONSTRAINT CK_GeneralLedgerEntries_ReversalShape
             CHECK (
                 ReversesEntryId IS NULL
                 OR ReversesEntryId < EntryId
             ),
 
-        -- Inter-company pairs are either fully specified or fully NULL
         CONSTRAINT CK_GeneralLedgerEntries_InterCompanyShape
             CHECK (
                 (InterCompanyPairId IS NULL AND InterCompanyEntityId IS NULL)
@@ -154,109 +140,88 @@ GO
 -- =============================================================================
 -- INDEXES
 -- =============================================================================
--- Primary read patterns:
---   (1) Trial balance / GL detail: by EntityId, FiscalPeriodId, AccountId
---   (2) JE detail lookup: by JournalEntryId
---   (3) Hash-chain verification: by EntityId, EntryId ASC
---   (4) Reversal tracing: by ReversesEntryId
--- =============================================================================
-
-CREATE NONCLUSTERED INDEX IX_GLE_EntityPeriodAccount
-    ON ledger.GeneralLedgerEntries (EntityId, FiscalPeriodId, AccountId)
-    INCLUDE (DebitAmount, CreditAmount, TransactionDate)
-    WHERE 1 = 1;  -- explicit predicate marker; full index on all rows
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_GLE_EntityPeriodAccount' AND object_id = OBJECT_ID(N'ledger.GeneralLedgerEntries'))
+    CREATE NONCLUSTERED INDEX IX_GLE_EntityPeriodAccount
+        ON ledger.GeneralLedgerEntries (EntityId, FiscalPeriodId, AccountId)
+        INCLUDE (DebitAmount, CreditAmount, TransactionDate);
 GO
 
-CREATE NONCLUSTERED INDEX IX_GLE_JournalEntryId
-    ON ledger.GeneralLedgerEntries (JournalEntryId)
-    INCLUDE (LineNumber, AccountId, DebitAmount, CreditAmount);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_GLE_JournalEntryId' AND object_id = OBJECT_ID(N'ledger.GeneralLedgerEntries'))
+    CREATE NONCLUSTERED INDEX IX_GLE_JournalEntryId
+        ON ledger.GeneralLedgerEntries (JournalEntryId)
+        INCLUDE (LineNumber, AccountId, DebitAmount, CreditAmount);
 GO
 
-CREATE NONCLUSTERED INDEX IX_GLE_EntityChain
-    ON ledger.GeneralLedgerEntries (EntityId, EntryId)
-    INCLUDE (RowHash, PreviousRowHash);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_GLE_EntityChain' AND object_id = OBJECT_ID(N'ledger.GeneralLedgerEntries'))
+    CREATE NONCLUSTERED INDEX IX_GLE_EntityChain
+        ON ledger.GeneralLedgerEntries (EntityId, EntryId)
+        INCLUDE (RowHash, PreviousRowHash);
 GO
 
-CREATE NONCLUSTERED INDEX IX_GLE_ReversesEntryId
-    ON ledger.GeneralLedgerEntries (ReversesEntryId)
-    WHERE ReversesEntryId IS NOT NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_GLE_ReversesEntryId' AND object_id = OBJECT_ID(N'ledger.GeneralLedgerEntries'))
+    CREATE NONCLUSTERED INDEX IX_GLE_ReversesEntryId
+        ON ledger.GeneralLedgerEntries (ReversesEntryId)
+        WHERE ReversesEntryId IS NOT NULL;
 GO
 
-CREATE NONCLUSTERED INDEX IX_GLE_TransactionDate
-    ON ledger.GeneralLedgerEntries (EntityId, TransactionDate)
-    INCLUDE (AccountId, DebitAmount, CreditAmount);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_GLE_TransactionDate' AND object_id = OBJECT_ID(N'ledger.GeneralLedgerEntries'))
+    CREATE NONCLUSTERED INDEX IX_GLE_TransactionDate
+        ON ledger.GeneralLedgerEntries (EntityId, TransactionDate)
+        INCLUDE (AccountId, DebitAmount, CreditAmount);
 GO
 
 -- =============================================================================
--- PERMISSIONS / DENY GRANTS — THIS IS WHERE IMMUTABILITY IS ENFORCED
+-- PERMISSIONS — UNIVERSAL DENY (immutability enforcement)
 -- =============================================================================
--- Azure SQL has no DDL-level "table is immutable" switch, so we enforce it
--- with object-scoped DENY for UPDATE, DELETE, TRUNCATE on the table. DENY
--- wins over GRANT, so even the schema owner cannot bypass it without first
--- explicitly REVOKEing the DENY (which itself is an auditable DDL event).
+-- DENY beats GRANT. Applied to public so it covers every role/user/principal,
+-- including future db_owner members. To perform a privileged maintenance
+-- UPDATE/DELETE, an admin must REVOKE the DENY in a privileged session —
+-- which is itself a DDL event captured by Azure SQL audit.
 --
--- INSERT is GRANTed only to rl_app_writer (the Dataverse plugin service
--- principal). Humans get nothing. Admins doing maintenance must REVOKE
--- the DENY in a privileged session with a Change Request reference; that
--- REVOKE is itself logged via Azure SQL audit.
+-- GRANT INSERT/SELECT to the dsb_* users lives in V0003 (where the users
+-- are created). This migration deliberately does NOT reference any user or
+-- role that doesn't exist yet.
 -- =============================================================================
-
--- INSERT: only the plugin service principal
-GRANT INSERT ON ledger.GeneralLedgerEntries TO rl_app_writer;
-
--- SELECT: writer + reader + admin (admin needs read for reconciliation queries)
-GRANT SELECT ON ledger.GeneralLedgerEntries TO rl_app_writer;
-GRANT SELECT ON ledger.GeneralLedgerEntries TO rl_app_reader;
-GRANT SELECT ON ledger.GeneralLedgerEntries TO rl_admin;
-
--- HARD DENIES — applied to public so they cover every role/user/principal
--- (including the schema owner unless they REVOKE first).
-DENY UPDATE    ON ledger.GeneralLedgerEntries TO public;
-DENY DELETE    ON ledger.GeneralLedgerEntries TO public;
-DENY REFERENCES ON ledger.GeneralLedgerEntries TO public;  -- prevents adding FK with cascade that could imply delete
-
--- TRUNCATE requires ALTER on the table, which is admin-only; explicit DENY
--- belt-and-suspenders:
-DENY ALTER ON ledger.GeneralLedgerEntries TO public;
+DENY UPDATE     ON ledger.GeneralLedgerEntries TO public;
+DENY DELETE     ON ledger.GeneralLedgerEntries TO public;
+DENY REFERENCES ON ledger.GeneralLedgerEntries TO public;
+DENY ALTER      ON ledger.GeneralLedgerEntries TO public;
 GO
 
 -- =============================================================================
--- REVERSAL LINKAGE — note on ReversedByEntryId
+-- EXTENDED PROPERTIES
 -- =============================================================================
--- Setting ReversedByEntryId on the ORIGINAL row would require an UPDATE,
--- which we have just denied. There are three viable patterns to track the
--- "this row has been reversed" linkage without violating immutability:
---
---   A) Don't store it on the original row. The reversal row stores
---      ReversesEntryId; queries that need to know "is this original row
---      reversed?" join to a sub-select. Simplest, but every read pays a
---      lookup cost.
---
---   B) View-based denormalization. Create a view that left-joins the
---      reversal pointer back to the original. No UPDATE required.
---
---   C) Side-table: ledger.LedgerEntryReversals(OriginalEntryId, ReversalEntryId).
---      Append-only itself (also DENY UPDATE/DELETE). The reversal-writing
---      plugin inserts one row to LedgerEntryReversals atomically with the
---      reversal INSERT to GeneralLedgerEntries.
---
--- We are committing to OPTION (B) for v1 (cleanest from a query perspective)
--- and removing ReversedByEntryId from the table definition in V0003 once the
--- view is created. The column stays NULLABLE here so we never have to
--- ALTER the table for this — V0003 will simply CREATE VIEW that ignores it
--- and a future migration may eventually drop the column once nothing reads it.
---
--- TODO (V0003): create ledger.vw_GeneralLedgerEntriesWithReversal.
--- =============================================================================
-
--- =============================================================================
--- EXTENDED PROPERTIES (descriptive metadata for tooling and auditors)
--- =============================================================================
+IF NOT EXISTS (
+    SELECT 1 FROM sys.extended_properties
+    WHERE major_id = OBJECT_ID(N'ledger.GeneralLedgerEntries')
+      AND minor_id = 0
+      AND class    = 1
+      AND name     = N'MS_Description'
+)
 EXEC sys.sp_addextendedproperty
-    @name = N'MS_Description',
-    @value = N'Append-only posted general-ledger entries. Hash-chained per EntityId. Corrections via reversing entries only. INSERT permitted to rl_app_writer only; UPDATE and DELETE denied to public.',
+    @name       = N'MS_Description',
+    @value      = N'Append-only posted general-ledger entries. Hash-chained per EntityId. Corrections via reversing entries only. INSERT permitted only to dsb_app (granted in V0003); UPDATE/DELETE/REFERENCES/ALTER denied to public.',
     @level0type = N'SCHEMA', @level0name = N'ledger',
     @level1type = N'TABLE',  @level1name = N'GeneralLedgerEntries';
+GO
+
+-- =============================================================================
+-- REVERSAL LINKAGE — design note
+-- =============================================================================
+-- Setting ReversedByEntryId on the ORIGINAL row would require UPDATE, which
+-- we have just denied. v1 uses a view (ledger.vw_GeneralLedgerEntriesWithReversal,
+-- to be created in V0004+) that left-joins the reversal pointer back to the
+-- original. The ReversedByEntryId column above is reserved and never written.
+-- =============================================================================
+
+-- =============================================================================
+-- Record this migration
+-- =============================================================================
+IF NOT EXISTS (SELECT 1 FROM dbo.SchemaMigrations WHERE [Version] = 2)
+BEGIN
+    INSERT INTO dbo.SchemaMigrations ([Version], [Description])
+    VALUES (2, N'V0002 - Create ledger.GeneralLedgerEntries (append-only, hash-chained, multi-entity) with indexes, CHECKs, and universal DENY UPDATE/DELETE/REFERENCES/ALTER.');
+END
 GO
 
 -- =============================================================================
@@ -264,25 +229,18 @@ GO
 -- =============================================================================
 -- Once any row exists in ledger.GeneralLedgerEntries, this migration is
 -- effectively irreversible — dropping the table destroys the immutable
--- audit record. Rollback is therefore only safe BEFORE the first INSERT.
+-- audit record. Rollback is safe only BEFORE the first INSERT.
 --
 -- Safe pre-data rollback:
---
---   REVOKE INSERT ON ledger.GeneralLedgerEntries FROM rl_app_writer;
---   REVOKE SELECT ON ledger.GeneralLedgerEntries FROM rl_app_writer;
---   REVOKE SELECT ON ledger.GeneralLedgerEntries FROM rl_app_reader;
---   REVOKE SELECT ON ledger.GeneralLedgerEntries FROM rl_admin;
---   -- DENY statements survive object drop; nothing further needed.
 --   DROP INDEX IF EXISTS IX_GLE_EntityPeriodAccount ON ledger.GeneralLedgerEntries;
---   DROP INDEX IF EXISTS IX_GLE_JournalEntryId     ON ledger.GeneralLedgerEntries;
---   DROP INDEX IF EXISTS IX_GLE_EntityChain        ON ledger.GeneralLedgerEntries;
---   DROP INDEX IF EXISTS IX_GLE_ReversesEntryId    ON ledger.GeneralLedgerEntries;
---   DROP INDEX IF EXISTS IX_GLE_TransactionDate    ON ledger.GeneralLedgerEntries;
---   DROP TABLE IF EXISTS ledger.GeneralLedgerEntries;
+--   DROP INDEX IF EXISTS IX_GLE_JournalEntryId      ON ledger.GeneralLedgerEntries;
+--   DROP INDEX IF EXISTS IX_GLE_EntityChain         ON ledger.GeneralLedgerEntries;
+--   DROP INDEX IF EXISTS IX_GLE_ReversesEntryId     ON ledger.GeneralLedgerEntries;
+--   DROP INDEX IF EXISTS IX_GLE_TransactionDate     ON ledger.GeneralLedgerEntries;
+--   DROP TABLE IF EXISTS ledger.GeneralLedgerEntries;  -- DENYs are dropped with the object
+--   DELETE FROM dbo.SchemaMigrations WHERE [Version] = 2;
 --
--- Post-data rollback (i.e., after real ledger rows exist):
---   DO NOT execute. File a Change Request. Recovery should use Azure SQL
---   PITR or long-term backup. Modifying the live ledger schema after data
---   exists requires a maintenance window, a backup snapshot, and a
---   signed-off CR per docs/runbooks/change-management.md (to be authored).
+-- Post-data rollback: DO NOT execute. File a Change Request and use
+-- Azure SQL PITR/LTR. Modifying the live ledger schema after data exists
+-- is a maintenance-window event.
 -- =============================================================================
