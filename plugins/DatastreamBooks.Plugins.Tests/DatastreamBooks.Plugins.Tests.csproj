@@ -21,9 +21,11 @@
     <!-- Dataverse SDK (matched to plugin project) -->
     <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies" Version="9.0.2.*" />
 
-    <!-- Plugin unit testing framework. FakeXrmEasy v2 is the last MIT-licensed version
-         compatible with net48 / Dataverse 9.x. The v3+ versions are commercial. -->
-    <PackageReference Include="FakeXrmEasy" Version="1.59.1" />
+    <!-- Plugin unit testing framework. FakeXrmEasy.v9 is the Dataverse-9 / net48
+         flavor of the modern package family. The 2.x stream is the last
+         MIT-licensed track; 3.x requires a commercial license. The legacy
+         `FakeXrmEasy` 1.x package family is no longer published past 1.58.x. -->
+    <PackageReference Include="FakeXrmEasy.v9" Version="2.9.1" />
 
     <!-- Assertions -->
     <PackageReference Include="FluentAssertions" Version="6.12.0" />
