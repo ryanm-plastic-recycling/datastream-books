@@ -2,53 +2,39 @@
 # Datastream Books — Deploy to PRI-Books-Dev
 # =============================================================================
 # Trigger:
-#   - Push to any feature/* branch  (auto-deploy from active development)
+#   - Push to main                   (auto-deploy from solo-dev workflow)
+#   - Push to feature/* (future)     (in case branches are ever used)
 #   - Manual via workflow_dispatch   (re-run a specific commit on demand)
 #
-# What it does (TODO — pipeline body is a stub until secrets and Power Platform
-# Build Tools setup is finalized):
+# Auth: federated identity (OIDC) only. No client secret stored anywhere.
+# The `datastream-books-cicd` Entra app reg has a federated credential
+# matching this repo's main-branch token. See docs/runbooks/cicd-setup.md
+# for the setup runbook.
 #
-#   1. Checkout the repo
-#   2. Set up .NET SDK 8 (host build), pac CLI, Node LTS
-#   3. Build the plugin assembly (DatastreamBooks.Plugins) and run its tests
-#   4. Pack the unpacked solution under solution/src into a managed zip
-#   5. Authenticate pac to PRI-Books-Dev using federated credentials
-#   6. Import the solution to PRI-Books-Dev (publishing customizations)
-#   7. Register the freshly built plugin assembly in Dataverse
-#   8. (Future, once Azure SQL DB exists) apply pending SQL migrations
+# Required GitHub Secrets (set via Repo > Settings > Secrets > Actions):
+#   AZURE_TENANT_ID                  Tenant GUID
+#   AZURE_CLIENT_ID                  App registration (client) ID for the
+#                                    datastream-books-cicd Entra app
+#   AZURE_SUBSCRIPTION_ID            Subscription GUID (Azure Subscription PRI)
+#   POWER_PLATFORM_ENVIRONMENT_URL   https://booksdev.crm.dynamics.com
 #
-# Required GitHub Secrets (configure in repo settings → Secrets and variables):
+# Optional GitHub Variables (non-secret config):
+#   POWER_PLATFORM_SOLUTION_NAME     Override of "DatastreamBooks" solution name
 #
-#   POWER_PLATFORM_TENANT_ID         Azure AD tenant id (GUID)
-#   POWER_PLATFORM_APPLICATION_ID    App registration client id used for
-#                                    federated/service-principal auth to
-#                                    Dataverse. Must have System Customizer
-#                                    or higher in PRI-Books-Dev.
-#   POWER_PLATFORM_CLIENT_SECRET     Client secret for the above app reg.
-#                                    PREFER federated credentials (OIDC) over
-#                                    a long-lived secret — see Required GitHub
-#                                    Variables below.
-#   POWER_PLATFORM_ENVIRONMENT_URL   https://booksdev.crm.dynamics.com/
+# What the pipeline does:
+#   1. Checkout
+#   2. Set up .NET SDK 8, Node LTS, install pac CLI
+#   3. Build the plugin assembly and run its tests
+#   4. Pack solution/src into a managed solution zip (skipped if the
+#      source folder is empty — first runs land here)
+#   5. Authenticate to Azure via OIDC (azure/login@v2)
+#   6. Authenticate pac to PRI-Books-Dev (federated identity is forwarded
+#      via the Azure AD token obtained in step 5; see step body)
+#   7. Import the solution to PRI-Books-Dev (skipped if no zip was packed)
 #
-#   AZURE_SQL_SERVER                 (future) <name>.database.windows.net
-#   AZURE_SQL_DATABASE               (future) DatastreamBooksDev
-#   AZURE_SQL_MIGRATION_PRINCIPAL    (future) AAD object id of the migration
-#                                    runner SP (must hold db_ddladmin)
-#
-# Required GitHub Variables (non-secret config):
-#
-#   POWER_PLATFORM_SOLUTION_NAME     DatastreamBooks
-#   USE_OIDC                         "true" once federated identity is wired
-#                                    up between this repo and the Azure AD
-#                                    app reg (see docs/runbooks/cicd-auth.md
-#                                    — to be authored).
-#
-# Security stance:
-#   - Never echo secrets to logs (use ::add-mask:: if a secret must transit a
-#     bash variable)
-#   - Pin all third-party actions to a commit SHA before going to main
-#   - PRI-Books (production) is NEVER deployed from this workflow — see
-#     deploy-prod.yml (to be authored when first production-bound code merges)
+# What the pipeline does NOT do:
+#   - PRI-Books (production) is never a target of this workflow.
+#   - SQL migrations against Azure SQL are wired in a later commit.
 # =============================================================================
 
 name: Deploy to PRI-Books-Dev
@@ -56,8 +42,8 @@ name: Deploy to PRI-Books-Dev
 on:
   push:
     branches:
+      - main
       - 'feature/**'
-      - 'claude/**'
   workflow_dispatch:
     inputs:
       commit_sha:
@@ -66,13 +52,13 @@ on:
         default: ''
 
 concurrency:
-  # Serialize deploys to dev — solution imports are not safe to run concurrently
+  # Serialize deploys to dev — solution imports are not safe in parallel.
   group: deploy-dev
   cancel-in-progress: false
 
 permissions:
   contents: read
-  id-token: write  # required if/when we switch to OIDC federated auth
+  id-token: write  # required for OIDC token exchange with Entra
 
 jobs:
   build-and-deploy:
@@ -123,51 +109,97 @@ jobs:
       - name: Run plugin unit tests
         run: dotnet test plugins/DatastreamBooks.Plugins.Tests/DatastreamBooks.Plugins.Tests.csproj -c Release --no-build --logger "trx;LogFileName=plugin-tests.trx"
         shell: pwsh
-        continue-on-error: false  # tests must pass; fail the deploy if they don't
+        continue-on-error: false
 
       # -----------------------------------------------------------------
-      # Pack and import Dataverse solution
+      # Authenticate via OIDC — no client secret involved
       # -----------------------------------------------------------------
+      - name: Azure login (federated / OIDC)
+        uses: azure/login@v2
+        with:
+          client-id:       ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id:       ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      # -----------------------------------------------------------------
+      # Pack the solution (skipped gracefully if solution/src is empty)
+      # -----------------------------------------------------------------
+      - name: Detect packable solution
+        id: detect_solution
+        shell: pwsh
+        run: |
+          $entitiesDir = "solution/src/Entities"
+          $hasEntities = (Test-Path $entitiesDir) -and ((Get-ChildItem -Path $entitiesDir -Directory -ErrorAction SilentlyContinue | Measure-Object).Count -gt 0)
+          if ($hasEntities) {
+            "should_pack=true" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+            Write-Host "solution/src/Entities has content - will pack."
+          } else {
+            "should_pack=false" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+            Write-Host "solution/src/Entities is empty or missing - skipping pack/import (expected on first runs)."
+          }
+
       - name: Pack solution (managed)
-        # TODO: refine zip output path; pac solution pack should target
-        #       a workflow-temp folder, not commit anything back.
+        if: steps.detect_solution.outputs.should_pack == 'true'
+        shell: pwsh
         run: |
           pac solution pack `
             --folder solution/src `
             --zipfile "$env:RUNNER_TEMP/$env:SOLUTION_NAME.zip" `
             --packagetype Managed
+
+      # -----------------------------------------------------------------
+      # Authenticate pac to PRI-Books-Dev (federated identity)
+      # -----------------------------------------------------------------
+      # pac CLI's federated-identity support requires the OIDC token from
+      # actions to be exchanged for an Entra token. azure/login@v2 already
+      # logged us in; pac picks up the resulting AAD token via the
+      # `pac auth create --deviceCode` substitution path is NOT what we want
+      # here. The correct pattern is `pac auth create ... --applicationId
+      # --tenant --federatedToken <token>`. The federated token is at
+      # $env:ACTIONS_ID_TOKEN_REQUEST_TOKEN / .../URL — fetched here.
+      - name: Get GitHub OIDC token for pac
+        if: steps.detect_solution.outputs.should_pack == 'true'
+        id: oidc
         shell: pwsh
+        run: |
+          $audience = "api://AzureADTokenExchange"
+          $tokenUrl = "$env:ACTIONS_ID_TOKEN_REQUEST_URL" + "&audience=" + [uri]::EscapeDataString($audience)
+          $headers = @{ Authorization = "bearer $env:ACTIONS_ID_TOKEN_REQUEST_TOKEN" }
+          $resp = Invoke-RestMethod -Headers $headers -Uri $tokenUrl
+          # Mask the token in logs
+          Write-Host "::add-mask::$($resp.value)"
+          "fed_token=$($resp.value)" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
 
       - name: Authenticate pac to PRI-Books-Dev
-        # TODO: switch this to OIDC federated identity (USE_OIDC=true) once
-        #       the federated credential is set up on the app reg. Until then,
-        #       client-secret auth is the fallback.
+        if: steps.detect_solution.outputs.should_pack == 'true'
+        shell: pwsh
         run: |
           pac auth create `
             --name github-actions-dev `
             --url "$env:ENVIRONMENT_URL" `
-            --tenant "${{ secrets.POWER_PLATFORM_TENANT_ID }}" `
-            --applicationId "${{ secrets.POWER_PLATFORM_APPLICATION_ID }}" `
-            --clientSecret "${{ secrets.POWER_PLATFORM_CLIENT_SECRET }}"
-        shell: pwsh
+            --tenant "${{ secrets.AZURE_TENANT_ID }}" `
+            --applicationId "${{ secrets.AZURE_CLIENT_ID }}" `
+            --federatedToken "${{ steps.oidc.outputs.fed_token }}"
 
       - name: Import solution to PRI-Books-Dev
+        if: steps.detect_solution.outputs.should_pack == 'true'
+        shell: pwsh
         run: |
           pac solution import `
             --path "$env:RUNNER_TEMP/$env:SOLUTION_NAME.zip" `
             --force-overwrite `
             --publish-changes `
             --activate-plugins
-        shell: pwsh
 
       # -----------------------------------------------------------------
-      # Future steps (placeholders — uncomment when prerequisites exist)
+      # Future: SQL migrations against Azure SQL
       # -----------------------------------------------------------------
       # - name: Apply pending Azure SQL migrations
+      #   if: steps.detect_solution.outputs.should_pack == 'true'
       #   run: pwsh ./scripts/run-sql-migration.ps1 -Environment dev
       #   env:
-      #     AZURE_SQL_SERVER:   ${{ secrets.AZURE_SQL_SERVER }}
-      #     AZURE_SQL_DATABASE: ${{ secrets.AZURE_SQL_DATABASE }}
+      #     # dsb_migrate connection string sourced via azure/login (Key Vault),
+      #     # never stored in GitHub secrets long-term.
 
       - name: Upload plugin test results
         if: always()
