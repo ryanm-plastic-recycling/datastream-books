@@ -5,23 +5,41 @@
 
 ## Current Phase
 
-### Phase 2 — Azure SQL provisioning + CI/CD foundation
+### Phase 3 — First Real Dataverse Tables
 
-**Goal:** Stand up the Azure SQL Dev database with real schemas/users, prove the immutability architecture against the live database, and wire GitHub Actions to Dataverse with federated identity (no client secrets).
+**Goal:** Move from infrastructure to actual schema. Create the first Books-owned Dataverse tables and get them through the CI/CD pipeline that Phase 2 wired up.
 
 **Active work:**
-- V0001 schemas (`ledger`, `audit`, `reports`, `archive`) + `dbo.SchemaMigrations` metadata table
-- V0002 `ledger.GeneralLedgerEntries` finalized (in `ledger` schema, with SchemaMigrations row)
-- V0003 four contained SQL users (`dsb_app`, `dsb_migrate`, `dsb_reader`, `dsb_admin`) with least-privilege grants and explicit `DENY UPDATE, DELETE` on the ledger
-- Immutability validation against the live DB (INSERT, then attempt UPDATE/DELETE — both must be blocked at SQL level)
-- Entra app registration `datastream-books-cicd` + federated identity for GitHub Actions
-- `deploy-dev.yml` rewritten for OIDC; first end-to-end CI run
+- `rm_entity` (legal entity master) — adopt the 4-column master-data pattern from `erp-pattern-notes.md` (`rm_entityname`, `rm_entitycode`, `rm_entityshort`, plus EIN, fiscal-year-end-month, base-currency, status)
+- `rm_fiscalperiod` (period master with Open / Closed / Locked status)
+- Possibly `rm_chartofaccount` — pending Pam review of starter COA (executive questionnaire §11)
+- Confirm the deploy-dev workflow imports a non-empty solution successfully end-to-end (the Phase 2 run skipped pack/import because `solution/src/Entities` was empty)
 
-**Auth strategy:** `priadmin` (SQL bootstrap admin) is used **once** to apply V0001–V0003. After migrations land, all daily work uses the `dsb_*` accounts. `priadmin` returns to break-glass-only status.
+**Backlog items carried out of Phase 2:**
+- Verify Azure SQL auditing is enabled on the `plasticrecycling` server (surfaced during immutability validation when `priadmin` bypassed DENY by design)
+- Migrate the SQL admin to AAD-only auth (remove `priadmin` as a stealable password)
+- Rotate at least `dsb_migrate` to a real Key Vault-backed password before Phase 3's first migration apply via CI/CD
 
 ## Completed Phases
 
 > Newest first.
+
+### Phase 2 — Azure SQL provisioning + CI/CD foundation (2026-05-19)
+
+- Three SQL migrations applied to `DatastreamBooks-Dev`, all recorded in `dbo.SchemaMigrations`:
+  - V0001: `ledger` / `audit` / `reports` / `archive` schemas + `dbo.SchemaMigrations` metadata
+  - V0002: `ledger.GeneralLedgerEntries` (30 cols, 5 indexes, universal `DENY UPDATE / DELETE / REFERENCES / ALTER` on `public`)
+  - V0003: four contained SQL users (`dsb_app`, `dsb_migrate`, `dsb_reader`, `dsb_admin`) with least-privilege grants and explicit per-user `DENY UPDATE / DELETE` on the ledger. Passwords parameterized via sqlcmd-style `$(pw_dsb_*)` tokens — committed source contains no plaintext; the apply runner generates cryptographically random 32-char passwords in-memory.
+- Immutability validation against the live DB:
+  - As `dsb_admin` (db_owner): UPDATE / DELETE / TRUNCATE all returned permission-denied errors.
+  - As `dsb_app` (least privilege): UPDATE / DELETE returned permission-denied errors.
+  - As `priadmin` (SQL admin / dbo): UPDATE / DELETE / TRUNCATE all succeeded — `dbo` bypasses DENY by documented SQL Server design. The auth strategy treats `priadmin` as break-glass-only; protection against its abuse is organizational + audit-based, not permission-based.
+  - Test row `EntryId=1` (JournalEntryNumber `TEST-IMMUT-001`) remains in the ledger as permanent evidence. Full record at `docs/architecture/immutability-validation.md`.
+- Entra app registration `datastream-books-cicd` created with service principal `510f68ee-1d89-46b1-bc4b-9f127d8e9f62`. Federated credential `github-main` bound to `repo:ryanm-plastic-recycling/datastream-books:ref:refs/heads/main`. SP granted System Administrator on PRI-Books-Dev via `pac admin assign-user --application-user`.
+- `deploy-dev.yml` rewritten for OIDC; no client secrets stored anywhere. Workflow triggers on push to `main` (per solo-dev branching policy). First-run safety added: pack/import steps skip gracefully when `solution/src/Entities` is empty.
+- Four GitHub Secrets added to the repo (AZURE_TENANT_ID, AZURE_CLIENT_ID, AZURE_SUBSCRIPTION_ID, POWER_PLATFORM_ENVIRONMENT_URL) via the web UI — `gh` CLI is not installed on the dev machine.
+- New runbooks: `docs/runbooks/cicd-setup.md` (reproducible Entra + workflow setup) and `docs/runbooks/sql-account-management.md` (one-line ALTER USER rotation, Key Vault pattern, `priadmin` governance).
+- AGENTS.md gained Pull-Before-Work and Roadmap-Maintenance principles. Session-log file replaced by this living roadmap.
 
 ### Phase 1 — Repo foundation + design sprint (2026-05-19)
 
@@ -48,10 +66,7 @@
 ## Future Phases
 
 > Placeholders. Order is approximate; reshuffles as priorities shift.
-
-### Phase 3 — First Real Dataverse Tables
-
-`rm_entity`, `rm_fiscalperiod`, possibly `rm_chartofaccount`. Apply the 4-column master-data pattern from `erp-pattern-notes.md`. First solution components committed to `solution/src`.
+> (Phase 3 has been promoted to Current Phase — see top of file.)
 
 ### Phase 4 — First Posting Plugin (`PostJournalEntryPlugin`)
 
