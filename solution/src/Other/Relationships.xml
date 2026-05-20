@@ -14,6 +14,8 @@
   <EntityRelationship Name="lk_rm_fiscalyear_modifiedby" />
   <EntityRelationship Name="lk_rm_journalentry_createdby" />
   <EntityRelationship Name="lk_rm_journalentry_modifiedby" />
+  <EntityRelationship Name="lk_rm_journalentryline_createdby" />
+  <EntityRelationship Name="lk_rm_journalentryline_modifiedby" />
   <EntityRelationship Name="organization_rm_accountcategory" />
   <EntityRelationship Name="organization_rm_accounttype" />
   <EntityRelationship Name="organization_rm_chartofaccount" />
@@ -21,14 +23,18 @@
   <EntityRelationship Name="organization_rm_fiscalperiod" />
   <EntityRelationship Name="organization_rm_fiscalyear" />
   <EntityRelationship Name="organization_rm_journalentry" />
+  <EntityRelationship Name="organization_rm_journalentryline" />
   <EntityRelationship Name="rm_accountcategory_chartofaccount" />
   <EntityRelationship Name="rm_accounttype_chartofaccount" />
   <EntityRelationship Name="rm_accounttype_rm_accountcategory" />
+  <EntityRelationship Name="rm_chartofaccount_journalentryline" />
   <EntityRelationship Name="rm_chartofaccount_parent" />
   <EntityRelationship Name="rm_entity_chartofaccount" />
   <EntityRelationship Name="rm_entity_journalentry" />
+  <EntityRelationship Name="rm_entity_journalentryline" />
   <EntityRelationship Name="rm_fiscalperiod_journalentry" />
   <EntityRelationship Name="rm_fiscalyear_rm_fiscalperiod" />
+  <EntityRelationship Name="rm_journalentry_journalentryline" />
   <EntityRelationship Name="rm_journalentry_reversedby" />
   <EntityRelationship Name="rm_journalentry_reverses" />
   <EntityRelationship Name="rm_systemuser_fiscalperiod_closedby" />

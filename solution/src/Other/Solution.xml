@@ -89,6 +89,7 @@
       <RootComponent type="1" schemaName="rm_fiscalperiod" behavior="0" />
       <RootComponent type="1" schemaName="rm_fiscalyear" behavior="0" />
       <RootComponent type="1" schemaName="rm_journalentry" behavior="0" />
+      <RootComponent type="1" schemaName="rm_journalentryline" behavior="0" />
       <RootComponent type="1" schemaName="systemuser" behavior="1" />
     </RootComponents>
     <MissingDependencies>
