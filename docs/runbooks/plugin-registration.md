@@ -93,7 +93,6 @@ All steps:
 
 | # | Message | Primary Entity | Stage         | Filtering Attrs                                            | Pre-Image (`PreImage`) cols                                | Purpose                                       |
 |---|---------|---------------|---------------|------------------------------------------------------------|------------------------------------------------------------|-----------------------------------------------|
-| 1 | Create  | rm_journalentry      | PreOperation  | *(none — fires on every create)*                           | n/a                                                        | Auto-number `rm_journalentrynumber`           |
 | 2 | Update  | rm_journalentry      | PreOperation  | `rm_status`, `rm_journaldescription`, `rm_totaldebit`, `rm_totalcredit`, `rm_approvedby_user`, `rm_fiscalperiod` | `rm_status`, `rm_createdby_user`, `rm_approvedby_user`, `rm_totaldebit`, `rm_totalcredit`, `rm_fiscalperiod`, `rm_entity`, `rm_journalentrynumber` | Status-transition guard + SoD + period check + immutability |
 | 3 | Create  | rm_journalentryline  | PreOperation  | *(none)*                                                   | n/a                                                        | Block writes against locked headers           |
 | 4 | Update  | rm_journalentryline  | PreOperation  | `rm_debit`, `rm_credit`, `rm_account`                      | `rm_journalentry`                                          | Block writes against locked headers           |

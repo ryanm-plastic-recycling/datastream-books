@@ -3,8 +3,6 @@ using Microsoft.Xrm.Sdk.Query;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace DatastreamBooks.Plugins.Posting
 {
@@ -12,12 +10,14 @@ namespace DatastreamBooks.Plugins.Posting
     // Azure SQL dual-write + hash chain land in Phase 6B (after Key Vault session).
     //
     // Single plugin class dispatches across the steps registered against it:
-    //   1. Pre-Op  Create rm_journalentry          -> AssignAutoNumber
-    //   2. Pre-Op  Update rm_journalentry          -> ValidateHeaderUpdate (immutability, SoD, totals, period)
-    //   3. Pre-Op  Create/Update/Delete rm_journalentryline -> GuardLineAgainstLockedHeader
-    //   4. Post-Op Create/Update/Delete rm_journalentryline -> RecomputeHeaderTotals
+    //   1. Pre-Op  Update rm_journalentry          -> ValidateHeaderUpdate (immutability, SoD, totals, period)
+    //   2. Pre-Op  Create/Update/Delete rm_journalentryline -> GuardLineAgainstLockedHeader
+    //   3. Post-Op Create/Update/Delete rm_journalentryline -> RecomputeHeaderTotals
     //
     // Steps that need pre-state must register a PreImage named "PreImage".
+    //
+    // Note: rm_journalentrynumber is now a Dataverse native Auto Number column,
+    // so the Create step on the header has been removed from the plugin.
     public class PostJournalEntryPlugin : PluginBase
     {
         public const int StatusDraft = 126190000;
@@ -48,11 +48,6 @@ namespace DatastreamBooks.Plugins.Posting
 
             if (entity == HeaderEntity)
             {
-                if (stage == 20 && msg == "Create")
-                {
-                    AssignAutoNumber(ctx, svc);
-                    return;
-                }
                 if (stage == 20 && msg == "Update")
                 {
                     ValidateHeaderUpdate(ctx, svc);
@@ -72,74 +67,6 @@ namespace DatastreamBooks.Plugins.Posting
                     return;
                 }
             }
-        }
-
-        // ---------- 1. Auto-number ----------
-        //
-        // Pattern: JE-{entitycode}-{NNNNNN}.  Sequence is per-entity.
-        //
-        // Approach: read max existing number for this entity, parse the
-        // numeric suffix, add 1.  Solo-dev pace and Dataverse plugin sandbox
-        // make this acceptable; the alternative (a counter table with row
-        // lock) is a hash-cost we do not need yet.  If concurrency becomes a
-        // real risk a `rm_journalentrysequence` table with a SetState-style
-        // lock can replace this without touching call sites.
-        internal void AssignAutoNumber(ILocalPluginContext ctx, IOrganizationService svc)
-        {
-            var target = (Entity)ctx.PluginExecutionContext.InputParameters["Target"];
-
-            var entityRef = target.GetAttributeValue<EntityReference>("rm_entity");
-            if (entityRef == null)
-            {
-                throw new InvalidPluginExecutionException(
-                    "Cannot create a Journal Entry without rm_entity. The owning legal entity is required.");
-            }
-
-            var entityCode = ResolveEntityCode(svc, entityRef);
-            var next = NextSequenceForEntity(svc, entityRef.Id, entityCode);
-            var number = $"JE-{entityCode}-{next:D6}";
-
-            ctx.Trace($"AssignAutoNumber: {number}");
-            target["rm_journalentrynumber"] = number;
-        }
-
-        private string ResolveEntityCode(IOrganizationService svc, EntityReference entityRef)
-        {
-            var ent = svc.Retrieve("rm_entity", entityRef.Id, new ColumnSet(true));
-            var code = ent.GetAttributeValue<string>("rm_entitycode");
-            if (string.IsNullOrWhiteSpace(code))
-            {
-                throw new InvalidPluginExecutionException(
-                    $"rm_entity {entityRef.Id} has no rm_entitycode. Set a stable short code on the entity before posting JEs.");
-            }
-            return code.Trim().ToUpperInvariant();
-        }
-
-        private static readonly Regex SequenceRegex = new Regex(@"^JE-(?<code>[^-]+)-(?<seq>\d{6})$", RegexOptions.Compiled);
-
-        private int NextSequenceForEntity(IOrganizationService svc, Guid entityId, string entityCode)
-        {
-            var query = new QueryExpression(HeaderEntity)
-            {
-                ColumnSet = new ColumnSet(true),
-                NoLock = true,
-                TopCount = 5000,
-            };
-            query.Criteria.AddCondition("rm_entity", ConditionOperator.Equal, entityId);
-
-            var results = svc.RetrieveMultiple(query);
-            int max = 0;
-            foreach (var je in results.Entities)
-            {
-                var num = je.GetAttributeValue<string>("rm_journalentrynumber");
-                if (string.IsNullOrEmpty(num)) continue;
-                var m = SequenceRegex.Match(num);
-                if (!m.Success) continue;
-                if (!string.Equals(m.Groups["code"].Value, entityCode, StringComparison.OrdinalIgnoreCase)) continue;
-                if (int.TryParse(m.Groups["seq"].Value, NumberStyles.None, CultureInfo.InvariantCulture, out var seq) && seq > max)
-                    max = seq;
-            }
-            return max + 1;
         }
 
         // ---------- 2. Header update: immutability + transition guards ----------
