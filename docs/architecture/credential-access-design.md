@@ -61,15 +61,52 @@ check (E2E validation is the next step).
 
 ## Dataverse Environment Variables
 
-Five definitions live in the `DatastreamBooks` solution:
+Five definitions live in the `DatastreamBooks` solution. **Four are
+String type; exactly one is Secret type pointing at Key Vault.** The
+type matters: a Secret-type env var has its value stored in Key Vault
+(not in Dataverse) and resolved on every read; a String-type env var
+stores the value directly in Dataverse, unencrypted.
 
-| Schema name | Type | Default | Purpose |
+| Schema name | Type | Source | Purpose |
 |---|---|---|---|
-| `rm_sqlkvtenantid` | String | (none) | Entra tenant id — `ca800f2c-47b3-4400-8eb1-fb1db2a39a1e` |
-| `rm_sqlkvclientid` | String | (none) | `datastream-books-cicd` app id — `a58747ee-f26f-4702-b911-044ee44df9a5` |
-| `rm_sqlkvclientsecret` | **Secret** | (none) | SP client secret (encrypted at rest by Dataverse) |
-| `rm_sqlkvurl` | String | (none) | Vault URL — `https://kv-datastream-books.vault.azure.net/` |
-| `rm_sqlkvsecretname` | String | (none) | Secret name — `dsb-app-connection-string` |
+| `rm_sqlkvtenantid` | String | Dataverse env var value | Entra tenant id — `ca800f2c-47b3-4400-8eb1-fb1db2a39a1e` |
+| `rm_sqlkvclientid` | String | Dataverse env var value | `datastream-books-cicd` app id — `a58747ee-f26f-4702-b911-044ee44df9a5` |
+| `rm_sqlkvclientsecret` | **Secret** | Key Vault `kv-datastream-books / cicd-sp-client-secret` | SP client secret. Resolved on demand by the Dataverse Resource Provider SP, which holds `Key Vault Secrets User` at vault scope. |
+| `rm_sqlkvurl` | String | Dataverse env var value | Vault URL — `https://kv-datastream-books.vault.azure.net/` |
+| `rm_sqlkvsecretname` | String | Dataverse env var value | Secret name — `dsb-app-connection-string` |
+
+**Do not create `rm_sqlkvclientsecret` as a String type with the raw
+client secret pasted into the value.** Even though the plugin would
+read it successfully, it would:
+
+- Store the secret in plain text in the Dataverse env var table
+- Force a manual update in two places (Key Vault + the env var value)
+  on every rotation
+- Surface the secret in every `environmentvariablevalue` export
+
+If the Secret-type save fails with HTTP 403, the cause is one of the
+Power Platform Key Vault integration prerequisites — see next section.
+
+### Power Platform Key Vault integration prerequisites
+
+For Secret-type env vars to save and resolve, the Power Platform
+resolver pipeline needs all of:
+
+1. **Vault firewall** permissive for the resolver:
+   - Dev: `defaultAction = Allow` with `bypass = AzureServices`
+   - Prod: Private Endpoint joined to a Dataverse enterprise policy
+2. **Two SP grants at vault scope**:
+   - Dataverse SP (object id `567ae524-268d-4de9-8054-7e26da9fa7f0`) —
+     `Key Vault Secrets User`
+   - Dataverse Resource Provider SP (object id
+     `4f026a85-a88e-4674-baf4-45833854f411`) — `Key Vault Secrets User`
+     (this is the SP that actually authenticates during the save).
+3. **The user creating the env var** holds `Key Vault Secrets User`
+   (or higher) at the Vault.
+
+Operational details in
+[`../runbooks/key-vault-management.md`](../runbooks/key-vault-management.md)
+§"Dataverse → Key Vault integration prerequisites".
 
 Operators populate these via the maker portal or a rotation script.
 Tenant, client id, vault URL, and secret name are not secrets — they

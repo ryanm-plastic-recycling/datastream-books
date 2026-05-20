@@ -19,10 +19,10 @@
 | Permission model | Azure RBAC (not legacy access policies) |
 | Soft-delete | Enabled, 90-day retention |
 | Purge protection | Enabled (irreversible) |
-| Public network access | Enabled (firewall restricted) |
-| Network default action | Deny |
-| Network bypass | None (no AllowAzureServices) |
-| Network IP allow-list | `12.201.35.226/32` (ryanm dev) |
+| Public network access | Enabled |
+| Network default action | **Allow** (changed 2026-05-20 from Deny — see Firewall configuration below) |
+| Network bypass | `AzureServices` (retained as defense-in-depth) |
+| Network IP allow-list | `12.201.35.226/32` (ryanm dev — retained but informational while defaultAction=Allow) |
 | Provisioned | 2026-05-20, by `ryanm@plastic-recycling.net` |
 
 ### Configuration decisions
@@ -37,16 +37,60 @@
   then immediately purging it before the 90-day soft-delete window can save
   us. The trade-off is that the Vault and any deleted secrets cannot be
   fully removed until the soft-delete retention elapses.
-- **Public network with explicit firewall, not Private Endpoint.** Today
-  the only consumer with a stable egress IP is the developer workstation.
-  Phase 6B introduces the plugin runtime — when its egress IPs are known,
-  this section is revisited (likely: add plugin IPs to the allow-list, or
-  move to a private endpoint backed by a vnet that the plugin runtime
-  joins via integration).
-- **`bypass = None`, no `AllowAzureServices`.** Anything labelled "trusted
-  Microsoft service" is still arbitrary code we did not write. If a future
-  Microsoft service needs Vault access, it earns it through an explicit
-  managed-identity RBAC grant.
+
+### Firewall configuration (dev) — `defaultAction = Allow`
+
+**As of 2026-05-20 the dev Vault firewall is set to `defaultAction = Allow`
+with `bypass = AzureServices`.** The IP allow-list (`12.201.35.226/32`) is
+retained but is informational while `defaultAction = Allow`.
+
+**Why we moved off `Deny + IP allow-list` in dev:**
+
+Power Platform's native Key Vault integration (the path that backs
+Secret-type Dataverse Environment Variables) resolves the secret on
+behalf of the Dataverse environment. The resolver runs from a fleet of
+Microsoft-managed IPs that change over time and are not exposed as a
+stable allow-list we can pin. With `defaultAction = Deny`, every attempt
+to read a Secret-type env var failed with HTTP 403 (Forbidden) because
+the resolver's source IP was not in our allow-list.
+
+Two viable resolutions:
+1. **Allow + RBAC** (chosen for dev) — flip `defaultAction` to `Allow`,
+   keep `bypass = AzureServices`, and rely on Azure RBAC at vault scope
+   as the sole access-control surface. This is the documented Microsoft
+   path for Power Platform KV integration in non-prod environments.
+2. **Private Endpoint** (planned for production) — replace public access
+   entirely with a VNet-integrated private endpoint that the Dataverse
+   environment joins via Power Platform's enterprise integration features.
+   Heavier setup; right answer for prod.
+
+`bypass = AzureServices` is kept so Microsoft-internal services (the
+Power Platform resolver, audit logging pipelines, Defender for Cloud)
+continue to function. RBAC remains the actual access control: even with
+the firewall open, principals without `Key Vault Secrets User` (or
+higher) at vault scope are still denied by RBAC.
+
+**Production guidance.** The prod Vault (when provisioned at cutover)
+will use Private Endpoint, NOT the dev `Allow + RBAC` shortcut. The
+prod runbook must document the VNet, subnet, and Dataverse
+enterprise-policy linkage. Note this as a deliberate dev/prod divergence
+in `security-model.md`.
+
+**Verification commands:**
+
+```powershell
+az keyvault show --name kv-datastream-books `
+  --query "{defaultAction:properties.networkAcls.defaultAction, bypass:properties.networkAcls.bypass, ipRules:properties.networkAcls.ipRules}" -o json
+```
+
+Expected:
+```json
+{
+  "bypass": "AzureServices",
+  "defaultAction": "Allow",
+  "ipRules": [ { "value": "12.201.35.226/32" } ]
+}
+```
 
 ## RBAC
 
@@ -54,10 +98,38 @@
 |---|---|---|---|
 | `ryanm@plastic-recycling.net` (object id `46ae0175-c6d7-473b-8d6d-1e90b99c194b`) | `Key Vault Administrator` | Vault | Full control during setup, rotation, and break-glass. Reviewed quarterly. |
 | `datastream-books-cicd` SP (object id `510f68ee-1d89-46b1-bc4b-9f127d8e9f62`, app id `a58747ee-f26f-4702-b911-044ee44df9a5`) | `Key Vault Secrets User` | Vault | `Get` permission on secrets only. Used by the Phase 6B plugin runtime (and CI/CD) to read the dsb_app connection string at runtime. |
+| **Dataverse SP** (object id `567ae524-268d-4de9-8054-7e26da9fa7f0`) | `Key Vault Secrets User` | Vault | Granted as part of Power Platform Key Vault integration troubleshooting. May not be strictly necessary — the Resource Provider SP below is the one that actually resolves Secret-type env vars — but is retained as defense-in-depth. |
+| **Dataverse Resource Provider SP** (object id `4f026a85-a88e-4674-baf4-45833854f411`) | `Key Vault Secrets User` | Vault | **The SP that actually handles Secret-type Dataverse Environment Variable resolution.** Without this grant, attempts to save a Secret-type env var pointing at a Key Vault secret fail with HTTP 403. Documented Microsoft prerequisite for Power Platform → Key Vault integration. |
 
-No standing grants beyond the two above. RBAC propagation typically takes
+No standing grants beyond the four above. RBAC propagation typically takes
 5–10 minutes after assignment; do not perform retrieval tests immediately
 after an assignment changes.
+
+### Dataverse → Key Vault integration prerequisites
+
+For Secret-type Dataverse Environment Variables that reference a Key
+Vault secret to save and resolve correctly:
+
+1. **Vault firewall** must allow the Dataverse resolver's traffic. In
+   dev this is achieved via `defaultAction = Allow` (see Firewall
+   section above). In prod, via Private Endpoint joined to a Dataverse
+   enterprise policy.
+2. **Both Dataverse SPs** (the standard Dataverse SP `567ae524-…` and
+   the Dataverse Resource Provider SP `4f026a85-…`) must hold
+   `Key Vault Secrets User` (or higher) at vault scope. In practice the
+   Resource Provider SP is the one that authenticates when the maker
+   portal saves a Secret-type env var; granting only the standard
+   Dataverse SP is **not** sufficient.
+3. The user **creating** the env var must hold a role that allows
+   reading the underlying Key Vault secret (e.g. `Key Vault Secrets
+   User` or `Key Vault Administrator`). Without this, the maker portal
+   fails the save with a confusing 403 attributed to the *user*, not
+   the Dataverse SP.
+
+If any of the three is missing, the symptom is the same: maker-portal
+"Save" of a Secret-type env var pointing at the Vault returns 403 and
+the env var either does not get created or gets created as a String
+type with no value.
 
 Verify the current state:
 
@@ -102,7 +174,7 @@ AzureDiagnostics
 | Name | Content type | Purpose | Owner | Rotation cadence | Consumed by |
 |---|---|---|---|---|---|
 | `dsb-app-connection-string` | `text/plain;charset=utf-8` | Azure SQL connection string for `dsb_app` (least-privileged ledger writer) | Ryan | Quarterly; or immediately on any suspected exposure / plugin SP compromise | Phase 6B `PostJournalEntryPlugin` (will read at runtime via managed identity once that role is in place; for now SP-based) |
-| `cicd-sp-client-secret` | `text/plain;charset=utf-8` | Client secret for the `datastream-books-cicd` Entra app (app id `a58747ee-f26f-4702-b911-044ee44df9a5`) | Ryan | 12 months (Azure-imposed expiry; calendar reminder 2027-05-06) | Manual fallback only — primary auth for the SP is federated identity (OIDC from GitHub Actions) configured in [`cicd-setup.md`](cicd-setup.md). Secret exists as a break-glass path. |
+| `cicd-sp-client-secret` | `text/plain;charset=utf-8` | Client secret for the `datastream-books-cicd` Entra app (app id `a58747ee-f26f-4702-b911-044ee44df9a5`). Current credential keyId `987e5ce6-934e-48db-a3d0-8972e98c7d63`, expires **2028-05-20**. | Ryan | 24 months (current credential) — calendar reminder 2028-05-06. Immediate rotation on any suspected exposure. | (1) Phase 6B `PostJournalEntryPlugin` via `rm_sqlkvclientsecret` env var → KV resolution; (2) GitHub Actions `AZURE_CLIENT_SECRET` (break-glass fallback to federated identity). Both consumers must be refreshed on rotation. |
 
 Verify the current inventory:
 
@@ -198,9 +270,17 @@ az ad app credential list --id a58747ee-f26f-4702-b911-044ee44df9a5 -o table
 # 4. Delete the old credential by key id.
 az ad app credential delete --id a58747ee-f26f-4702-b911-044ee44df9a5 --key-id <old-keyId>
 
-# 5. Validate that any consumer of this secret can still authenticate
-#    (e.g. trigger a GitHub Actions workflow run that uses OIDC — the
-#    secret is a fallback, but verify either way).
+# 5. Refresh the GitHub Actions secret AZURE_CLIENT_SECRET so the
+#    repo's workflows pick up the new value. Without this step the SP
+#    secret in Vault is "rotated" but CI continues using the old one.
+#    Web UI: https://github.com/ryanm-plastic-recycling/datastream-books/settings/secrets/actions
+#    -> AZURE_CLIENT_SECRET -> Update value.
+#    gh CLI alternative (if installed):
+#       gh secret set AZURE_CLIENT_SECRET --body "<new value>"
+
+# 6. Validate that any consumer of this secret can still authenticate
+#    (e.g. trigger a GitHub Actions workflow run, post a JE through
+#    the maker portal so the plugin exercises the new secret).
 ```
 
 > **Caveat — known JSON quirk:** `az ad app credential reset` returns
@@ -208,6 +288,69 @@ az ad app credential delete --id a58747ee-f26f-4702-b911-044ee44df9a5 --key-id <
 > Always cross-check the actual `keyId` via `az ad app credential list`
 > after creation, and patch the Vault tag if needed via
 > `az keyvault secret set-attributes`.
+
+> **Consumer fan-out reminder.** The SP client secret has THREE
+> consumers that must stay in sync on every rotation:
+>
+> 1. Key Vault secret `cicd-sp-client-secret` (this Vault).
+> 2. GitHub Actions repository secret `AZURE_CLIENT_SECRET` (the
+>    `datastream-books` repo).
+> 3. Dataverse Environment Variable `rm_sqlkvclientsecret` — Secret type
+>    pointing at the Key Vault secret above; updates automatically when
+>    the Vault secret is updated, **provided the resolver SPs hold
+>    `Key Vault Secrets User`** at vault scope (see Dataverse → Key
+>    Vault integration prerequisites above).
+>
+> Skipping #2 is the most common error: the Vault gets the new secret
+> but CI continues authenticating with the old one until the next time
+> someone notices a 401 in a workflow run.
+
+### Safe diagnostic queries — DO NOT log raw secret values
+
+Common diagnostic question: "is the secret populated and reachable?"
+The unsafe pattern is to fetch the value and echo it (which then sits
+in shell history, terminal scrollback, and any captured-output
+artifact). The safe pattern is a presence-check that never returns the
+value to the caller.
+
+**Safe — secret reachable / presence check:**
+
+```powershell
+# Returns "true" or fails — never echoes the value.
+$ok = az keyvault secret show --vault-name kv-datastream-books `
+    --name cicd-sp-client-secret `
+    --query "length(value) > `0`" -o tsv 2>$null
+Write-Host "cicd-sp-client-secret reachable + non-empty: $ok"
+```
+
+**Safe — secret metadata only:**
+
+```powershell
+az keyvault secret show --vault-name kv-datastream-books `
+    --name cicd-sp-client-secret `
+    --query "{name:name, contentType:contentType, enabled:attributes.enabled, updated:attributes.updated, tags:tags}" -o json
+```
+
+**Unsafe — DO NOT run interactively:**
+
+```powershell
+# This echoes the secret value to the terminal. Avoid except inside a
+# scoped variable that you immediately consume and then clear.
+az keyvault secret show --vault-name kv-datastream-books `
+    --name cicd-sp-client-secret --query value -o tsv
+```
+
+If you must read the value into a variable for an immediate operation
+(rotation, programmatic consumption), assign-and-consume in a single
+PowerShell block and clear the variable at the end. **Never** paste
+that command into a chat or commit it to a script.
+
+> **Why this matters.** A real incident on 2026-05-20: a diagnostic
+> `--query value` exposed the SP client secret in a captured tool
+> output. The credential was rotated immediately (keyId
+> `987e5ce6-934e-48db-a3d0-8972e98c7d63`, expires 2028-05-20); the
+> exposed credential was revoked. Treat any execution of the unsafe
+> pattern above as a rotation event.
 
 ## Break-glass — recovery when secrets / SP credentials are lost
 

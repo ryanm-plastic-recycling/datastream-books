@@ -125,17 +125,76 @@ solution and have populated values for the target environment. See
 [`../architecture/credential-access-design.md`](../architecture/credential-access-design.md)
 §"Dataverse Environment Variables" for the schema-name table.
 
-Quick population path (dev):
+#### Key Vault prerequisites — must be satisfied FIRST
+
+`rm_sqlkvclientsecret` is a **Secret-type** env var that references a
+Key Vault secret. The maker portal's save operation for a Secret-type
+env var resolves the Vault secret on Dataverse's behalf — and that
+resolution fails (HTTP 403) unless **all** of the following are in
+place:
+
+1. Vault firewall is permissive enough for the Dataverse resolver:
+   - **Dev:** `defaultAction = Allow` with `bypass = AzureServices`
+   - **Prod:** Private Endpoint joined to a Dataverse enterprise policy
+   See [`key-vault-management.md`](key-vault-management.md) §Firewall
+   configuration.
+2. Both the standard Dataverse SP (object `567ae524-268d-4de9-8054-7e26da9fa7f0`)
+   and the Dataverse Resource Provider SP (object
+   `4f026a85-a88e-4674-baf4-45833854f411`) hold `Key Vault Secrets User`
+   at the Vault. The Resource Provider SP is the one that actually
+   authenticates during the save; the standard SP is retained as
+   defense-in-depth.
+3. The user clicking Save in the maker portal holds `Key Vault Secrets
+   User` (or higher) at the Vault.
+
+If any of those three is missing, the symptom is identical: maker-portal
+save returns 403 and the env var either fails to create or silently
+falls back to a String-type record with no value. **The Secret-type env
+var cannot work around an undersized firewall or RBAC — fix those
+first.**
+
+#### Population path (dev)
 
 1. Power Apps maker portal → Solutions → DatastreamBooks → **+ New → More → Environment variable**.
 2. Create each of:
    - `rm_sqlkvtenantid` (String) — `ca800f2c-47b3-4400-8eb1-fb1db2a39a1e`
    - `rm_sqlkvclientid` (String) — `a58747ee-f26f-4702-b911-044ee44df9a5`
-   - `rm_sqlkvclientsecret` (**Secret**) — the SP client secret value from `kv-datastream-books/secrets/cicd-sp-client-secret`
+   - `rm_sqlkvclientsecret` (**Secret — pointing to Key Vault**) — Data
+     source: **Azure Key Vault**; Vault: `kv-datastream-books`; Secret
+     name: `cicd-sp-client-secret`; Version: (leave blank to track
+     latest). **DO NOT** create this as a String env var with the raw
+     secret pasted into the value — that bypasses encryption at rest
+     and forces a manual update on every rotation. If creating as
+     Secret type fails with 403, fix the Key Vault prerequisites above
+     before retrying — do not fall back to String.
    - `rm_sqlkvurl` (String) — `https://kv-datastream-books.vault.azure.net/`
    - `rm_sqlkvsecretname` (String) — `dsb-app-connection-string`
 3. After creating each, set its **Current value** for the dev environment.
 4. Solution → **Publish all customizations**.
+
+#### Verification
+
+After population, confirm the type and presence of each env var via
+the Dataverse Web API (safe — never returns raw values):
+
+```powershell
+$env_url = "https://booksdev.crm.dynamics.com"
+$token = az account get-access-token --resource $env_url --query accessToken -o tsv
+$headers = @{ Authorization = "Bearer $token"; Accept = "application/json" }
+$url = "$env_url/api/data/v9.2/environmentvariabledefinitions?`$select=schemaname,type&`$filter=startswith(schemaname,'rm_sqlkv')&`$expand=environmentvariabledefinition_environmentvariablevalue(`$select=value)"
+(Invoke-RestMethod -Uri $url -Headers $headers).value |
+    ForEach-Object {
+        $t = switch ($_.type) { 100000000 {"String"} 100000005 {"Secret"} default { "Type=$($_.type)" } }
+        $populated = ($_.'environmentvariabledefinition_environmentvariablevalue' |
+                      Where-Object { -not [string]::IsNullOrEmpty($_.value) }).Count -gt 0
+        Write-Host "$($_.schemaname) [$t] populated=$populated"
+    }
+```
+
+Expected output: four `[String]` lines and one `[Secret]` line, all
+`populated=True`. Any line showing `rm_sqlkvclientsecret [String]` is a
+hard stop — see the Key Vault prerequisites above and try the Secret
+save again.
 
 After population, the post-op step is ready. The first posted JE in
 PRI-Books-Dev is the end-to-end validation moment.
