@@ -67,6 +67,37 @@ plugin's `LedgerRowHasher` class — never change it without writing a
 verification migration that proves chain continuity over a deterministic
 re-hash of all prior rows.
 
+**Exact byte layout (Phase 6B, 2026-05-21):**
+
+For each field, write either:
+
+| If value is | Bytes written |
+|---|---|
+| `null` | 4 bytes `0xFFFFFFFF` (the null sentinel) |
+| present | 4 bytes big-endian length, then UTF-8 bytes of the value |
+
+After all fields, append the previous row's `RowHash` **raw, NOT
+length-prefixed** (always exactly 32 bytes). Compute SHA-256 over the
+entire byte sequence.
+
+**Per-field serialization:**
+
+| Type | Canonical form | Example |
+|---|---|---|
+| `Guid` | `ToString("D")` lowercase invariant | `aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa` |
+| `int` / `long` | `ToString(InvariantCulture)` | `1`, `-42` |
+| `decimal` | `ToString("F4", InvariantCulture)` — always exactly 4 decimals | `100.0000`, `-1.5000` |
+| `DateTime` (date-only) | `yyyy-MM-dd` | `2026-05-20` |
+| `DateTime` (timestamp) | `ToUniversalTime()` then `yyyy-MM-ddTHH:mm:ss.fffZ` | `2026-05-20T16:30:45.123Z` |
+| `string` | UTF-8 as-is (length-prefix removes need for escaping) | `Cash and Equivalents` |
+| nullable any | `null` → sentinel; else apply the rule for the underlying type | |
+
+Implementation: [`plugins/DatastreamBooks.Plugins/Immutability/LedgerRowHasher.cs`](../../plugins/DatastreamBooks.Plugins/Immutability/LedgerRowHasher.cs).
+Tests pin the layout in
+[`plugins/DatastreamBooks.Plugins.Tests/ImmutabilityTests/LedgerRowHasherTests.cs`](../../plugins/DatastreamBooks.Plugins.Tests/ImmutabilityTests/LedgerRowHasherTests.cs)
+— if any of those tests fail, treat it as a chain-breaking event and
+revert the source change.
+
 **Field order:**
 ```
 EntryUid, EntityId, JournalEntryId, JournalEntryLineId, LineNumber,
@@ -78,7 +109,19 @@ ApprovedByPrincipalName, ApprovedAtUtc
 ```
 
 **Genesis row:** The first row for a given `EntityId` has
-`PreviousRowHash = 0x00...00` (32 zero bytes).
+`PreviousRowHash = 0x00...00` (32 zero bytes). Returned by
+`LedgerRowHasher.Genesis()`. Tests assert the genesis is exactly 32
+zero bytes — changing it is a chain-breaking event for every existing
+chain.
+
+**Concurrency / chain-head locking:** Before computing a new row's
+hash, the writer reads the prior chain head for that `EntityId` with
+`WITH (UPDLOCK, HOLDLOCK)` inside its SQL transaction. This takes an
+update lock on the most-recent row and holds it until the transaction
+commits. A second writer attempting the same SELECT blocks until the
+first writer commits, then reads the now-updated chain head — so two
+concurrent posters cannot produce a divergent chain. Implementation:
+[`LedgerWriter.cs`](../../plugins/DatastreamBooks.Plugins/Immutability/LedgerWriter.cs).
 
 **Chain scope:** **Per-entity.** Each `EntityId` has its own independent
 hash chain. We chose per-entity over a single global chain because:

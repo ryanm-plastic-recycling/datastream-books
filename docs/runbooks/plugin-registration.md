@@ -91,16 +91,17 @@ All steps:
 - **Solution**: DatastreamBooks
 - **Description**: (use the row's intent)
 
-| # | Message | Primary Entity | Stage         | Filtering Attrs                                            | Pre-Image (`PreImage`) cols                                | Purpose                                       |
-|---|---------|---------------|---------------|------------------------------------------------------------|------------------------------------------------------------|-----------------------------------------------|
-| 2 | Update  | rm_journalentry      | PreOperation  | `rm_status`, `rm_journaldescription`, `rm_totaldebit`, `rm_totalcredit`, `rm_approvedby_user`, `rm_fiscalperiod` | `rm_status`, `rm_createdby_user`, `rm_approvedby_user`, `rm_totaldebit`, `rm_totalcredit`, `rm_fiscalperiod`, `rm_entity`, `rm_journalentrynumber` | Status-transition guard + SoD + period check + immutability |
-| 3 | Create  | rm_journalentryline  | PreOperation  | *(none)*                                                   | n/a                                                        | Block writes against locked headers           |
-| 4 | Update  | rm_journalentryline  | PreOperation  | `rm_debit`, `rm_credit`, `rm_account`                      | `rm_journalentry`                                          | Block writes against locked headers           |
-| 5 | Delete  | rm_journalentryline  | PreOperation  | *(none — Delete has no filter)*                            | `rm_journalentry`                                          | Block deletes against locked headers          |
-| 6 | Create  | rm_journalentryline  | PostOperation | *(none)*                                                   | n/a                                                        | Recompute header totals                       |
-| 7 | Update  | rm_journalentryline  | PostOperation | `rm_debit`, `rm_credit`                                    | `rm_journalentry`                                          | Recompute header totals                       |
-| 8 | Delete  | rm_journalentryline  | PostOperation | *(none)*                                                   | `rm_journalentry`                                          | Recompute header totals                       |
-| 9 | Delete  | rm_journalentry      | PreOperation  | *(none — fires on every create)*                           | `rm_journalentry`                                          |            |
+| #  | Message | Primary Entity | Stage         | Filtering Attrs                                            | Pre-Image (`PreImage`) cols                                | Post-Image (`PostImage`) cols                                                                | Purpose                                       |
+|----|---------|---------------|---------------|------------------------------------------------------------|------------------------------------------------------------|----------------------------------------------------------------------------------------------|-----------------------------------------------|
+| 2  | Update  | rm_journalentry      | PreOperation  | `rm_status`, `rm_journaldescription`, `rm_totaldebit`, `rm_totalcredit`, `rm_approvedby_user`, `rm_fiscalperiod` | `rm_status`, `rm_createdby_user`, `rm_approvedby_user`, `rm_totaldebit`, `rm_totalcredit`, `rm_fiscalperiod`, `rm_entity`, `rm_journalentrynumber` | n/a | Status-transition guard + SoD + period check + immutability |
+| 3  | Create  | rm_journalentryline  | PreOperation  | *(none)*                                                   | n/a                                                        | n/a                                                                                          | Block writes against locked headers           |
+| 4  | Update  | rm_journalentryline  | PreOperation  | `rm_debit`, `rm_credit`, `rm_account`                      | `rm_journalentry`                                          | n/a                                                                                          | Block writes against locked headers           |
+| 5  | Delete  | rm_journalentryline  | PreOperation  | *(none — Delete has no filter)*                            | `rm_journalentry`                                          | n/a                                                                                          | Block deletes against locked headers          |
+| 6  | Create  | rm_journalentryline  | PostOperation | *(none)*                                                   | n/a                                                        | n/a                                                                                          | Recompute header totals                       |
+| 7  | Update  | rm_journalentryline  | PostOperation | `rm_debit`, `rm_credit`                                    | `rm_journalentry`                                          | n/a                                                                                          | Recompute header totals                       |
+| 8  | Delete  | rm_journalentryline  | PostOperation | *(none)*                                                   | `rm_journalentry`                                          | n/a                                                                                          | Recompute header totals                       |
+| 9  | Delete  | rm_journalentry      | PreOperation  | *(none — fires on every create)*                           | `rm_journalentry`                                          | n/a                                                                                          | (Phase 6A placeholder; see source for current intent) |
+| 10 | Update  | rm_journalentry      | PostOperation | `rm_status`                                                | `rm_status`                                                | `rm_status`, `rm_entity`, `rm_journalentrynumber`, `rm_fiscalperiod`, `rm_postingdate`, `rm_postedby_user`, `rm_posteddatetime`, `rm_approvedby_user`, `rm_approveddatetime`, `rm_journaldescription` | **Phase 6B: Azure SQL dual-write + hash chain on Approved→Posted.** Reads connection string from Key Vault via 5 env vars; writes one row per line into `ledger.GeneralLedgerEntries`. |
 For each step that lists a Pre-Image:
 
 1. After saving the step, right-click the step → **Register New Image**.
@@ -108,6 +109,36 @@ For each step that lists a Pre-Image:
 3. Name and Entity Alias: **PreImage** (the literal string the plugin reads — see `PostJournalEntryPlugin.PreImageName`).
 4. Parameters: tick **Pre Image**.
 5. Attributes: enter the comma-separated list from the table.
+
+For step 10 (Phase 6B), also register a **PostImage**:
+
+1. Right-click the step → **Register New Image**.
+2. Image Type: **PostImage**.
+3. Name and Entity Alias: **PostImage** (matches `PostJournalEntryPlugin.PostImageName`).
+4. Attributes: the list in the PostImage column above.
+
+### Phase 6B prerequisites — Dataverse Environment Variables
+
+Before the post-op ledger-write step can run successfully, five
+Environment Variable Definitions must exist in the `DatastreamBooks`
+solution and have populated values for the target environment. See
+[`../architecture/credential-access-design.md`](../architecture/credential-access-design.md)
+§"Dataverse Environment Variables" for the schema-name table.
+
+Quick population path (dev):
+
+1. Power Apps maker portal → Solutions → DatastreamBooks → **+ New → More → Environment variable**.
+2. Create each of:
+   - `rm_sqlkvtenantid` (String) — `ca800f2c-47b3-4400-8eb1-fb1db2a39a1e`
+   - `rm_sqlkvclientid` (String) — `a58747ee-f26f-4702-b911-044ee44df9a5`
+   - `rm_sqlkvclientsecret` (**Secret**) — the SP client secret value from `kv-datastream-books/secrets/cicd-sp-client-secret`
+   - `rm_sqlkvurl` (String) — `https://kv-datastream-books.vault.azure.net/`
+   - `rm_sqlkvsecretname` (String) — `dsb-app-connection-string`
+3. After creating each, set its **Current value** for the dev environment.
+4. Solution → **Publish all customizations**.
+
+After population, the post-op step is ready. The first posted JE in
+PRI-Books-Dev is the end-to-end validation moment.
 
 ### 5. Smoke test in the maker portal
 

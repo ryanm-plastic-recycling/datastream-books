@@ -28,5 +28,16 @@
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.*" PrivateAssets="All" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Framework references not pulled in by Microsoft.NETFramework.ReferenceAssemblies
+         by default. Used by:
+           System.Net.Http      — KeyVaultSecretReader (OAuth + Key Vault REST)
+           System.Data          — LedgerWriter (System.Data.SqlClient + System.Data.SqlClient)
+           System.Net.Http does NOT need ILRepack: it is in the .NET Framework BCL,
+           pre-loaded by the Dataverse plugin sandbox AppDomain. -->
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Data" />
+  </ItemGroup>
+
   <Import Project="$(PowerAppsTargetsPath)\Microsoft.PowerApps.VisualStudio.Plugin.targets" Condition="Exists('$(PowerAppsTargetsPath)\Microsoft.PowerApps.VisualStudio.Plugin.targets')" />
 </Project>

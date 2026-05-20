@@ -5,7 +5,29 @@
 
 ## Current Phase
 
-**Phase 6B: PostJournalEntryPlugin — Azure SQL dual-write + per-entity hash chain**
+**Phase 6B end-to-end validation — pending operator actions in PRI-Books-Dev**
+
+Code for Phase 6B is committed (see Completed Phases below). What
+remains is the one-time live deployment + first-real-JE validation:
+
+- Populate the five `rm_sqlkv*` Dataverse Environment Variables per
+  [`runbooks/plugin-registration.md`](runbooks/plugin-registration.md) §"Phase 6B prerequisites"
+- Register Step 10 (Stage 40 PostOperation on Update rm_journalentry)
+  with both `PreImage` and `PostImage`
+- Push the new plugin DLL via the existing CI/CD path (commit triggers
+  GitHub Actions build → solution import)
+- Post one real JE through the UI in PRI-Books-Dev and verify the
+  ledger row(s), the hash chain, and that UPDATE/DELETE as `dsb_app`
+  still throw SQL 229. Record the result in
+  [`architecture/immutability-validation.md`](architecture/immutability-validation.md).
+
+After validation passes, this phase moves into Completed Phases and
+Phase 7 (Vendor / Customer Integration with ERP) becomes the Current
+Phase per the section below.
+
+---
+
+**Phase 6B (code complete) was:** PostJournalEntryPlugin — Azure SQL dual-write + per-entity hash chain
 
 Picks up directly after the 2026-05-20 Key Vault provisioning session
 (now Completed). Adds the ledger-side work that was intentionally
@@ -32,6 +54,80 @@ See [`runbooks/key-vault-management.md`](runbooks/key-vault-management.md).
 ## Completed Phases
 
 > Newest first.
+
+### Phase 6B (code) — PostJournalEntryPlugin Azure SQL dual-write + hash chain (code-complete 2026-05-21)
+
+**Focus:** The architectural keystone of the immutability story. When a
+JE transitions Approved→Posted, the plugin writes one row per line into
+Azure SQL `ledger.GeneralLedgerEntries`, computes per-entity SHA-256
+hash chain values, and commits both stores atomically. Any SQL failure
+throws `InvalidPluginExecutionException`, which rolls back the Dataverse
+transaction — keeping the two stores consistent.
+
+**Outcome:**
+- New plugin code in `plugins/DatastreamBooks.Plugins/`:
+  - `Immutability/LedgerRow.cs` — ledger row DTO
+  - `Immutability/LedgerRowHasher.cs` — SHA-256 hash chain, exact byte
+    layout pinned by tests
+  - `Immutability/LedgerWriter.cs` — SQL transaction with
+    `WITH (UPDLOCK, HOLDLOCK)` chain-head lock, parameterized INSERT
+  - `KeyVault/KeyVaultSecretReader.cs` — raw OAuth2 client-credentials
+    + Key Vault REST GET over HttpClient (no Azure SDK, no ILRepack)
+  - `KeyVault/MinimalJson.cs` — tiny single-field JSON extractor
+  - `KeyVault/DataverseEnvironmentVariables.cs` — env-var read helper
+  - `Posting/PostJournalEntryLedgerWriter.cs` — orchestration
+  - `Posting/PostJournalEntryPlugin.cs` — new Stage 40 PostOperation
+    dispatch branch, fires only on Approved→Posted transition
+- 25 new tests, all passing (16 hash-chain + 5 writer-arg + 8 JSON +
+  4 existing); total suite 41 tests green.
+- New runbook section in
+  [`runbooks/plugin-registration.md`](runbooks/plugin-registration.md)
+  for Step 10 registration (PreImage + PostImage) and the five Dataverse
+  Environment Variable definitions that gate the run.
+- New architecture doc
+  [`architecture/credential-access-design.md`](architecture/credential-access-design.md)
+  capturing the chosen pattern + rejected alternatives.
+- `architecture/immutability-design.md` §B updated with the exact
+  byte layout, per-field formatters, genesis hash, and chain-head
+  locking strategy.
+
+**Decisions made:**
+- **Plugin reads connection string from Key Vault at runtime** (Option
+  A), not "env var holds conn string directly" (Option B). User chose
+  Option A after weighing the trade-off — KV remains the single source
+  of truth, rotations propagate within the 5-minute TTL without a
+  re-deploy. Documented in `credential-access-design.md`.
+- **Raw HttpClient + OAuth + KV REST** instead of Azure.Identity +
+  Azure.Security.KeyVault.Secrets. Avoids ILRepacking 5–8 MB of
+  transitive dependencies into the signed plugin DLL. ~200 lines of
+  hand-rolled code, fully unit-tested.
+- **Hash byte layout:** each field is length-prefixed (4-byte big-endian
+  length + UTF-8) or null sentinel (4 bytes `0xFFFFFFFF`); previous row
+  hash appended raw (32 bytes); SHA-256 over the whole sequence. Pinned
+  by 16 tests in `LedgerRowHasherTests.cs`.
+- **`decimal` canonical form is `F4` (4 decimals, invariant culture)**
+  even though the schema is `DECIMAL(19,4)`. Future schema change to
+  more precision would be chain-breaking; documented.
+- **Per-entity chain head locked with `WITH (UPDLOCK, HOLDLOCK)`** in
+  the SQL transaction. Concurrent writers serialize at the SELECT.
+- **Rollback-and-throw, not "PostFailed" status**, on SQL failure. We
+  do not have a `PostFailed` status value defined on `rm_status`; the
+  cleanest atomicity story is "Dataverse rolls back the
+  Approved→Posted flip when the plugin throws". JE remains at
+  `Approved`, retryable.
+- **5-minute Key Vault secret TTL, ~55-minute token TTL.** Caches in
+  process-static fields.
+- **Connection timeout = 60s** (plugin runtime; conn string in Vault
+  uses standard 30s). Mitigates Azure SQL serverless cold-start without
+  inflating all consumers.
+- **SP client secret stored as Secret-type Dataverse env var.** Plugin
+  reads it via the elevated organization service
+  (`OrgSvcFactory.CreateOrganizationService(null)`) so the secret
+  decrypts. Tenant id, client id, vault URL, secret name are plain
+  string env vars (not secrets).
+
+**Pending live validation:** the one-time deployment plus first-JE
+verification in PRI-Books-Dev — listed under Current Phase above.
 
 ### Key Vault provisioning + credential rotation (completed 2026-05-20)
 

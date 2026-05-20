@@ -206,9 +206,39 @@ None of the temporary passwords or connection strings touch disk.
 | What protects against the SQL Server admin (`dbo` / `sysadmin`)? | Azure SQL auditing on every login + organizational controls (password in Key Vault, designated break-glass-only use). Permission DENY does not bind `dbo` and was never intended to. |
 | What is the long-term plan to harden `dbo`? | Move SQL admin to AAD-only with MFA; minimize the population that can authenticate as `priadmin`; keep audit on continuously. |
 
+## Phase 6B status — pending live validation (2026-05-21)
+
+Code-complete as of this date:
+
+- `LedgerRowHasher` (SHA-256 chain, deterministic field order, 16 unit tests passing)
+- `LedgerWriter` (SQL transaction with `WITH (UPDLOCK, HOLDLOCK)` chain-head lock, parameterized INSERT)
+- `KeyVaultSecretReader` + `MinimalJson` (raw OAuth2 + KV REST, no Azure SDK dependency, no ILRepack)
+- `PostJournalEntryLedgerWriter` orchestration (env var lookup → KV → SQL)
+- New plugin dispatch branch — Stage 40 PostOperation on `Update rm_journalentry`
+
+**Not yet performed:** live end-to-end test in PRI-Books-Dev. The
+prerequisites for that test are documented in
+[`../runbooks/plugin-registration.md`](../runbooks/plugin-registration.md):
+populate the five `rm_sqlkv*` environment variables, register the new
+step 10 with both PreImage and PostImage, deploy the new plugin DLL,
+then post a JE through the UI and inspect:
+
+- New row(s) in `ledger.GeneralLedgerEntries` (one per line)
+- `RowHash` values non-null, 32 bytes each
+- `PreviousRowHash` of first row = `0x0000…` (genesis); subsequent rows
+  = the prior row's `RowHash`
+- Re-computing `RowHash` via `LedgerRowHasher.ComputeRowHash` matches
+  the stored value
+- UPDATE / DELETE attempts as `dsb_app` still throw SQL 229 (DENY
+  grants intact)
+
+When live validation runs, append the results here with the test JE
+number, the inserted EntryId range, and the verified hash-chain head.
+
 ## See also
 
 - [`immutability-design.md`](immutability-design.md) — full immutability architecture (§A append-only ledger, §B hash chain)
+- [`credential-access-design.md`](credential-access-design.md) — how the plugin acquires its SQL connection string
 - [`../../azure-sql/migrations/V0002__general_ledger_entries.sql`](../../azure-sql/migrations/V0002__general_ledger_entries.sql) — DENY grants source of truth
 - [`../../azure-sql/migrations/V0003__sql_logins.sql`](../../azure-sql/migrations/V0003__sql_logins.sql) — per-user DENY defense in depth
 - [`../runbooks/sql-account-management.md`](../runbooks/sql-account-management.md) — rotating `dsb_*` passwords for first real use

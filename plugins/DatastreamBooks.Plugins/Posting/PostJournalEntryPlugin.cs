@@ -6,15 +6,21 @@ using System.Globalization;
 
 namespace DatastreamBooks.Plugins.Posting
 {
-    // Phase 6A — Dataverse-only.
-    // Azure SQL dual-write + hash chain land in Phase 6B (after Key Vault session).
-    //
     // Single plugin class dispatches across the steps registered against it:
     //   1. Pre-Op  Update rm_journalentry          -> ValidateHeaderUpdate (immutability, SoD, totals, period)
     //   2. Pre-Op  Create/Update/Delete rm_journalentryline -> GuardLineAgainstLockedHeader
     //   3. Post-Op Create/Update/Delete rm_journalentryline -> RecomputeHeaderTotals
+    //   4. Post-Op Update rm_journalentry          -> WriteToLedgerIfPosted (Phase 6B: Azure SQL dual-write + hash chain)
     //
     // Steps that need pre-state must register a PreImage named "PreImage".
+    // The Phase 6B post-op step additionally requires a PostImage named "PostImage"
+    // including rm_status, rm_entity, rm_journalentrynumber, rm_postedby_user, rm_posteddatetime.
+    //
+    // Phase 6B (2026-05-21): the post-op handler dual-writes Posted JEs to
+    // ledger.GeneralLedgerEntries via PostJournalEntryLedgerWriter, with a
+    // SHA-256 hash chain per EntityId. Any SQL failure throws
+    // InvalidPluginExecutionException, which rolls back the Dataverse
+    // transaction — keeping the two stores atomic.
     //
     // Note: rm_journalentrynumber is now a Dataverse native Auto Number column,
     // so the Create step on the header has been removed from the plugin.
@@ -33,6 +39,10 @@ namespace DatastreamBooks.Plugins.Posting
         public const string LineEntity = "rm_journalentryline";
 
         public const string PreImageName = "PreImage";
+        public const string PostImageName = "PostImage";
+
+        // Optional override for tests; in production, the default writer is constructed inline.
+        public PostJournalEntryLedgerWriter LedgerWriter { get; set; }
 
         public PostJournalEntryPlugin() : base(typeof(PostJournalEntryPlugin)) { }
 
@@ -51,6 +61,11 @@ namespace DatastreamBooks.Plugins.Posting
                 if (stage == 20 && msg == "Update")
                 {
                     ValidateHeaderUpdate(ctx, svc);
+                    return;
+                }
+                if (stage == 40 && msg == "Update")
+                {
+                    WriteToLedgerIfPosted(ctx);
                     return;
                 }
             }
@@ -112,6 +127,38 @@ namespace DatastreamBooks.Plugins.Posting
                 target["rm_postedby_user"] = new EntityReference("systemuser", ec.UserId);
                 target["rm_posteddatetime"] = DateTime.UtcNow;
             }
+        }
+
+        // ---------- 2b. Phase 6B post-op dual-write to Azure SQL ledger ----------
+        internal void WriteToLedgerIfPosted(ILocalPluginContext ctx)
+        {
+            var ec = ctx.PluginExecutionContext;
+
+            // Detect transition: old status (PreImage) -> new status (Target or PostImage).
+            int? oldStatus = null;
+            if (ec.PreEntityImages.Contains(PreImageName))
+            {
+                oldStatus = ec.PreEntityImages[PreImageName].GetAttributeValue<OptionSetValue>("rm_status")?.Value;
+            }
+
+            int? newStatus = null;
+            if (ec.InputParameters.Contains("Target") && ec.InputParameters["Target"] is Entity tgt && tgt.Contains("rm_status"))
+            {
+                newStatus = tgt.GetAttributeValue<OptionSetValue>("rm_status")?.Value;
+            }
+            if (newStatus == null && ec.PostEntityImages.Contains(PostImageName))
+            {
+                newStatus = ec.PostEntityImages[PostImageName].GetAttributeValue<OptionSetValue>("rm_status")?.Value;
+            }
+
+            // Only fire on transitions INTO Posted from a non-Posted state.
+            if (newStatus != StatusPosted) return;
+            if (oldStatus == StatusPosted) return;
+
+            ctx.Trace($"Phase 6B: Approved->Posted transition detected for {ec.PrimaryEntityId}; starting ledger dual-write.");
+
+            var writer = LedgerWriter ?? new PostJournalEntryLedgerWriter();
+            writer.Execute(ctx, ec.PrimaryEntityId);
         }
 
         // ---------- 3. SoD ----------
