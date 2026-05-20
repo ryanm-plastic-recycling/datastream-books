@@ -84,6 +84,7 @@
     <RootComponents>
       <RootComponent type="1" schemaName="rm_accountcategory" behavior="0" />
       <RootComponent type="1" schemaName="rm_accounttype" behavior="0" />
+      <RootComponent type="1" schemaName="rm_chartofaccount" behavior="0" />
       <RootComponent type="1" schemaName="rm_entity" behavior="0" />
       <RootComponent type="1" schemaName="rm_fiscalperiod" behavior="0" />
       <RootComponent type="1" schemaName="rm_fiscalyear" behavior="0" />

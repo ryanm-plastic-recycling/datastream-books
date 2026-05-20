@@ -4,6 +4,8 @@
   <EntityRelationship Name="lk_rm_accountcategory_modifiedby" />
   <EntityRelationship Name="lk_rm_accounttype_createdby" />
   <EntityRelationship Name="lk_rm_accounttype_modifiedby" />
+  <EntityRelationship Name="lk_rm_chartofaccount_createdby" />
+  <EntityRelationship Name="lk_rm_chartofaccount_modifiedby" />
   <EntityRelationship Name="lk_rm_entity_createdby" />
   <EntityRelationship Name="lk_rm_entity_modifiedby" />
   <EntityRelationship Name="lk_rm_fiscalperiod_createdby" />
@@ -12,10 +14,15 @@
   <EntityRelationship Name="lk_rm_fiscalyear_modifiedby" />
   <EntityRelationship Name="organization_rm_accountcategory" />
   <EntityRelationship Name="organization_rm_accounttype" />
+  <EntityRelationship Name="organization_rm_chartofaccount" />
   <EntityRelationship Name="organization_rm_entity" />
   <EntityRelationship Name="organization_rm_fiscalperiod" />
   <EntityRelationship Name="organization_rm_fiscalyear" />
+  <EntityRelationship Name="rm_accountcategory_chartofaccount" />
+  <EntityRelationship Name="rm_accounttype_chartofaccount" />
   <EntityRelationship Name="rm_accounttype_rm_accountcategory" />
+  <EntityRelationship Name="rm_chartofaccount_parent" />
+  <EntityRelationship Name="rm_entity_chartofaccount" />
   <EntityRelationship Name="rm_fiscalyear_rm_fiscalperiod" />
   <EntityRelationship Name="rm_systemuser_fiscalperiod_closedby" />
 </EntityRelationships>

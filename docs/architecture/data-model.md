@@ -82,30 +82,44 @@ As built in Phase 3 (2026-05-19):
 
 ### `rm_chartofaccount` (Dataverse)
 
-Single COA structure shared across all entities. Per-entity activation via
-`rm_chartofaccount_entityactivation` (intersect table) so each entity can
-exclude accounts it does not use without forking the COA.
+Per-entity COA. Account numbers are **unique within an entity** (enforced
+by an alternate key on `rm_entity` + `rm_accountnumber`) but not across
+entities. Account categories and types are factored to their own master
+tables (`rm_accounttype`, `rm_accountcategory`) for reporting symmetry
+and to let auditors see "what is an Asset" as a first-class lookup.
+
+As built in Phase 4 (2026-05-19):
 
 | Column | Type | Notes |
 |---|---|---|
 | `rm_chartofaccountid` | Unique Identifier (PK) | |
-| `rm_accountcode` | Single Line of Text | Stable identifier visible to users (e.g., `1010`) |
-| `rm_accountname` | Single Line of Text | Display name |
-| `rm_accounttype` | Choice | Asset / Liability / Equity / Revenue / Expense |
-| `rm_normalbalance` | Choice | Debit / Credit |
-| `rm_iscashaccount` | Yes/No | Flagged to invoke wire-transfer SoD on postings |
-| `rm_isintercompany` | Yes/No | Account used as IC clearing |
-| `rm_iscontrolaccount` | Yes/No | Auto-managed by sub-ledger (AP, AR, FA) — no manual JE |
-| `rm_status` | Choice | Active / Inactive |
-| `rm_parentaccountid` | Lookup (rm_chartofaccount) | Optional rollup parent |
+| `rm_chartofaccountname` | Single Line of Text (200) | Primary display name — e.g., `Cash - Operating - Bank of Indiana` (ApplicationRequired) |
+| `rm_accountnumber` | Single Line of Text (50) | Account number in the entity's numbering scheme. Searchable. Unique within an entity via alternate key (ApplicationRequired) |
+| `rm_accountshort` | Single Line of Text (50) | Short display name for reports and compact UI |
+| `rm_accountdesc` | Multiple Lines of Text (1000) | Long description |
+| `rm_accounttype` | Lookup (rm_accounttype) | Asset / Liability / Equity / Revenue / Expense (ApplicationRequired) |
+| `rm_accountcategory` | Lookup (rm_accountcategory) | Sub-category within the type (optional) |
+| `rm_entity` | Lookup (rm_entity) | Owning legal entity (ApplicationRequired) |
+| `rm_parentaccount` | Lookup (rm_chartofaccount) | Self-reference for hierarchical COA. NULL = top-level. |
+| `rm_accountlevel` | Whole Number (0–10) | Depth in COA hierarchy. Maintained by plugin in a later phase; seeded with 0 for top-level, 1 for sub. |
+| `rm_displayorder` | Whole Number (0–999999) | Optional sort key for COA display in reports. |
+| `rm_isactive` | Yes/No (default Yes) | Soft-delete flag. Inactive accounts cannot be posted to but are retained for financial-history preservation. |
+| `rm_iscashbankaccount` | Yes/No (default No) | Flags accounts representing physical cash or bank accounts; drives reconciliation routing and dual-approval policy on JEs to these accounts. |
+| `rm_normalbalance` | Choice (Debit / Credit) | OPTIONAL override of the linked `rm_accounttype.rm_normalbalance`, stored locally for query efficiency. Set only for contra-accounts in the starter seed. Option values mirror `rm_accounttype.rm_normalbalance`: Debit=261910000, Credit=261910001. |
+| `rm_normalbalancename` | Virtual | Auto-generated label companion for `rm_normalbalance` |
+| `rm_currency` | Single Line of Text (3) | ISO 4217 code. USD only in v1; column present so multi-currency can be added without a schema change. Seed scripts populate 'USD' at insert time (Dataverse string columns do not accept a metadata-level default). |
+| `rm_externalsystemid` | Single Line of Text (100) | Identifier from the source system during migration (e.g., the Macola account number) |
 
-**Rationale:**
-- `rm_iscashaccount`, `rm_isintercompany`, `rm_iscontrolaccount` are
-  promoted to first-class flags because plugins make routing decisions
-  based on them (e.g., manual JE to a cash account triggers Controller
-  approval per the decision log §Approval Workflows).
-- A hierarchical `rm_parentaccountid` supports financial-statement
-  rollups without storing the rollup in a separate table.
+**Settings:**
+- Ownership: Organization
+- Audit: ON
+- Alternate key: `rm_coa_entity_number_key` on (`rm_entity`, `rm_accountnumber`) — enforces account-number uniqueness within an entity
+
+**Rationale for shape changes vs. earlier (Phase 1) draft:**
+- The earlier draft used choice columns for `rm_accounttype` and `rm_status` and split `rm_iscashaccount`/`rm_isintercompany`/`rm_iscontrolaccount` as separate booleans. The as-built v2 promotes `rm_accounttype` and `rm_accountcategory` to lookups against their own master tables for reporting and audit symmetry, collapses status to a single `rm_isactive` boolean (Phase 1 ledger status is governed by `rm_fiscalperiod.rm_status` and JE-level state, not by COA status), and renames `rm_iscashaccount` to the more explicit `rm_iscashbankaccount`. `rm_isintercompany` and `rm_iscontrolaccount` are intentionally deferred until the AP/AR sub-ledgers land and we have concrete plugin behaviors to attach to those flags — premature flags rot.
+- An explicit per-entity COA (account number unique within an entity) rather than a globally-shared COA: this matches Macola's behavior, lets entities maintain different numbering ranges, and removes the need for a separate `entityactivation` intersect table. The trade-off is that consolidation reports must group by account-category or type rather than by account number. Acceptable; the category/type lookup gives us the grouping key.
+- `rm_normalbalance` stored locally on the row (rather than always joined through `rm_accounttype`) is a denormalization for query efficiency — financial reports filter by Debit-vs-Credit constantly. The value defaults to the type's normal balance at row creation, with the seed script explicitly setting it for contra-accounts (Accumulated Depreciation, Allowance for Doubtful Accounts, Sales Returns).
+- `rm_accountnumberingscheme` (proposed as an optional companion table for documenting per-entity number ranges) was **deliberately skipped** this phase. It would be soft-validation data with no immediate consumer; adding it now creates a table with one row that nothing reads. It will be introduced when the COA validation plugin lands (likely a later phase), at which point the plugin is the natural consumer of the range definitions.
 
 ### `rm_fiscalperiod` (Dataverse)
 
