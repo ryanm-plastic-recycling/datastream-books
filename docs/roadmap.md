@@ -5,13 +5,44 @@
 
 ## Current Phase
 
-**Phase 5: Journal Entry tables (`rm_journalentry`, `rm_journalentryline`)**
+**Phase 6: First Posting Plugin (`PostJournalEntryPlugin`)**
 
-Header + lines for pre-post journal entries in Dataverse. The data model is already drafted in `docs/architecture/data-model.md`. Build sequence: header table with auto-numbered `rm_journalentrynumber`, status choice (Draft/PendingApproval/Approved/Posted/Reversed/Voided), and SoD-relevant user lookups (created/approved/posted); lines table with cascade-delete from header, line-number ordering, and lookups to `rm_chartofaccount`. No plugins yet — schema first, then `PostJournalEntryPlugin` in Phase 6.
+Server-side journal-entry posting. Two-phase commit across Dataverse + Azure SQL with full immutability + SoD enforcement:
+- Auto-generation of `rm_journalentrynumber` as `JE-{entitycode}-{NNNNNN}` (per-entity sequence)
+- Maintenance of `rm_totaldebit` / `rm_totalcredit` on line write
+- Validation gate: debits = credits, account active, fiscal period Open, `rm_createdby_user ≠ rm_approvedby_user`, `header.rm_entity = line.rm_entity` on every line, exactly-one-non-zero per line
+- Per-entity hash-chain compute and append to `ledger.GeneralLedgerEntries`
+- Status transition Draft → PendingApproval → Approved → Posted with state-machine guards
+- Unit tests via FakeXrmEasy
 
 ## Completed Phases
 
 > Newest first.
+
+### Phase 5: Journal Entry tables (completed 2026-05-19)
+
+**Focus:** Build the `rm_journalentry` (header) + `rm_journalentryline` (lines) tables in PRI-Books-Dev so Phase 6 has somewhere to post against.
+
+**Outcome:**
+- `rm_journalentry` created with 12 user-defined attributes + 7 lookups: required `rm_entity` and `rm_fiscalperiod`, three optional `systemuser` lookups (`rm_createdby_user`, `rm_approvedby_user`, `rm_postedby_user`) for SoD, and two self-referencing reversal lookups (`rm_reversesje`, `rm_reversedbyje`). Primary name attribute is `rm_journalentrynumber`. Workflow status (Draft / PendingApproval / Approved / Posted / Reversed / Voided) and JE type (Standard / Recurring / Adjusting / Closing / IntercompanyClearing / Reversal) are local picklists.
+- `rm_journalentryline` created with 7 user-defined attributes + 3 lookups: required parent `rm_journalentry` (Cascade All), required `rm_account` (to `rm_chartofaccount`), required `rm_entity` (denormalized from header). Primary name attribute is `rm_journalentrylinename` (manually entered in Phase 5; plugin will compute later).
+- Both tables organization-owned with audit ON.
+- `docs/architecture/data-model.md` updated to reflect the as-built shape — every column, every lookup, every cascade behavior, with the rationale for each Phase 5 decision.
+
+**Decisions made:**
+- **Autonumber deferred to Phase 6.** Dataverse's native autonumber column type doesn't easily support entity-prefixed numbering across tables. `rm_journalentrynumber` is a plain ApplicationRequired string column in Phase 5; the PostJournalEntryPlugin will generate `JE-{entitycode}-{NNNNNN}` and enforce uniqueness server-side. Simpler and more flexible.
+- **Totals as plain decimal columns**, not roll-up or calculated. Roll-up columns refresh on a cadence and can be stale at validation time. Plain decimals updated by the plugin are atomic with line writes and always current.
+- **`rm_createdby_user` is a deliberate, immutable user lookup**, separate from Dataverse's reassignable system `createdby`. Set once by plugin and never updated. SoD reads from this field.
+- **Cascade All on the parent relationship** (header → lines). Posted-JE immutability is enforced at the status check level inside the plugin, not at the relationship level — so cascade only matters for Draft JEs, where the UI needs to be able to discard a Draft cleanly.
+- **`rm_entity` denormalized onto lines** for query performance and entity-scoped row-level security. Plugin enforces `header.rm_entity = line.rm_entity` invariant.
+- **`rm_costcenter` and `rm_project` as free-form strings** in Phase 5. They get masters / lookups when project accounting or cost-center reporting becomes a real requirement.
+- **Account lookup named `rm_account`** (not `rm_chartofaccount`) for cleaner field references in forms and reports. Relationship still resolves to the COA table.
+
+**Issues encountered (resolved):**
+- Metadata cache lag after entity creation: first attribute POST returned `0x80040216 An unexpected error occurred`. Retry succeeded a few seconds later. Mitigation added to the .tmp-build helper: `0x80040216` and 500-class responses now classified as transient and folded into the same poll-on-lock retry loop already in place for `0x80071151` (concurrent solution import) and 429 throttles.
+- The `RequiredLevel=ApplicationRequired` setting takes a publish-customizations pass before Dataverse honors it in the forms UI. Build script publishes per-table at the end; no manual step.
+
+**Next:** Phase 6 — PostJournalEntryPlugin.
 
 ### Phase 4: Chart of Accounts (completed 2026-05-19)
 
@@ -103,11 +134,7 @@ Header + lines for pre-post journal entries in Dataverse. The data model is alre
 ## Future Phases
 
 > Placeholders. Order is approximate; reshuffles as priorities shift.
-> (Phase 5 has been promoted to Current Phase — see top of file.)
-
-### Phase 6 — First Posting Plugin (`PostJournalEntryPlugin`)
-
-The two-phase Dataverse + Azure SQL commit. SoD enforcement (`ApprovedBy != PostedBy`). Period-lock check. Per-entity hash-chain computation. Unit tests via FakeXrmEasy.
+> (Phase 6 has been promoted to Current Phase — see top of file.)
 
 ### Phase 7 — Vendor / Customer Integration with ERP
 

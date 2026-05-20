@@ -153,49 +153,94 @@ irreversible.
 JE header. Holds workflow state (Draft, PendingApproval, Approved, Posted,
 Reversed, Voided).
 
+As built in Phase 5 (2026-05-19):
+
 | Column | Type | Notes |
 |---|---|---|
 | `rm_journalentryid` | Unique Identifier (PK) | |
-| `rm_entityid` | Lookup (rm_entity) | Required |
-| `rm_journalentrynumber` | Single Line of Text | Auto-numbered: `JE-{Entity short code}-{YYYY}-{NNNNN}` |
-| `rm_transactiondate` | Date | Business effective date |
-| `rm_fiscalperiodid` | Lookup (rm_fiscalperiod) | Computed from `rm_transactiondate` + entity |
-| `rm_memo` | Multiple Lines of Text | Header memo |
-| `rm_sourcemodule` | Choice | GL / AP / AR / FA / BANK / SYS |
-| `rm_status` | Choice | Draft / PendingApproval / Approved / Posted / Reversed / Voided |
-| `rm_createdbyuserid` | Lookup (systemuser) | Set on create |
-| `rm_approvedbyuserid` | Lookup (systemuser) | SoD: must differ from creator if approval required |
-| `rm_postedbyuserid` | Lookup (systemuser) | SoD: must differ from approver |
-| `rm_postedatutc` | Date and Time | Set by posting plugin |
-| `rm_reversesjournalentryid` | Lookup (rm_journalentry) | If this JE is a reversal |
-| `rm_intercompanyentityid` | Lookup (rm_entity) | If inter-company; identifies the counter-entity |
+| `rm_journalentrynumber` | Single Line of Text (50) | **Primary name attribute.** Manually entered in Phase 5 (ApplicationRequired). PostJournalEntryPlugin (Phase 6) will auto-generate as `JE-{entitycode}-{NNNNNN}` and enforce uniqueness server-side. |
+| `rm_journaldescription` | Single Line of Text (500) | What this JE is for; ApplicationRequired. |
+| `rm_entity` | Lookup (rm_entity) | ApplicationRequired — every JE belongs to exactly one entity. |
+| `rm_fiscalperiod` | Lookup (rm_fiscalperiod) | ApplicationRequired — which period this JE posts to. Phase 6 plugin rejects posting if the period is not Open. |
+| `rm_postingdate` | DateOnly | Accounting date; may differ from creation date. ApplicationRequired. |
+| `rm_status` | Choice | Draft / PendingApproval / Approved / Posted / Reversed / Voided. ApplicationRequired. Option values 261910000–261910005. Virtual companion `rm_statusname`. |
+| `rm_jetype` | Choice (optional) | Standard / Recurring / Adjusting / Closing / IntercompanyClearing / Reversal. Virtual companion `rm_jetypename`. |
+| `rm_referencenumber` | Single Line of Text (100) | External reference (invoice/bill/check number). Optional. |
+| `rm_sourcedocument` | Single Line of Text (200) | Narrative source description. Optional. |
+| `rm_totaldebit` | Decimal (18,2) | Sum of all debit lines. Maintained by PostJournalEntryPlugin (Phase 6); zero until lines added. Must equal `rm_totalcredit` at Approval/Post. |
+| `rm_totalcredit` | Decimal (18,2) | Sum of all credit lines. Same plugin-maintained pattern as `rm_totaldebit`. |
+| `rm_createdby_user` | Lookup (systemuser) | **Distinct from Dataverse system `createdby`.** Set once by plugin, never updated; deliberate, immutable record consumed by SoD checks. |
+| `rm_approvedby_user` | Lookup (systemuser) | Set by approval plugin. SoD: must differ from `rm_createdby_user` before status can reach Approved. |
+| `rm_postedby_user` | Lookup (systemuser) | Set by posting plugin. SoD per approval-policies.md (may equal approver per current policy; configurable per policy row). |
+| `rm_approveddatetime` | Date and Time | Set by approval plugin. |
+| `rm_posteddatetime` | Date and Time | Set by posting plugin. |
+| `rm_reversesje` | Lookup (rm_journalentry) | Self-reference. If this JE is a reversal of another, link to the original. |
+| `rm_reversedbyje` | Lookup (rm_journalentry) | Self-reference. Inverse pointer: if this JE was reversed, link to the reversal JE. |
+| `rm_isreversal` | Yes/No (default No) | Quick filter flag set true when this JE was generated to reverse another. Virtual companion `rm_isreversalname`. |
 
-**Rationale:**
-- Three person-fields (`Created`, `Approved`, `Posted`) so the plugin can
-  enforce strict SoD per the role list in the decision log.
-- `rm_status` is the gate to ledger writes — only `Approved` → `Posted` is
-  legal. The posting plugin rejects writes for any other source state.
+**Settings:**
+- Ownership: Organization
+- Audit: ON
+- Cascade behavior toward lines (rm_journalentry → rm_journalentryline): **Cascade All** (delete header deletes lines; reassign cascades). Posted-JE immutability lives in the status check inside `PostJournalEntryPlugin`, not in the relationship.
+
+**Design decisions made during Phase 5:**
+
+1. **Autonumber deferred to Phase 6.** Dataverse's native autonumber column type doesn't easily support entity-prefixed numbering across tables; a plugin can generate `JE-{entitycode}-{NNNNNN}` reliably and atomically. For Phase 5, `rm_journalentrynumber` is a plain ApplicationRequired string column with no alternate key. The Phase 6 plugin will both generate the number and enforce uniqueness.
+
+2. **Totals as plain decimal columns** (not roll-up, not calculated). Roll-up columns refresh on a cadence (hourly, manual) and can be stale at validation time. Plain decimals updated by the plugin are atomic with line writes and always current. Phase 6 plugin owns `rm_totaldebit` / `rm_totalcredit`.
+
+3. **`rm_createdby_user` is a separate user lookup** from Dataverse's system `createdby` (which is reassignable). The dedicated field is set once by the plugin and never updated. SoD checks read from this field — a reassignment of the system `createdby` cannot retroactively break SoD on a previously-approved JE.
+
+4. **`rm_status` and `rm_jetype` are local picklists** (not global option sets). No other table needs the JE workflow states or JE classifiers; localizing them avoids cross-table option-set drift.
+
+5. **Two self-references** (`rm_reversesje` forward, `rm_reversedbyje` inverse) instead of one. The forward pointer alone would require an additional query to find reversals from the original; the bidirectional link makes both reports (JE Audit Trail and Reversal Tracker) one-hop.
 
 ### `rm_journalentryline` (Dataverse)
 
 JE lines. Editable while the parent JE is `Draft` / `PendingApproval`; locked
-once the JE is `Posted`.
+once the JE is `Posted` (enforcement lives in the plugin at the status level,
+not in the relationship).
+
+As built in Phase 5 (2026-05-19):
 
 | Column | Type | Notes |
 |---|---|---|
 | `rm_journalentrylineid` | Unique Identifier (PK) | |
-| `rm_journalentryid` | Lookup (rm_journalentry) | Cascade-delete from header (only while Draft) |
-| `rm_linenumber` | Whole Number | 1-based, contiguous (plugin enforces) |
-| `rm_accountid` | Lookup (rm_chartofaccount) | |
-| `rm_debitamount` | Currency | One of debit/credit is non-zero; both >= 0 |
-| `rm_creditamount` | Currency | |
-| `rm_memo` | Single Line of Text | Line-level memo |
-| `rm_sourcedocumentref` | Single Line of Text | Free-form ref to source doc |
+| `rm_journalentrylinename` | Single Line of Text (100) | **Primary name attribute.** Manually entered in Phase 5 (ApplicationRequired). Future plugin will compute as `Line {N} - {AccountName}`. |
+| `rm_journalentry` | Lookup (rm_journalentry) | **Parent**, ApplicationRequired. Cascade All — deleting a Draft header deletes its lines; reassign cascades. |
+| `rm_linenumber` | Whole Number (1–9999) | Position within the JE. Plugin enforces contiguous numbering. ApplicationRequired. |
+| `rm_account` | Lookup (rm_chartofaccount) | ApplicationRequired. Plugin validates `rm_isactive` and entity-match with the header on save. |
+| `rm_entity` | Lookup (rm_entity) | ApplicationRequired. Denormalized from the header for query performance and entity-scoped row-level security. Plugin enforces `header.rm_entity = line.rm_entity`. |
+| `rm_debit` | Decimal (18,2) | Debit amount (≥0). Exactly one of `rm_debit` / `rm_credit` must be non-zero per line. |
+| `rm_credit` | Decimal (18,2) | Credit amount (≥0). |
+| `rm_linedescription` | Single Line of Text (500) | Optional per-line narrative; appears on the GL detail report. |
+| `rm_externalrefnumber` | Single Line of Text (100) | Optional line-level external reference (PO number, bill line, invoice line, etc.). |
+| `rm_costcenter` | Single Line of Text (50) | Optional cost-center / department code. Free-form in Phase 5; no master table yet. |
+| `rm_project` | Single Line of Text (50) | Optional project code. Free-form in Phase 5; no master table yet. |
 
-**Constraint enforced by plugin (not by Dataverse alone):**
-- Sum of debits = sum of credits per JE
-- Every line's account is `rm_status = Active` for the JE's entity
-- Inter-company JEs have matched IC pair across entities
+**Settings:**
+- Ownership: Organization
+- Audit: ON
+- Cascade behavior from header (rm_journalentry → rm_journalentryline): **Cascade All**
+
+**Constraints enforced by plugin (not by Dataverse alone):**
+- Sum of debits = sum of credits per JE at Approve and Post
+- Exactly one of `rm_debit` / `rm_credit` non-zero per line (memo-only lines deferred to a future phase)
+- `rm_account.rm_isactive = true` for the JE's entity
+- `header.rm_entity = line.rm_entity` for every line
+- Inter-company JEs have matched IC pair across entities (see IC Mechanics below)
+
+**Design decisions made during Phase 5 specific to lines:**
+
+1. **Cascade All from header to lines**, not Restrict-on-delete. Posted-JE immutability is enforced at the status check level inside the plugin, not at the relationship level — so the cascade behavior only matters for Draft JEs, where it should be permissive (the UI should be able to discard a Draft cleanly).
+
+2. **`rm_entity` denormalized onto lines** rather than always-join through the header. Reports filter by entity on every query; the redundancy buys query speed at the cost of one plugin-enforced invariant.
+
+3. **`rm_debit` / `rm_credit` as separate decimal columns** (not a single signed amount + side picklist). Matches the GL convention every accountant expects, keeps reports simple, and lets the plugin assert exactly-one-non-zero in Phase 6.
+
+4. **`rm_costcenter` and `rm_project` are free-form strings** for now. They become masters / lookups when project accounting or cost-center reporting becomes a real requirement — not before.
+
+5. **Account lookup is named `rm_account`**, not `rm_chartofaccount`. The shorter name reads more naturally in reports and form labels; the relationship still resolves to the COA table.
 
 ### `ledger.GeneralLedgerEntries` (Azure SQL)
 

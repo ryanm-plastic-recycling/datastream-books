@@ -35,8 +35,8 @@
 
 | Rule | Plugin | Source-of-truth field comparison |
 |---|---|---|
-| JE creator ≠ approver | `ApproveJournalEntryPlugin` | `rm_createdbyuserid != rm_approvedbyuserid` |
-| JE approver ≠ poster | `PostJournalEntryPlugin` | `rm_approvedbyuserid != rm_postedbyuserid` |
+| JE creator ≠ approver | `ApproveJournalEntryPlugin` | `rm_journalentry.rm_createdby_user != rm_journalentry.rm_approvedby_user` (both lookups to systemuser; set by plugin, never by UI) |
+| JE approver ≠ poster | `PostJournalEntryPlugin` | `rm_journalentry.rm_approvedby_user != rm_journalentry.rm_postedby_user` (per current approval-policies.md, may be relaxed per policy row) |
 | Vendor setup ≠ vendor bank change | `EditVendorBankInfoPlugin` | distinct user GUIDs on `vendor.SetupBy` and `vendor.BankChangedBy` |
 | Vendor bank change: dual approval | `ApproveVendorBankChangePlugin` | two distinct approvers, both holding `Vendor Bank Change` OR `Controller` |
 | Wire initiate ≠ wire approve | `ApproveWirePlugin` | `wire.InitiatedBy != wire.ApprovedBy` |
