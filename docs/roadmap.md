@@ -5,13 +5,39 @@
 
 ## Current Phase
 
-**Phase 4: Chart of Accounts (this session)**
+**Phase 5: Journal Entry tables (`rm_journalentry`, `rm_journalentryline`)**
 
-Build the Chart of Accounts master table (`rm_chartofaccount`) in PRI-Books-Dev, seed it with a standard ~50-account starter set hung off a placeholder `Default Operating Entity`, and prove the seed script is re-runnable against any environment. After this lands, the next session moves to Journal Entry tables (`rm_journalentry`, `rm_journalentryline`) followed by the first plugin (`PostJournalEntryPlugin`).
+Header + lines for pre-post journal entries in Dataverse. The data model is already drafted in `docs/architecture/data-model.md`. Build sequence: header table with auto-numbered `rm_journalentrynumber`, status choice (Draft/PendingApproval/Approved/Posted/Reversed/Voided), and SoD-relevant user lookups (created/approved/posted); lines table with cascade-delete from header, line-number ordering, and lookups to `rm_chartofaccount`. No plugins yet — schema first, then `PostJournalEntryPlugin` in Phase 6.
 
 ## Completed Phases
 
 > Newest first.
+
+### Phase 4: Chart of Accounts (completed 2026-05-19)
+
+**Focus:** Stand up the per-entity `rm_chartofaccount` master and a runnable standard COA seed so the next phases (Journal Entries, posting plugin) have account rows to point at.
+
+**Outcome:**
+- `rm_chartofaccount` table created in PRI-Books-Dev (14 user-defined columns + system audit columns)
+- Four lookups in place: `rm_accounttype` (required), `rm_accountcategory`, `rm_entity` (required), `rm_parentaccount` (self, for hierarchical COA)
+- Alternate key `rm_coa_entity_number_key` on (`rm_entity`, `rm_accountnumber`) — verified live to reject duplicate `(entity, account number)` inserts
+- Placeholder `Default Operating Entity` (rm_entitycode=`DEFAULT`) seeded into `rm_entity`
+- Standard 54-row COA loaded into PRI-Books-Dev under the DEFAULT entity: 20 parent + 34 child rows, including contra-account `rm_normalbalance` overrides on Allowance for Doubtful Accounts, Accumulated Depreciation, Sales Returns & Allowances, and Owner Distributions
+- Two new committed seed scripts (`scripts/seed-default-entity.ps1`, `scripts/seed-rm_chartofaccount.ps1`) — both idempotent, environment-portable (FK resolution via stable codes, not GUIDs), and `-WhatIf`-aware
+- `docs/architecture/data-model.md` updated to reflect the as-built shape — per-entity COA, lookups for type/category/entity/parent, single `rm_isactive` boolean instead of the Phase-1 draft's `rm_status` choice, and the rationale for each divergence
+
+**Decisions made:**
+- **Skipped `rm_accountnumberingscheme`** for this phase. It would be soft-validation data with no immediate consumer. Will be added when the COA validation plugin lands (the natural consumer of the range definitions).
+- **`rm_normalbalance` as an optional local override** of the linked `rm_accounttype.rm_normalbalance`, with explicit values written only for contra-accounts. The denormalization is intentional — financial reports filter by Debit-vs-Credit constantly.
+- **String columns do not get metadata-level defaults**. Dataverse Web API rejects `DefaultValue` on `StringAttributeMetadata`. `rm_currency`='USD' is set by the seed scripts at insert time; the value will also be enforced by a Phase 6+ validation plugin once multi-currency becomes a real concern.
+- **Per-entity COA** (account number unique within an entity, not globally) — matches Macola behavior, removes need for an `entityactivation` intersect table.
+
+**Issues encountered (resolved):**
+- Solution-import / publish lock contention from the concurrent CI run — solved by wrapping the idempotent metadata build in a poll-on-429 loop so each step retries until the lock clears
+- `StringAttributeMetadata.DefaultValue` is not a valid property on the Dataverse Web API — removed the default-value path on string columns and pushed the convention to the seed scripts; helper helper script comment now warns future authors
+- Metadata cache lag on read-after-write for the choice column briefly caused `Get-DvAttribute` to return null and re-attempt a duplicate POST; mitigated by the retry loop and idempotency checks on the server side (existing-attribute errors are silently absorbed)
+
+**Next:** Phase 5 — Journal Entry tables.
 
 ### Phase 3: First Real Dataverse Tables (completed 2026-05-19)
 
@@ -77,11 +103,7 @@ Build the Chart of Accounts master table (`rm_chartofaccount`) in PRI-Books-Dev,
 ## Future Phases
 
 > Placeholders. Order is approximate; reshuffles as priorities shift.
-> (Phase 4 has been promoted to Current Phase — see top of file.)
-
-### Phase 5 — Journal Entry tables (`rm_journalentry`, `rm_journalentryline`)
-
-Header + lines for pre-post journal entries in Dataverse. Auto-numbering on the header (`JE-{Entity short}-{YYYY}-{NNNNN}`). Lookups to `rm_entity`, `rm_fiscalperiod`, `rm_chartofaccount`. Status choice (Draft / PendingApproval / Approved / Posted / Reversed / Voided). No plugins yet — schema first.
+> (Phase 5 has been promoted to Current Phase — see top of file.)
 
 ### Phase 6 — First Posting Plugin (`PostJournalEntryPlugin`)
 
