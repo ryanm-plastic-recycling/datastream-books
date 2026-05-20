@@ -232,7 +232,6 @@ rm_entity (1) ----< rm_fiscalperiod (N)
 
 rm_chartofaccount (1) ----< rm_journalentryline (N)
                   ----< ledger.GeneralLedgerEntries (N)
-                  ----< rm_chartofaccount_entityactivation (N) >---- rm_entity (1)
 ```
 
 ## Inter-Company JE Mechanics
@@ -242,7 +241,7 @@ When a user submits a JE flagged inter-company (`rm_intercompanyentityid` set):
 1. The originating JE references the counter-entity.
 2. On approval, the IC-pairing plugin generates a matched companion JE in
    the counter-entity. The two share an `rm_intercompanypairid` GUID.
-3. Both JEs must use a configured IC clearing account (`rm_isintercompany = true`).
+3. Both JEs must use a configured IC clearing account. IC clearing accounts will be identified by naming convention or a future flag (rm_isintercompany was deferred per Phase 4 — flag will be added when AP/AR sub-ledgers land and concrete IC plugin behavior is defined).
 4. On Post, both ledger rows are written within the same transaction; they
    share `InterCompanyPairId`. Period-locks are checked for both entities
    before write — a closed counter-period blocks the original post.
