@@ -153,15 +153,15 @@ jobs:
             "should_pack=false" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
             Write-Host "solution/src/Entities is empty or missing - skipping pack/import (expected on first runs)."
           }
-
-      - name: Pack solution (managed)
+            
+      - name: Pack solution (unmanaged)
         if: steps.detect_solution.outputs.should_pack == 'true'
         shell: pwsh
         run: |
           pac solution pack `
             --folder solution/src `
             --zipfile "$env:RUNNER_TEMP/$env:SOLUTION_NAME.zip" `
-            --packagetype Managed
+            --packagetype Unmanaged
 
       # -----------------------------------------------------------------
       # Authenticate pac to PRI-Books-Dev (federated identity)
