@@ -1,16 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Entity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <Name LocalizedName="Chart of Account" OriginalName="Chart of Account">rm_chartofaccount</Name>
+  <Name LocalizedName="Journal Entry" OriginalName="Journal Entry">rm_journalentry</Name>
   <EntityInfo>
-    <entity Name="rm_chartofaccount">
+    <entity Name="rm_journalentry">
       <LocalizedNames>
-        <LocalizedName description="Chart of Account" languagecode="1033" />
+        <LocalizedName description="Journal Entry" languagecode="1033" />
       </LocalizedNames>
       <LocalizedCollectionNames>
-        <LocalizedCollectionName description="Chart of Accounts" languagecode="1033" />
+        <LocalizedCollectionName description="Journal Entries" languagecode="1033" />
       </LocalizedCollectionNames>
       <Descriptions>
-        <Description description="A single account in an entitys chart of accounts. References rm_accounttype, rm_accountcategory, rm_entity. Supports a self-referencing parent for hierarchical COA." languagecode="1033" />
+        <Description description="Journal entry header. Tracks workflow state (Draft -&gt; PendingApproval -&gt; Approved -&gt; Posted; or Voided/Reversed) and SoD-relevant user lookups. Lines live on rm_journalentryline. Posted ledger writes are owned by the Phase 6 plugin (PostJournalEntryPlugin)." languagecode="1033" />
       </Descriptions>
       <attributes>
         <attribute PhysicalName="CreatedBy">
@@ -366,13 +366,12 @@
             <Description description="Date and time that the record was migrated." languagecode="1033" />
           </Descriptions>
         </attribute>
-        <attribute PhysicalName="rm_accountcategory">
+        <attribute PhysicalName="rm_approvedby_user">
           <Type>lookup</Type>
-          <Name>rm_accountcategory</Name>
-          <LogicalName>rm_accountcategory</LogicalName>
+          <Name>rm_approvedby_user</Name>
+          <LogicalName>rm_approvedby_user</LogicalName>
           <RequiredLevel>none</RequiredLevel>
           <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
-          <ImeMode>auto</ImeMode>
           <ValidForUpdateApi>1</ValidForUpdateApi>
           <ValidForReadApi>1</ValidForReadApi>
           <ValidForCreateApi>1</ValidForCreateApi>
@@ -390,7 +389,6 @@
           <IsSortableEnabled>0</IsSortableEnabled>
           <CanModifyGlobalFilterSettings>1</CanModifyGlobalFilterSettings>
           <CanModifyIsSortableSettings>1</CanModifyIsSortableSettings>
-          <ExternalName>rm_accountcategory</ExternalName>
           <IsDataSourceSecret>0</IsDataSourceSecret>
           <AutoNumberFormat></AutoNumberFormat>
           <IsSearchable>0</IsSearchable>
@@ -400,16 +398,170 @@
           <LookupStyle>single</LookupStyle>
           <LookupTypes />
           <displaynames>
-            <displayname description="Account Category" languagecode="1033" />
+            <displayname description="Approved By (User)" languagecode="1033" />
           </displaynames>
           <Descriptions>
-            <Description description="Sub-category within the account type. Optional." languagecode="1033" />
+            <Description description="User who approved this JE. SoD: must differ from rm_createdby_user before status can reach Approved." languagecode="1033" />
           </Descriptions>
         </attribute>
-        <attribute PhysicalName="rm_accountdesc">
-          <Type>ntext</Type>
-          <Name>rm_accountdesc</Name>
-          <LogicalName>rm_accountdesc</LogicalName>
+        <attribute PhysicalName="rm_approveddatetime">
+          <Type>datetime</Type>
+          <Name>rm_approveddatetime</Name>
+          <LogicalName>rm_approveddatetime</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>inactive</ImeMode>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <SourceType>0</SourceType>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <CanModifyGlobalFilterSettings>1</CanModifyGlobalFilterSettings>
+          <CanModifyIsSortableSettings>1</CanModifyIsSortableSettings>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <AutoNumberFormat></AutoNumberFormat>
+          <IsSearchable>0</IsSearchable>
+          <IsFilterable>0</IsFilterable>
+          <IsRetrievable>0</IsRetrievable>
+          <IsLocalizable>0</IsLocalizable>
+          <Format>datetime</Format>
+          <CanChangeDateTimeBehavior>1</CanChangeDateTimeBehavior>
+          <Behavior>1</Behavior>
+          <displaynames>
+            <displayname description="Approved Date/Time" languagecode="1033" />
+          </displaynames>
+          <Descriptions>
+            <Description description="When this JE was approved. Set by the approval plugin." languagecode="1033" />
+          </Descriptions>
+        </attribute>
+        <attribute PhysicalName="rm_createdby_user">
+          <Type>lookup</Type>
+          <Name>rm_createdby_user</Name>
+          <LogicalName>rm_createdby_user</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>0</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <SourceType>0</SourceType>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <CanModifyGlobalFilterSettings>1</CanModifyGlobalFilterSettings>
+          <CanModifyIsSortableSettings>1</CanModifyIsSortableSettings>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <AutoNumberFormat></AutoNumberFormat>
+          <IsSearchable>0</IsSearchable>
+          <IsFilterable>0</IsFilterable>
+          <IsRetrievable>0</IsRetrievable>
+          <IsLocalizable>0</IsLocalizable>
+          <LookupStyle>single</LookupStyle>
+          <LookupTypes />
+          <displaynames>
+            <displayname description="Created By (User)" languagecode="1033" />
+          </displaynames>
+          <Descriptions>
+            <Description description="Original creator of the JE. Set once by plugin and never updated; deliberate, immutable record consumed by SoD checks (distinct from the reassignable system createdby field)." languagecode="1033" />
+          </Descriptions>
+        </attribute>
+        <attribute PhysicalName="rm_entity">
+          <Type>lookup</Type>
+          <Name>rm_entity</Name>
+          <LogicalName>rm_entity</LogicalName>
+          <RequiredLevel>required</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>0</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <SourceType>0</SourceType>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <CanModifyGlobalFilterSettings>1</CanModifyGlobalFilterSettings>
+          <CanModifyIsSortableSettings>1</CanModifyIsSortableSettings>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <AutoNumberFormat></AutoNumberFormat>
+          <IsSearchable>0</IsSearchable>
+          <IsFilterable>0</IsFilterable>
+          <IsRetrievable>0</IsRetrievable>
+          <IsLocalizable>0</IsLocalizable>
+          <LookupStyle>single</LookupStyle>
+          <LookupTypes />
+          <displaynames>
+            <displayname description="Entity" languagecode="1033" />
+          </displaynames>
+          <Descriptions>
+            <Description description="Legal entity this JE belongs to. Every JE belongs to exactly one entity." languagecode="1033" />
+          </Descriptions>
+        </attribute>
+        <attribute PhysicalName="rm_fiscalperiod">
+          <Type>lookup</Type>
+          <Name>rm_fiscalperiod</Name>
+          <LogicalName>rm_fiscalperiod</LogicalName>
+          <RequiredLevel>required</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>0</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <SourceType>0</SourceType>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <CanModifyGlobalFilterSettings>1</CanModifyGlobalFilterSettings>
+          <CanModifyIsSortableSettings>1</CanModifyIsSortableSettings>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <AutoNumberFormat></AutoNumberFormat>
+          <IsSearchable>0</IsSearchable>
+          <IsFilterable>0</IsFilterable>
+          <IsRetrievable>0</IsRetrievable>
+          <IsLocalizable>0</IsLocalizable>
+          <LookupStyle>single</LookupStyle>
+          <LookupTypes />
+          <displaynames>
+            <displayname description="Fiscal Period" languagecode="1033" />
+          </displaynames>
+          <Descriptions>
+            <Description description="Fiscal period this JE posts to. PostJournalEntryPlugin (Phase 6) rejects posting if the period is not Open." languagecode="1033" />
+          </Descriptions>
+        </attribute>
+        <attribute PhysicalName="rm_isreversal">
+          <Type>bit</Type>
+          <Name>rm_isreversal</Name>
+          <LogicalName>rm_isreversal</LogicalName>
           <RequiredLevel>none</RequiredLevel>
           <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
           <ImeMode>auto</ImeMode>
@@ -436,22 +588,44 @@
           <IsFilterable>0</IsFilterable>
           <IsRetrievable>0</IsRetrievable>
           <IsLocalizable>0</IsLocalizable>
-          <Format>textarea</Format>
-          <MaxLength>1000</MaxLength>
+          <AppDefaultValue>0</AppDefaultValue>
+          <optionset Name="rm_journalentry_rm_isreversal">
+            <OptionSetType>bit</OptionSetType>
+            <IntroducedVersion>1.0</IntroducedVersion>
+            <IsCustomizable>1</IsCustomizable>
+            <displaynames>
+              <displayname description="Is Reversal" languagecode="1033" />
+            </displaynames>
+            <Descriptions>
+              <Description description="Quick filter flag set true when this JE was generated to reverse another JE. The link to the original lives on rm_reversesje." languagecode="1033" />
+            </Descriptions>
+            <options>
+              <option value="1" ExternalValue="" IsHidden="0">
+                <labels>
+                  <label description="Yes" languagecode="1033" />
+                </labels>
+              </option>
+              <option value="0" ExternalValue="" IsHidden="0">
+                <labels>
+                  <label description="No" languagecode="1033" />
+                </labels>
+              </option>
+            </options>
+          </optionset>
           <displaynames>
-            <displayname description="Account Description" languagecode="1033" />
+            <displayname description="Is Reversal" languagecode="1033" />
           </displaynames>
           <Descriptions>
-            <Description description="Long-form description of the account." languagecode="1033" />
+            <Description description="Quick filter flag set true when this JE was generated to reverse another JE. The link to the original lives on rm_reversesje." languagecode="1033" />
           </Descriptions>
         </attribute>
-        <attribute PhysicalName="rm_accountlevel">
-          <Type>int</Type>
-          <Name>rm_accountlevel</Name>
-          <LogicalName>rm_accountlevel</LogicalName>
+        <attribute PhysicalName="rm_jetype">
+          <Type>picklist</Type>
+          <Name>rm_jetype</Name>
+          <LogicalName>rm_jetype</LogicalName>
           <RequiredLevel>none</RequiredLevel>
           <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
-          <ImeMode>disabled</ImeMode>
+          <ImeMode>auto</ImeMode>
           <ValidForUpdateApi>1</ValidForUpdateApi>
           <ValidForReadApi>1</ValidForReadApi>
           <ValidForCreateApi>1</ValidForCreateApi>
@@ -475,20 +649,78 @@
           <IsFilterable>0</IsFilterable>
           <IsRetrievable>0</IsRetrievable>
           <IsLocalizable>0</IsLocalizable>
-          <Format>none</Format>
-          <MinValue>0</MinValue>
-          <MaxValue>10</MaxValue>
+          <optionset Name="rm_journalentry_rm_jetype">
+            <OptionSetType>picklist</OptionSetType>
+            <IntroducedVersion>1.0</IntroducedVersion>
+            <IsCustomizable>1</IsCustomizable>
+            <displaynames>
+              <displayname description="JE Type" languagecode="1033" />
+            </displaynames>
+            <Descriptions>
+              <Description description="Optional classifier. Used by reporting and by recurring/closing automation in later phases." languagecode="1033" />
+            </Descriptions>
+            <options>
+              <option value="126190000" ExternalValue="" IsHidden="0">
+                <labels>
+                  <label description="Standard" languagecode="1033" />
+                </labels>
+                <Descriptions>
+                  <Description description="Ordinary one-off JE." languagecode="1033" />
+                </Descriptions>
+              </option>
+              <option value="126190001" ExternalValue="" IsHidden="0">
+                <labels>
+                  <label description="Recurring" languagecode="1033" />
+                </labels>
+                <Descriptions>
+                  <Description description="Generated from a recurring JE template." languagecode="1033" />
+                </Descriptions>
+              </option>
+              <option value="126190002" ExternalValue="" IsHidden="0">
+                <labels>
+                  <label description="Adjusting" languagecode="1033" />
+                </labels>
+                <Descriptions>
+                  <Description description="Period-end adjustment." languagecode="1033" />
+                </Descriptions>
+              </option>
+              <option value="126190003" ExternalValue="" IsHidden="0">
+                <labels>
+                  <label description="Closing" languagecode="1033" />
+                </labels>
+                <Descriptions>
+                  <Description description="Period-close or year-end clearing entry." languagecode="1033" />
+                </Descriptions>
+              </option>
+              <option value="126190004" ExternalValue="" IsHidden="0">
+                <labels>
+                  <label description="IntercompanyClearing" languagecode="1033" />
+                </labels>
+                <Descriptions>
+                  <Description description="Half of a matched IC pair." languagecode="1033" />
+                </Descriptions>
+              </option>
+              <option value="126190005" ExternalValue="" IsHidden="0">
+                <labels>
+                  <label description="Reversal" languagecode="1033" />
+                </labels>
+                <Descriptions>
+                  <Description description="Counter-JE that reverses a prior posted JE." languagecode="1033" />
+                </Descriptions>
+              </option>
+            </options>
+          </optionset>
           <displaynames>
-            <displayname description="Account Level" languagecode="1033" />
+            <displayname description="JE Type" languagecode="1033" />
           </displaynames>
           <Descriptions>
-            <Description description="Depth in the COA hierarchy: 0 = top-level, 1 = sub-account, etc. Maintained by plugin in a later phase." languagecode="1033" />
+            <Description description="Optional classifier. Used by reporting and by recurring/closing automation in later phases." languagecode="1033" />
           </Descriptions>
         </attribute>
-        <attribute PhysicalName="rm_accountnumber">
+        <attribute PhysicalName="rm_journaldescription">
           <Type>nvarchar</Type>
-          <Name>rm_accountnumber</Name>
-          <LogicalName>rm_accountnumber</LogicalName>
+          <Name>rm_journaldescription</Name>
+          <LogicalName>rm_journaldescription</LogicalName>
           <RequiredLevel>required</RequiredLevel>
           <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
           <ImeMode>auto</ImeMode>
@@ -516,99 +748,19 @@
           <IsRetrievable>0</IsRetrievable>
           <IsLocalizable>0</IsLocalizable>
           <Format>text</Format>
-          <MaxLength>50</MaxLength>
-          <Length>100</Length>
+          <MaxLength>500</MaxLength>
+          <Length>1000</Length>
           <displaynames>
-            <displayname description="Account Number" languagecode="1033" />
+            <displayname description="Description" languagecode="1033" />
           </displaynames>
           <Descriptions>
-            <Description description="Account number in the entitys numbering scheme. Unique within an entity (enforced by alternate key)." languagecode="1033" />
+            <Description description="What this journal entry is for. Free-form business narrative." languagecode="1033" />
           </Descriptions>
         </attribute>
-        <attribute PhysicalName="rm_accountshort">
-          <Type>nvarchar</Type>
-          <Name>rm_accountshort</Name>
-          <LogicalName>rm_accountshort</LogicalName>
-          <RequiredLevel>none</RequiredLevel>
-          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
-          <ImeMode>auto</ImeMode>
-          <ValidForUpdateApi>1</ValidForUpdateApi>
-          <ValidForReadApi>1</ValidForReadApi>
-          <ValidForCreateApi>1</ValidForCreateApi>
-          <IsCustomField>1</IsCustomField>
-          <IsAuditEnabled>1</IsAuditEnabled>
-          <IsSecured>0</IsSecured>
-          <IntroducedVersion>1.0</IntroducedVersion>
-          <IsCustomizable>1</IsCustomizable>
-          <IsRenameable>1</IsRenameable>
-          <CanModifySearchSettings>1</CanModifySearchSettings>
-          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
-          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
-          <SourceType>0</SourceType>
-          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
-          <IsSortableEnabled>0</IsSortableEnabled>
-          <CanModifyGlobalFilterSettings>1</CanModifyGlobalFilterSettings>
-          <CanModifyIsSortableSettings>1</CanModifyIsSortableSettings>
-          <IsDataSourceSecret>0</IsDataSourceSecret>
-          <AutoNumberFormat></AutoNumberFormat>
-          <IsSearchable>0</IsSearchable>
-          <IsFilterable>0</IsFilterable>
-          <IsRetrievable>0</IsRetrievable>
-          <IsLocalizable>0</IsLocalizable>
-          <Format>text</Format>
-          <MaxLength>50</MaxLength>
-          <Length>100</Length>
-          <displaynames>
-            <displayname description="Account Short" languagecode="1033" />
-          </displaynames>
-          <Descriptions>
-            <Description description="Short display name for reports and compact UI." languagecode="1033" />
-          </Descriptions>
-        </attribute>
-        <attribute PhysicalName="rm_accounttype">
-          <Type>lookup</Type>
-          <Name>rm_accounttype</Name>
-          <LogicalName>rm_accounttype</LogicalName>
-          <RequiredLevel>required</RequiredLevel>
-          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
-          <ImeMode>auto</ImeMode>
-          <ValidForUpdateApi>1</ValidForUpdateApi>
-          <ValidForReadApi>1</ValidForReadApi>
-          <ValidForCreateApi>1</ValidForCreateApi>
-          <IsCustomField>1</IsCustomField>
-          <IsAuditEnabled>0</IsAuditEnabled>
-          <IsSecured>0</IsSecured>
-          <IntroducedVersion>1.0</IntroducedVersion>
-          <IsCustomizable>1</IsCustomizable>
-          <IsRenameable>1</IsRenameable>
-          <CanModifySearchSettings>1</CanModifySearchSettings>
-          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
-          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
-          <SourceType>0</SourceType>
-          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
-          <IsSortableEnabled>0</IsSortableEnabled>
-          <CanModifyGlobalFilterSettings>1</CanModifyGlobalFilterSettings>
-          <CanModifyIsSortableSettings>1</CanModifyIsSortableSettings>
-          <ExternalName>rm_accounttype</ExternalName>
-          <IsDataSourceSecret>0</IsDataSourceSecret>
-          <AutoNumberFormat></AutoNumberFormat>
-          <IsSearchable>0</IsSearchable>
-          <IsFilterable>0</IsFilterable>
-          <IsRetrievable>0</IsRetrievable>
-          <IsLocalizable>0</IsLocalizable>
-          <LookupStyle>single</LookupStyle>
-          <LookupTypes />
-          <displaynames>
-            <displayname description="Account Type" languagecode="1033" />
-          </displaynames>
-          <Descriptions>
-            <Description description="Classification: Asset / Liability / Equity / Revenue / Expense." languagecode="1033" />
-          </Descriptions>
-        </attribute>
-        <attribute PhysicalName="rm_chartofaccountId">
+        <attribute PhysicalName="rm_journalentryId">
           <Type>primarykey</Type>
-          <Name>rm_chartofaccountid</Name>
-          <LogicalName>rm_chartofaccountid</LogicalName>
+          <Name>rm_journalentryid</Name>
+          <LogicalName>rm_journalentryid</LogicalName>
           <RequiredLevel>systemrequired</RequiredLevel>
           <DisplayMask>ValidForAdvancedFind|RequiredForGrid</DisplayMask>
           <ImeMode>auto</ImeMode>
@@ -636,16 +788,16 @@
           <IsRetrievable>1</IsRetrievable>
           <IsLocalizable>0</IsLocalizable>
           <displaynames>
-            <displayname description="Chart of Account" languagecode="1033" />
+            <displayname description="Journal Entry" languagecode="1033" />
           </displaynames>
           <Descriptions>
             <Description description="Unique identifier for entity instances" languagecode="1033" />
           </Descriptions>
         </attribute>
-        <attribute PhysicalName="rm_chartofaccountname">
+        <attribute PhysicalName="rm_journalentrynumber">
           <Type>nvarchar</Type>
-          <Name>rm_chartofaccountname</Name>
-          <LogicalName>rm_chartofaccountname</LogicalName>
+          <Name>rm_journalentrynumber</Name>
+          <LogicalName>rm_journalentrynumber</LogicalName>
           <RequiredLevel>required</RequiredLevel>
           <DisplayMask>PrimaryName|ValidForAdvancedFind|ValidForForm|ValidForGrid|RequiredForForm</DisplayMask>
           <ImeMode>auto</ImeMode>
@@ -673,102 +825,21 @@
           <IsRetrievable>1</IsRetrievable>
           <IsLocalizable>0</IsLocalizable>
           <Format>text</Format>
-          <MaxLength>200</MaxLength>
-          <Length>400</Length>
+          <MaxLength>50</MaxLength>
+          <Length>100</Length>
           <displaynames>
-            <displayname description="Chart of Account Name" languagecode="1033" />
+            <displayname description="Journal Entry Number" languagecode="1033" />
           </displaynames>
           <Descriptions>
-            <Description description="Primary name field." languagecode="1033" />
+            <Description description="Business identifier for this journal entry. Manually entered in Phase 5; auto-numbered as JE-{entitycode}-{NNNNNN} by PostJournalEntryPlugin in Phase 6." languagecode="1033" />
           </Descriptions>
         </attribute>
-        <attribute PhysicalName="rm_currency">
-          <Type>nvarchar</Type>
-          <Name>rm_currency</Name>
-          <LogicalName>rm_currency</LogicalName>
-          <RequiredLevel>none</RequiredLevel>
-          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
-          <ImeMode>auto</ImeMode>
-          <ValidForUpdateApi>1</ValidForUpdateApi>
-          <ValidForReadApi>1</ValidForReadApi>
-          <ValidForCreateApi>1</ValidForCreateApi>
-          <IsCustomField>1</IsCustomField>
-          <IsAuditEnabled>1</IsAuditEnabled>
-          <IsSecured>0</IsSecured>
-          <IntroducedVersion>1.0</IntroducedVersion>
-          <IsCustomizable>1</IsCustomizable>
-          <IsRenameable>1</IsRenameable>
-          <CanModifySearchSettings>1</CanModifySearchSettings>
-          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
-          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
-          <SourceType>0</SourceType>
-          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
-          <IsSortableEnabled>0</IsSortableEnabled>
-          <CanModifyGlobalFilterSettings>1</CanModifyGlobalFilterSettings>
-          <CanModifyIsSortableSettings>1</CanModifyIsSortableSettings>
-          <IsDataSourceSecret>0</IsDataSourceSecret>
-          <AutoNumberFormat></AutoNumberFormat>
-          <IsSearchable>0</IsSearchable>
-          <IsFilterable>0</IsFilterable>
-          <IsRetrievable>0</IsRetrievable>
-          <IsLocalizable>0</IsLocalizable>
-          <Format>text</Format>
-          <MaxLength>3</MaxLength>
-          <Length>6</Length>
-          <displaynames>
-            <displayname description="Currency" languagecode="1033" />
-          </displaynames>
-          <Descriptions>
-            <Description description="ISO 4217 currency code. USD only in v1; column present so multi-currency can be added without a schema change. The default value 'USD' is set by seed scripts at insert time, not at the metadata layer (Dataverse string columns do not accept a metadata-level default)." languagecode="1033" />
-          </Descriptions>
-        </attribute>
-        <attribute PhysicalName="rm_displayorder">
-          <Type>int</Type>
-          <Name>rm_displayorder</Name>
-          <LogicalName>rm_displayorder</LogicalName>
-          <RequiredLevel>none</RequiredLevel>
-          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
-          <ImeMode>disabled</ImeMode>
-          <ValidForUpdateApi>1</ValidForUpdateApi>
-          <ValidForReadApi>1</ValidForReadApi>
-          <ValidForCreateApi>1</ValidForCreateApi>
-          <IsCustomField>1</IsCustomField>
-          <IsAuditEnabled>1</IsAuditEnabled>
-          <IsSecured>0</IsSecured>
-          <IntroducedVersion>1.0</IntroducedVersion>
-          <IsCustomizable>1</IsCustomizable>
-          <IsRenameable>1</IsRenameable>
-          <CanModifySearchSettings>1</CanModifySearchSettings>
-          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
-          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
-          <SourceType>0</SourceType>
-          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
-          <IsSortableEnabled>0</IsSortableEnabled>
-          <CanModifyGlobalFilterSettings>1</CanModifyGlobalFilterSettings>
-          <CanModifyIsSortableSettings>1</CanModifyIsSortableSettings>
-          <IsDataSourceSecret>0</IsDataSourceSecret>
-          <AutoNumberFormat></AutoNumberFormat>
-          <IsSearchable>0</IsSearchable>
-          <IsFilterable>0</IsFilterable>
-          <IsRetrievable>0</IsRetrievable>
-          <IsLocalizable>0</IsLocalizable>
-          <Format>none</Format>
-          <MinValue>0</MinValue>
-          <MaxValue>999999</MaxValue>
-          <displaynames>
-            <displayname description="Display Order" languagecode="1033" />
-          </displaynames>
-          <Descriptions>
-            <Description description="Sort order for COA display in reports." languagecode="1033" />
-          </Descriptions>
-        </attribute>
-        <attribute PhysicalName="rm_entity">
+        <attribute PhysicalName="rm_postedby_user">
           <Type>lookup</Type>
-          <Name>rm_entity</Name>
-          <LogicalName>rm_entity</LogicalName>
-          <RequiredLevel>required</RequiredLevel>
+          <Name>rm_postedby_user</Name>
+          <LogicalName>rm_postedby_user</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
           <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
-          <ImeMode>auto</ImeMode>
           <ValidForUpdateApi>1</ValidForUpdateApi>
           <ValidForReadApi>1</ValidForReadApi>
           <ValidForCreateApi>1</ValidForCreateApi>
@@ -786,7 +857,6 @@
           <IsSortableEnabled>0</IsSortableEnabled>
           <CanModifyGlobalFilterSettings>1</CanModifyGlobalFilterSettings>
           <CanModifyIsSortableSettings>1</CanModifyIsSortableSettings>
-          <ExternalName>rm_entity</ExternalName>
           <IsDataSourceSecret>0</IsDataSourceSecret>
           <AutoNumberFormat></AutoNumberFormat>
           <IsSearchable>0</IsSearchable>
@@ -796,16 +866,96 @@
           <LookupStyle>single</LookupStyle>
           <LookupTypes />
           <displaynames>
-            <displayname description="Entity" languagecode="1033" />
+            <displayname description="Posted By (User)" languagecode="1033" />
           </displaynames>
           <Descriptions>
-            <Description description="Legal entity that owns this account. An account number is unique within an entity." languagecode="1033" />
+            <Description description="User who posted this JE to the ledger. SoD policy: may equal approver per current approval-policies.md; configurable per policy row." languagecode="1033" />
           </Descriptions>
         </attribute>
-        <attribute PhysicalName="rm_externalsystemid">
+        <attribute PhysicalName="rm_posteddatetime">
+          <Type>datetime</Type>
+          <Name>rm_posteddatetime</Name>
+          <LogicalName>rm_posteddatetime</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>inactive</ImeMode>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <SourceType>0</SourceType>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <CanModifyGlobalFilterSettings>1</CanModifyGlobalFilterSettings>
+          <CanModifyIsSortableSettings>1</CanModifyIsSortableSettings>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <AutoNumberFormat></AutoNumberFormat>
+          <IsSearchable>0</IsSearchable>
+          <IsFilterable>0</IsFilterable>
+          <IsRetrievable>0</IsRetrievable>
+          <IsLocalizable>0</IsLocalizable>
+          <Format>datetime</Format>
+          <CanChangeDateTimeBehavior>1</CanChangeDateTimeBehavior>
+          <Behavior>1</Behavior>
+          <displaynames>
+            <displayname description="Posted Date/Time" languagecode="1033" />
+          </displaynames>
+          <Descriptions>
+            <Description description="When this JE was posted to the immutable ledger. Set by PostJournalEntryPlugin." languagecode="1033" />
+          </Descriptions>
+        </attribute>
+        <attribute PhysicalName="rm_postingdate">
+          <Type>datetime</Type>
+          <Name>rm_postingdate</Name>
+          <LogicalName>rm_postingdate</LogicalName>
+          <RequiredLevel>required</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>inactive</ImeMode>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <SourceType>0</SourceType>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <CanModifyGlobalFilterSettings>1</CanModifyGlobalFilterSettings>
+          <CanModifyIsSortableSettings>1</CanModifyIsSortableSettings>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <AutoNumberFormat></AutoNumberFormat>
+          <IsSearchable>0</IsSearchable>
+          <IsFilterable>0</IsFilterable>
+          <IsRetrievable>0</IsRetrievable>
+          <IsLocalizable>0</IsLocalizable>
+          <Format>date</Format>
+          <CanChangeDateTimeBehavior>1</CanChangeDateTimeBehavior>
+          <Behavior>2</Behavior>
+          <displaynames>
+            <displayname description="Posting Date" languagecode="1033" />
+          </displaynames>
+          <Descriptions>
+            <Description description="Accounting date for this JE. May differ from the creation date. Drives the fiscal period lookup." languagecode="1033" />
+          </Descriptions>
+        </attribute>
+        <attribute PhysicalName="rm_referencenumber">
           <Type>nvarchar</Type>
-          <Name>rm_externalsystemid</Name>
-          <LogicalName>rm_externalsystemid</LogicalName>
+          <Name>rm_referencenumber</Name>
+          <LogicalName>rm_referencenumber</LogicalName>
           <RequiredLevel>none</RequiredLevel>
           <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
           <ImeMode>auto</ImeMode>
@@ -836,202 +986,18 @@
           <MaxLength>100</MaxLength>
           <Length>200</Length>
           <displaynames>
-            <displayname description="External System Id" languagecode="1033" />
+            <displayname description="Reference Number" languagecode="1033" />
           </displaynames>
           <Descriptions>
-            <Description description="Identifier from the source system during migration (e.g., the Macola account number)." languagecode="1033" />
+            <Description description="External reference (invoice number, bill number, check number, etc.)." languagecode="1033" />
           </Descriptions>
         </attribute>
-        <attribute PhysicalName="rm_isactive">
-          <Type>bit</Type>
-          <Name>rm_isactive</Name>
-          <LogicalName>rm_isactive</LogicalName>
-          <RequiredLevel>none</RequiredLevel>
-          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
-          <ImeMode>auto</ImeMode>
-          <ValidForUpdateApi>1</ValidForUpdateApi>
-          <ValidForReadApi>1</ValidForReadApi>
-          <ValidForCreateApi>1</ValidForCreateApi>
-          <IsCustomField>1</IsCustomField>
-          <IsAuditEnabled>1</IsAuditEnabled>
-          <IsSecured>0</IsSecured>
-          <IntroducedVersion>1.0</IntroducedVersion>
-          <IsCustomizable>1</IsCustomizable>
-          <IsRenameable>1</IsRenameable>
-          <CanModifySearchSettings>1</CanModifySearchSettings>
-          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
-          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
-          <SourceType>0</SourceType>
-          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
-          <IsSortableEnabled>0</IsSortableEnabled>
-          <CanModifyGlobalFilterSettings>1</CanModifyGlobalFilterSettings>
-          <CanModifyIsSortableSettings>1</CanModifyIsSortableSettings>
-          <IsDataSourceSecret>0</IsDataSourceSecret>
-          <AutoNumberFormat></AutoNumberFormat>
-          <IsSearchable>0</IsSearchable>
-          <IsFilterable>0</IsFilterable>
-          <IsRetrievable>0</IsRetrievable>
-          <IsLocalizable>0</IsLocalizable>
-          <AppDefaultValue>1</AppDefaultValue>
-          <optionset Name="rm_chartofaccount_rm_isactive">
-            <OptionSetType>bit</OptionSetType>
-            <IntroducedVersion>1.0</IntroducedVersion>
-            <IsCustomizable>1</IsCustomizable>
-            <displaynames>
-              <displayname description="Is Active" languagecode="1033" />
-            </displaynames>
-            <Descriptions>
-              <Description description="Soft-delete flag. Inactive accounts cannot be posted to but are retained for financial-history preservation." languagecode="1033" />
-            </Descriptions>
-            <options>
-              <option value="1" ExternalValue="" IsHidden="0">
-                <labels>
-                  <label description="Yes" languagecode="1033" />
-                </labels>
-              </option>
-              <option value="0" ExternalValue="" IsHidden="0">
-                <labels>
-                  <label description="No" languagecode="1033" />
-                </labels>
-              </option>
-            </options>
-          </optionset>
-          <displaynames>
-            <displayname description="Is Active" languagecode="1033" />
-          </displaynames>
-          <Descriptions>
-            <Description description="Soft-delete flag. Inactive accounts cannot be posted to but are retained for financial-history preservation." languagecode="1033" />
-          </Descriptions>
-        </attribute>
-        <attribute PhysicalName="rm_iscashbankaccount">
-          <Type>bit</Type>
-          <Name>rm_iscashbankaccount</Name>
-          <LogicalName>rm_iscashbankaccount</LogicalName>
-          <RequiredLevel>none</RequiredLevel>
-          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
-          <ImeMode>auto</ImeMode>
-          <ValidForUpdateApi>1</ValidForUpdateApi>
-          <ValidForReadApi>1</ValidForReadApi>
-          <ValidForCreateApi>1</ValidForCreateApi>
-          <IsCustomField>1</IsCustomField>
-          <IsAuditEnabled>1</IsAuditEnabled>
-          <IsSecured>0</IsSecured>
-          <IntroducedVersion>1.0</IntroducedVersion>
-          <IsCustomizable>1</IsCustomizable>
-          <IsRenameable>1</IsRenameable>
-          <CanModifySearchSettings>1</CanModifySearchSettings>
-          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
-          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
-          <SourceType>0</SourceType>
-          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
-          <IsSortableEnabled>0</IsSortableEnabled>
-          <CanModifyGlobalFilterSettings>1</CanModifyGlobalFilterSettings>
-          <CanModifyIsSortableSettings>1</CanModifyIsSortableSettings>
-          <IsDataSourceSecret>0</IsDataSourceSecret>
-          <AutoNumberFormat></AutoNumberFormat>
-          <IsSearchable>0</IsSearchable>
-          <IsFilterable>0</IsFilterable>
-          <IsRetrievable>0</IsRetrievable>
-          <IsLocalizable>0</IsLocalizable>
-          <AppDefaultValue>0</AppDefaultValue>
-          <optionset Name="rm_chartofaccount_rm_iscashbankaccount">
-            <OptionSetType>bit</OptionSetType>
-            <IntroducedVersion>1.0</IntroducedVersion>
-            <IsCustomizable>1</IsCustomizable>
-            <displaynames>
-              <displayname description="Is Cash/Bank Account" languagecode="1033" />
-            </displaynames>
-            <Descriptions>
-              <Description description="Flags accounts representing physical cash or bank accounts. Drives reconciliation routing and dual-approval policy on JEs." languagecode="1033" />
-            </Descriptions>
-            <options>
-              <option value="1" ExternalValue="" IsHidden="0">
-                <labels>
-                  <label description="Yes" languagecode="1033" />
-                </labels>
-              </option>
-              <option value="0" ExternalValue="" IsHidden="0">
-                <labels>
-                  <label description="No" languagecode="1033" />
-                </labels>
-              </option>
-            </options>
-          </optionset>
-          <displaynames>
-            <displayname description="Is Cash/Bank Account" languagecode="1033" />
-          </displaynames>
-          <Descriptions>
-            <Description description="Flags accounts representing physical cash or bank accounts. Drives reconciliation routing and dual-approval policy on JEs." languagecode="1033" />
-          </Descriptions>
-        </attribute>
-        <attribute PhysicalName="rm_normalbalance">
-          <Type>picklist</Type>
-          <Name>rm_normalbalance</Name>
-          <LogicalName>rm_normalbalance</LogicalName>
-          <RequiredLevel>none</RequiredLevel>
-          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
-          <ImeMode>auto</ImeMode>
-          <ValidForUpdateApi>1</ValidForUpdateApi>
-          <ValidForReadApi>1</ValidForReadApi>
-          <ValidForCreateApi>1</ValidForCreateApi>
-          <IsCustomField>1</IsCustomField>
-          <IsAuditEnabled>1</IsAuditEnabled>
-          <IsSecured>0</IsSecured>
-          <IntroducedVersion>1.0</IntroducedVersion>
-          <IsCustomizable>1</IsCustomizable>
-          <IsRenameable>1</IsRenameable>
-          <CanModifySearchSettings>1</CanModifySearchSettings>
-          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
-          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
-          <SourceType>0</SourceType>
-          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
-          <IsSortableEnabled>0</IsSortableEnabled>
-          <CanModifyGlobalFilterSettings>1</CanModifyGlobalFilterSettings>
-          <CanModifyIsSortableSettings>1</CanModifyIsSortableSettings>
-          <IsDataSourceSecret>0</IsDataSourceSecret>
-          <AutoNumberFormat></AutoNumberFormat>
-          <IsSearchable>0</IsSearchable>
-          <IsFilterable>0</IsFilterable>
-          <IsRetrievable>0</IsRetrievable>
-          <IsLocalizable>0</IsLocalizable>
-          <AppDefaultValue>-1</AppDefaultValue>
-          <optionset Name="rm_chartofaccount_rm_normalbalance">
-            <OptionSetType>picklist</OptionSetType>
-            <IntroducedVersion>1.0</IntroducedVersion>
-            <IsCustomizable>1</IsCustomizable>
-            <displaynames>
-              <displayname description="Normal Balance" languagecode="1033" />
-            </displaynames>
-            <Descriptions>
-              <Description description="Normal balance for this account (Debit or Credit). Optional override of the linked rm_accounttype.rm_normalbalance, stored locally for query efficiency." languagecode="1033" />
-            </Descriptions>
-            <options>
-              <option value="261910000" ExternalValue="" IsHidden="0">
-                <labels>
-                  <label description="Debit" languagecode="1033" />
-                </labels>
-              </option>
-              <option value="261910001" ExternalValue="" IsHidden="0">
-                <labels>
-                  <label description="Credit" languagecode="1033" />
-                </labels>
-              </option>
-            </options>
-          </optionset>
-          <displaynames>
-            <displayname description="Normal Balance" languagecode="1033" />
-          </displaynames>
-          <Descriptions>
-            <Description description="Normal balance for this account (Debit or Credit). Optional override of the linked rm_accounttype.rm_normalbalance, stored locally for query efficiency." languagecode="1033" />
-          </Descriptions>
-        </attribute>
-        <attribute PhysicalName="rm_parentaccount">
+        <attribute PhysicalName="rm_reversedbyje">
           <Type>lookup</Type>
-          <Name>rm_parentaccount</Name>
-          <LogicalName>rm_parentaccount</LogicalName>
+          <Name>rm_reversedbyje</Name>
+          <LogicalName>rm_reversedbyje</LogicalName>
           <RequiredLevel>none</RequiredLevel>
           <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
-          <ImeMode>auto</ImeMode>
           <ValidForUpdateApi>1</ValidForUpdateApi>
           <ValidForReadApi>1</ValidForReadApi>
           <ValidForCreateApi>1</ValidForCreateApi>
@@ -1049,7 +1015,6 @@
           <IsSortableEnabled>0</IsSortableEnabled>
           <CanModifyGlobalFilterSettings>1</CanModifyGlobalFilterSettings>
           <CanModifyIsSortableSettings>1</CanModifyIsSortableSettings>
-          <ExternalName>rm_parentaccount</ExternalName>
           <IsDataSourceSecret>0</IsDataSourceSecret>
           <AutoNumberFormat></AutoNumberFormat>
           <IsSearchable>0</IsSearchable>
@@ -1059,10 +1024,266 @@
           <LookupStyle>single</LookupStyle>
           <LookupTypes />
           <displaynames>
-            <displayname description="Parent Account" languagecode="1033" />
+            <displayname description="Reversed By JE" languagecode="1033" />
           </displaynames>
           <Descriptions>
-            <Description description="Self-reference for hierarchical COA. NULL means top-level." languagecode="1033" />
+            <Description description="Inverse pointer: if this JE was reversed, link to the reversal JE." languagecode="1033" />
+          </Descriptions>
+        </attribute>
+        <attribute PhysicalName="rm_reversesje">
+          <Type>lookup</Type>
+          <Name>rm_reversesje</Name>
+          <LogicalName>rm_reversesje</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>0</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <SourceType>0</SourceType>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <CanModifyGlobalFilterSettings>1</CanModifyGlobalFilterSettings>
+          <CanModifyIsSortableSettings>1</CanModifyIsSortableSettings>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <AutoNumberFormat></AutoNumberFormat>
+          <IsSearchable>0</IsSearchable>
+          <IsFilterable>0</IsFilterable>
+          <IsRetrievable>0</IsRetrievable>
+          <IsLocalizable>0</IsLocalizable>
+          <LookupStyle>single</LookupStyle>
+          <LookupTypes />
+          <displaynames>
+            <displayname description="Reverses JE" languagecode="1033" />
+          </displaynames>
+          <Descriptions>
+            <Description description="If this JE is a reversal of another, link to the original. Set by the reversal action." languagecode="1033" />
+          </Descriptions>
+        </attribute>
+        <attribute PhysicalName="rm_sourcedocument">
+          <Type>nvarchar</Type>
+          <Name>rm_sourcedocument</Name>
+          <LogicalName>rm_sourcedocument</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <SourceType>0</SourceType>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <CanModifyGlobalFilterSettings>1</CanModifyGlobalFilterSettings>
+          <CanModifyIsSortableSettings>1</CanModifyIsSortableSettings>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <AutoNumberFormat></AutoNumberFormat>
+          <IsSearchable>0</IsSearchable>
+          <IsFilterable>0</IsFilterable>
+          <IsRetrievable>0</IsRetrievable>
+          <IsLocalizable>0</IsLocalizable>
+          <Format>text</Format>
+          <MaxLength>200</MaxLength>
+          <Length>400</Length>
+          <displaynames>
+            <displayname description="Source Document" languagecode="1033" />
+          </displaynames>
+          <Descriptions>
+            <Description description="Narrative source description (e.g., &quot;AP Bill 12345 from ACME Corp&quot;). Free-form." languagecode="1033" />
+          </Descriptions>
+        </attribute>
+        <attribute PhysicalName="rm_status">
+          <Type>picklist</Type>
+          <Name>rm_status</Name>
+          <LogicalName>rm_status</LogicalName>
+          <RequiredLevel>required</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <SourceType>0</SourceType>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <CanModifyGlobalFilterSettings>1</CanModifyGlobalFilterSettings>
+          <CanModifyIsSortableSettings>1</CanModifyIsSortableSettings>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <AutoNumberFormat></AutoNumberFormat>
+          <IsSearchable>0</IsSearchable>
+          <IsFilterable>0</IsFilterable>
+          <IsRetrievable>0</IsRetrievable>
+          <IsLocalizable>0</IsLocalizable>
+          <optionset Name="rm_journalentry_rm_status">
+            <OptionSetType>picklist</OptionSetType>
+            <IntroducedVersion>1.0</IntroducedVersion>
+            <IsCustomizable>1</IsCustomizable>
+            <displaynames>
+              <displayname description="Status" languagecode="1033" />
+            </displaynames>
+            <Descriptions>
+              <Description description="Workflow state. Draft -&gt; PendingApproval -&gt; Approved -&gt; Posted is the normal path. Voided = abandoned before posting. Reversed = a counter-JE has been posted that nets this one out." languagecode="1033" />
+            </Descriptions>
+            <options>
+              <option value="126190000" ExternalValue="" IsHidden="0">
+                <labels>
+                  <label description="Draft" languagecode="1033" />
+                </labels>
+                <Descriptions>
+                  <Description description="Editable; not yet submitted for approval." languagecode="1033" />
+                </Descriptions>
+              </option>
+              <option value="126190001" ExternalValue="" IsHidden="0">
+                <labels>
+                  <label description="PendingApproval" languagecode="1033" />
+                </labels>
+                <Descriptions>
+                  <Description description="Submitted; awaiting approver action." languagecode="1033" />
+                </Descriptions>
+              </option>
+              <option value="126190002" ExternalValue="" IsHidden="0">
+                <labels>
+                  <label description="Approved" languagecode="1033" />
+                </labels>
+                <Descriptions>
+                  <Description description="Approved by a user other than the creator (SoD)." languagecode="1033" />
+                </Descriptions>
+              </option>
+              <option value="126190003" ExternalValue="" IsHidden="0">
+                <labels>
+                  <label description="Posted" languagecode="1033" />
+                </labels>
+                <Descriptions>
+                  <Description description="Lines have been written to the immutable ledger. Cannot edit; corrections require a reversing JE." languagecode="1033" />
+                </Descriptions>
+              </option>
+              <option value="126190004" ExternalValue="" IsHidden="0">
+                <labels>
+                  <label description="Reversed" languagecode="1033" />
+                </labels>
+                <Descriptions>
+                  <Description description="A counter-JE has been posted that reverses this one." languagecode="1033" />
+                </Descriptions>
+              </option>
+              <option value="126190005" ExternalValue="" IsHidden="0">
+                <labels>
+                  <label description="Voided" languagecode="1033" />
+                </labels>
+                <Descriptions>
+                  <Description description="Abandoned before posting." languagecode="1033" />
+                </Descriptions>
+              </option>
+            </options>
+          </optionset>
+          <displaynames>
+            <displayname description="Status" languagecode="1033" />
+          </displaynames>
+          <Descriptions>
+            <Description description="Workflow state. Draft -&gt; PendingApproval -&gt; Approved -&gt; Posted is the normal path. Voided = abandoned before posting. Reversed = a counter-JE has been posted that nets this one out." languagecode="1033" />
+          </Descriptions>
+        </attribute>
+        <attribute PhysicalName="rm_totalcredit">
+          <Type>decimal</Type>
+          <Name>rm_totalcredit</Name>
+          <LogicalName>rm_totalcredit</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>disabled</ImeMode>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <SourceType>0</SourceType>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <CanModifyGlobalFilterSettings>1</CanModifyGlobalFilterSettings>
+          <CanModifyIsSortableSettings>1</CanModifyIsSortableSettings>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <AutoNumberFormat></AutoNumberFormat>
+          <IsSearchable>0</IsSearchable>
+          <IsFilterable>0</IsFilterable>
+          <IsRetrievable>0</IsRetrievable>
+          <IsLocalizable>0</IsLocalizable>
+          <MinValue>0</MinValue>
+          <MaxValue>100000000000</MaxValue>
+          <Accuracy>2</Accuracy>
+          <displaynames>
+            <displayname description="Total Credit" languagecode="1033" />
+          </displaynames>
+          <Descriptions>
+            <Description description="Sum of all credit lines for this JE. Maintained by PostJournalEntryPlugin (Phase 6); zero until lines are added." languagecode="1033" />
+          </Descriptions>
+        </attribute>
+        <attribute PhysicalName="rm_totaldebit">
+          <Type>decimal</Type>
+          <Name>rm_totaldebit</Name>
+          <LogicalName>rm_totaldebit</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>disabled</ImeMode>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <SourceType>0</SourceType>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <CanModifyGlobalFilterSettings>1</CanModifyGlobalFilterSettings>
+          <CanModifyIsSortableSettings>1</CanModifyIsSortableSettings>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <AutoNumberFormat></AutoNumberFormat>
+          <IsSearchable>0</IsSearchable>
+          <IsFilterable>0</IsFilterable>
+          <IsRetrievable>0</IsRetrievable>
+          <IsLocalizable>0</IsLocalizable>
+          <MinValue>0</MinValue>
+          <MaxValue>100000000000</MaxValue>
+          <Accuracy>2</Accuracy>
+          <displaynames>
+            <displayname description="Total Debit" languagecode="1033" />
+          </displaynames>
+          <Descriptions>
+            <Description description="Sum of all debit lines for this JE. Maintained by PostJournalEntryPlugin (Phase 6); zero until lines are added. Must equal rm_totalcredit at Approval and Post." languagecode="1033" />
           </Descriptions>
         </attribute>
         <attribute PhysicalName="statecode">
@@ -1095,7 +1316,7 @@
           <IsFilterable>1</IsFilterable>
           <IsRetrievable>0</IsRetrievable>
           <IsLocalizable>0</IsLocalizable>
-          <optionset Name="rm_chartofaccount_statecode">
+          <optionset Name="rm_journalentry_statecode">
             <OptionSetType>state</OptionSetType>
             <IntroducedVersion>1.0</IntroducedVersion>
             <IsCustomizable>1</IsCustomizable>
@@ -1103,7 +1324,7 @@
               <displayname description="Status" languagecode="1033" />
             </displaynames>
             <Descriptions>
-              <Description description="Status of the Chart of Account" languagecode="1033" />
+              <Description description="Status of the Journal Entry" languagecode="1033" />
             </Descriptions>
             <states>
               <state value="0" defaultstatus="1" invariantname="Active" IsHidden="0">
@@ -1122,7 +1343,7 @@
             <displayname description="Status" languagecode="1033" />
           </displaynames>
           <Descriptions>
-            <Description description="Status of the Chart of Account" languagecode="1033" />
+            <Description description="Status of the Journal Entry" languagecode="1033" />
           </Descriptions>
         </attribute>
         <attribute PhysicalName="statuscode">
@@ -1155,7 +1376,7 @@
           <IsFilterable>0</IsFilterable>
           <IsRetrievable>0</IsRetrievable>
           <IsLocalizable>0</IsLocalizable>
-          <optionset Name="rm_chartofaccount_statuscode">
+          <optionset Name="rm_journalentry_statuscode">
             <OptionSetType>status</OptionSetType>
             <IntroducedVersion>1.0</IntroducedVersion>
             <IsCustomizable>1</IsCustomizable>
@@ -1163,7 +1384,7 @@
               <displayname description="Status Reason" languagecode="1033" />
             </displaynames>
             <Descriptions>
-              <Description description="Reason for the status of the Chart of Account" languagecode="1033" />
+              <Description description="Reason for the status of the Journal Entry" languagecode="1033" />
             </Descriptions>
             <statuses>
               <status value="1" state="0" IsHidden="0">
@@ -1182,7 +1403,7 @@
             <displayname description="Status Reason" languagecode="1033" />
           </displaynames>
           <Descriptions>
-            <Description description="Reason for the status of the Chart of Account" languagecode="1033" />
+            <Description description="Reason for the status of the Journal Entry" languagecode="1033" />
           </Descriptions>
         </attribute>
         <attribute PhysicalName="TimeZoneRuleVersionNumber">
@@ -1264,22 +1485,7 @@
           </Descriptions>
         </attribute>
       </attributes>
-      <EntityKeys>
-        <EntityKey>
-          <Name>rm_coa_entity_number_key</Name>
-          <LogicalName>rm_coa_entity_number_key</LogicalName>
-          <IntroducedVersion>1.0</IntroducedVersion>
-          <IsCustomizable>0</IsCustomizable>
-          <EntityKeyAttributes>
-            <AttributeName>rm_accountnumber</AttributeName>
-            <AttributeName>rm_entity</AttributeName>
-          </EntityKeyAttributes>
-          <displaynames>
-            <displayname description="Account Number per Entity" languagecode="1033" />
-          </displaynames>
-        </EntityKey>
-      </EntityKeys>
-      <EntitySetName>rm_chartofaccounts</EntitySetName>
+      <EntitySetName>rm_journalentries</EntitySetName>
       <IsDuplicateCheckSupported>0</IsDuplicateCheckSupported>
       <IsBusinessProcessEnabled>0</IsBusinessProcessEnabled>
       <IsRequiredOffline>0</IsRequiredOffline>
