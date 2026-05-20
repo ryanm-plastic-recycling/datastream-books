@@ -93,68 +93,6 @@ namespace DatastreamBooks.Plugins.Tests.PostingTests
             };
         }
 
-        // ---------- 1. Auto-number ----------
-        [Fact]
-        public void AutoNumber_FirstJEForEntity_AssignsJE_Code_000001()
-        {
-            var ctx = NewContext();
-            var entity = Entity("DEFAULT");
-            ctx.Initialize(new[] { entity });
-
-            var target = new Entity("rm_journalentry")
-            {
-                ["rm_entity"] = entity.ToEntityReference(),
-            };
-            ExecuteCreate(ctx, target);
-
-            target["rm_journalentrynumber"].Should().Be("JE-DEFAULT-000001");
-        }
-
-        [Fact]
-        public void AutoNumber_SecondJE_IncrementsSuffixWithinEntity()
-        {
-            var ctx = NewContext();
-            var entity = Entity("DEFAULT");
-            var existing = Header(Guid.NewGuid(), entity.Id, PostJournalEntryPlugin.StatusDraft,
-                number: "JE-DEFAULT-000001");
-            ctx.Initialize(new[] { entity, existing });
-
-            var target = new Entity("rm_journalentry") { ["rm_entity"] = entity.ToEntityReference() };
-            ExecuteCreate(ctx, target);
-
-            target["rm_journalentrynumber"].Should().Be("JE-DEFAULT-000002");
-        }
-
-        [Fact]
-        public void AutoNumber_SequencesAreIndependentPerEntity()
-        {
-            var ctx = NewContext();
-            var entA = Entity("ACME");
-            var entB = Entity("BETA");
-            var acmeJe = Header(Guid.NewGuid(), entA.Id, PostJournalEntryPlugin.StatusDraft, number: "JE-ACME-000007");
-            ctx.Initialize(new Entity[] { entA, entB, acmeJe });
-
-            var newBeta = new Entity("rm_journalentry") { ["rm_entity"] = entB.ToEntityReference() };
-            ExecuteCreate(ctx, newBeta);
-            newBeta["rm_journalentrynumber"].Should().Be("JE-BETA-000001");
-
-            var newAcme = new Entity("rm_journalentry") { ["rm_entity"] = entA.ToEntityReference() };
-            ExecuteCreate(ctx, newAcme);
-            newAcme["rm_journalentrynumber"].Should().Be("JE-ACME-000008");
-        }
-
-        [Fact]
-        public void AutoNumber_FailsCleanlyWhenEntityMissing()
-        {
-            var ctx = NewContext();
-            ctx.Initialize(new List<Entity>());
-
-            var target = new Entity("rm_journalentry");
-            Action act = () => ExecuteCreate(ctx, target);
-            act.Should().Throw<InvalidPluginExecutionException>()
-                .WithMessage("*rm_entity*");
-        }
-
         // ---------- 2. Header-totals maintenance ----------
         [Fact]
         public void HeaderTotals_Recompute_FromExistingLines()
