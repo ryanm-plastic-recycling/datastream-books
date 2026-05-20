@@ -436,22 +436,56 @@ brief).
 
 > Placeholders. Order is approximate; reshuffles as priorities shift.
 > (Phase 6 has been promoted to Current Phase — see top of file.)
+>
+> **Numbering note (added 2026-05-20):** The roadmap now uses two parallel
+> "Phase 7" labels — one for the backend track (Vendor/Customer
+> Integration, listed first below) and one for the UI track (UI/UX
+> Front-End Build, listed last below as it is sequenced after **all**
+> backend phases complete). The dual label preserves the user-facing
+> phase names already in circulation while making chronology explicit.
+> Backend track runs sequentially through Phase 11+; UI track is dormant
+> until backend completes. See
+> [`decisions/phase-7-ui-design.md`](decisions/phase-7-ui-design.md) for
+> the UI-track planning artifact.
 
-### Phase 7 — Vendor / Customer Integration with ERP
+### Phase 7 (Backend Track) — Vendor / Customer Integration with ERP
 
 Books AR references `rm_customer` from PRI-Datastream rather than duplicating. Cross-solution lookup design. Read-only relationship; ownership boundary documented per `erp-pattern-notes.md` Pattern 3. Books-owned vendor master decision per decision log §22 — confirm scope before AP design.
 
 ### Phase 8 — AP / AR Core
 
-Bills, invoices, receipts, aging reports. NACHA file generation for ACH payments (replaces the Leahy dependency tied to Macola). Track1099 integration for 1099 generation and W-9 collection.
+Bills, invoices, receipts, aging reports. NACHA file generation for ACH payments (replaces the Leahy dependency tied to Macola). Track1099 integration for 1099 generation and W-9 collection. **Email + Teams notifications** (deferred from Phase 7 UI track per decision §53 — in-app notifications only in v1 UI; email and Teams added in this phase via Microsoft Graph API and Teams app registration respectively).
 
 ### Phase 9 — Period Close + Reporting
 
-Native model-driven reports: Trial Balance, Balance Sheet, P&L, Cash Flow, AR/AP aging, JE audit trail, ChangeRequest log. Period close attestation flow. Hash-chain verification job.
+Native model-driven reports: Trial Balance, Balance Sheet, P&L, Cash Flow, AR/AP aging, JE audit trail, ChangeRequest log. Period close attestation flow. Hash-chain verification job. Note: report **rendering** (on-screen, Excel, PDF) and **drill-down** are part of Phase 7 (UI Track) Phase 7C — this phase delivers the backend report queries, snapshot writes, and aggregation logic the UI sits on top of.
 
 ### Phase 10 — Macola Data Migration + Cutover
 
 Historical archive into `archive` schema. Parallel run with Macola for at least one full close cycle (ideally two). Penny-perfect reconciliation. User-driven green light. Cutover at fiscal-period boundary per decision log §26.
+
+### Phase 11/12+ — Remaining backend items
+
+Placeholder for any backend work that surfaces between now and the close of Phase 10 — likely candidates include a deeper PCF reporting layer, additional posting-plugin coverage as edge cases emerge, and the nightly hash-chain verification job promotion to production. Items here block Phase 7 (UI Track) start.
+
+### Phase 7 (UI Track) — UI/UX Front-End Build
+
+> **Dormant until backend completes.** Planning artifacts live in
+> [`decisions/phase-7-ui-design.md`](decisions/phase-7-ui-design.md). The
+> first session prompt is drafted at
+> [`runbooks/phase-7a-foundation-prompt.md`](runbooks/phase-7a-foundation-prompt.md)
+> and marked DRAFT until backend Phase 11/12+ completes.
+
+**16-20 weeks total (build + UAT).** Six sub-phases:
+
+- **Phase 7A — Foundation (3 weeks).** Sitemap, global search PCF, breadcrumbs, recent items widget, role-aware homepage shell, Datastream ERP visual styling extraction, finance-specific security role scaffolding (7 roles per decision §61).
+- **Phase 7B — Core Transactional Screens (4-5 weeks).** Hybrid JE entry (Excel-grid + form on same screen), AP bill entry + approvals queue, AR invoice + receipt entry, approval queue widget.
+- **Phase 7C — Reports (3-4 weeks).** Balance Sheet, Income Statement, Cash Flow, Trial Balance, aging reports — all three formats (on-screen, Excel export, PDF export) with universal drill-down per decision §55.
+- **Phase 7D — Specialty Screens (2-3 weeks).** Period close + TB review, multi-entity dashboard, Change Request management, vendor/customer master maintenance.
+- **Phase 7E — Refinement and CR Burn-down (2-3 weeks).** Dedicated CR triage and implementation window; no new feature scope.
+- **Phase 7F — UAT (2-3 weeks calendar).** Persona-specific UAT scripts; Pam signs off.
+
+UX direction is owned by IT; Pam exercises ownership via the in-app Change Request system once pages land in dev (per decision §57 — no initial design sign-off; CR-based ownership consistent with the existing CR design and Owner framing). All 17 UX decisions are captured as §46-§62 in [`decisions/datastream-books-decisions.md`](decisions/datastream-books-decisions.md).
 
 ### Future / Phase 2+ Work (out of v1 cutover scope)
 
@@ -460,11 +494,14 @@ Historical archive into `archive` schema. Parallel run with Macola for at least 
 - **Bill.com / Ramp / Bank API integration.** Direct AP payment execution beyond NACHA file generation.
 - **Credit limit management and enforcement.** Customer credit limits + risk scoring (decision log §17 — deferred from v1).
 - **Limble PO replacement.** Bring PO workflow under Datastream rather than a parallel system.
-- **Mobile-optimized UI.** Out of v1 scope per decisions.
+- **Mobile-optimized UI.** Out of v1 scope per decisions §51.
 
 ## See Also
 
 - [`decisions/datastream-books-decisions.md`](decisions/datastream-books-decisions.md) — full decision log
+- [`decisions/phase-7-ui-design.md`](decisions/phase-7-ui-design.md) — Phase 7 (UI Track) planning artifact
+- [`risk-register.md`](risk-register.md) — live risk register (Phase 7 risks R-7-01 through R-7-05)
+- [`runbooks/phase-7a-foundation-prompt.md`](runbooks/phase-7a-foundation-prompt.md) — DRAFT prompt for the first Phase 7 (UI Track) session
 - [`architecture/`](architecture/) — data model, security, immutability, ERP patterns
 - [`controls/`](controls/) — SoD matrix, approval policies, audit controls
 - [`reference/erp-metadata/`](reference/erp-metadata/) — ERP solution metadata snapshot (REFERENCE ONLY)

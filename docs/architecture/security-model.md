@@ -18,7 +18,41 @@ build each feature). Roles are additive: a user may hold multiple. SoD
 enforcement is in plugin code (`CreatedBy != ApprovedBy`, etc.) — role
 membership alone is not enough to bypass it.
 
-### Role List (v1)
+### Finance-Specific Roles (per decision §61)
+
+Phase 7 introduces 7 finance-specific Dataverse security roles. These are
+**not** aligned to the Datastream ERP role structure — finance personas
+(Controller, AP, AR, approver) don't map cleanly onto ERP personas
+(warehouse, transportation, ops, sales), and overlaying the two would
+force one team's mental model on the other. Clean separation also
+simplifies SoD audits: each app's roles are reviewable in isolation.
+
+| Role | Persona | Primary scope |
+|---|---|---|
+| **Controller** | Pam (today); future delegate | Holds elevated finance privileges: approve high-threshold JEs, close periods, reopen closed (not locked) periods, approve vendor bank changes, approve wires. Inherits across the SoD-enforced roles `JE Approve`, `Period Close`, `Period Reopen`. |
+| **AP Clerk** | AP staff | Create and edit bills, enter vendor payments, generate NACHA file, manage AP master data updates (NOT bank info changes — separate role per SoD). |
+| **AR Clerk** | AR staff | Create and edit invoices and receipts, apply receipts, aging analysis. Customer master maintenance (reads ERP `rm_customer`, writes Books-side metadata only). |
+| **Approver** | Designated approver (often Pam, may be CFO or COO depending on amount + policy) | Approves bills, JEs, and vendor bank info changes above thresholds defined in [`../controls/approval-policies.md`](../controls/approval-policies.md). SoD-enforced: cannot approve own creations. |
+| **Casual Contributor** | Operational staff filing CRs or referencing reports | Read-only on most surfaces; can file Change Requests with multi-image attachments; cannot view restricted fields (e.g., vendor banking info, payroll-suspense balances). |
+| **System Admin** | IT (Ryan) | Privileged operations: deploy solutions, manage security roles, manage approval policies. Does **not** post JEs (separation between platform admin and finance operations). |
+| **Read-Only Auditor** | External auditor at audit time | Read-only access across all financial tables, audit trails, and report snapshots. No write privileges anywhere. Time-bound activation per the audit engagement letter. |
+
+**Detailed permissions per role are populated during Phase 7A** as pages
+are designed and attached. See
+[`../runbooks/phase-7a-foundation-prompt.md`](../runbooks/phase-7a-foundation-prompt.md)
+for the security role scaffolding session.
+
+**Cross-reference:** The 10 SoD-purpose roles below (JE Entry, JE Approve,
+JE Post, etc.) are the **enforcement-level roles** — the GUID-comparison
+roles that plugins check against. The 7 finance-specific roles above are
+the **persona-level roles** — the buckets users get assigned to in
+practice. A user holding the persona role `Controller` gets, by
+inheritance, the enforcement roles `JE Approve`, `Period Close`,
+`Period Reopen`, and several others. Persona-role-to-enforcement-role
+mapping is the explicit subject of the Phase 7A security role scaffolding
+session, and lives in [`../controls/sod-matrix.md`](../controls/sod-matrix.md).
+
+### Enforcement-Level Roles (SoD purposes)
 
 From decision log §E — Segregation of Duties:
 
