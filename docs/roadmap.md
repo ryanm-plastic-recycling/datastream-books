@@ -5,31 +5,35 @@
 
 ## Current Phase
 
-### Phase 3 — First Real Dataverse Tables
+**Phase 4: Chart of Accounts + Journal Entry tables**
 
-**Goal:** Move from infrastructure to actual schema. Create the first Books-owned Dataverse tables and get them through the CI/CD pipeline that Phase 2 wired up.
-
-**CI/CD status:** 🟢 **green.** The `deploy-dev` workflow runs end-to-end on push to `main`: plugin restore + build + tests pass, OIDC federated auth to Entra succeeds, and the pack/import steps short-circuit cleanly while `solution/src/Entities` is empty. First confirmed green run: commit `3f2f376` (2026-05-19). Fix history:
-- `ec577cf` — legacy `FakeXrmEasy 1.59.1` replaced with `FakeXrmEasy.v9 2.9.1` (legacy 1.x family stopped publishing past 1.58.x → NU1102)
-- `fa9cebd` — added explicit `Build plugin tests` step (was restoring + testing with `--no-build` but never built)
-- `328c73c` — added `allow-no-subscriptions: true` to `azure/login` (SP has Dataverse permissions, no Azure RBAC)
-- `3f2f376` — omitted `subscription-id` from `azure/login` (it overrode `allow-no-subscriptions` and re-triggered the RBAC check)
-
-**Active work:**
-- `rm_entity` (legal entity master) — adopt the 4-column master-data pattern from `erp-pattern-notes.md` (`rm_entityname`, `rm_entitycode`, `rm_entityshort`, plus EIN, fiscal-year-end-month, base-currency, status)
-- `rm_fiscalperiod` (period master with Open / Closed / Locked status)
-- Possibly `rm_chartofaccount` — pending Pam review of starter COA (executive questionnaire §11)
-- Confirm the deploy-dev workflow imports a *non-empty* solution successfully end-to-end (today it short-circuits on empty `solution/src/Entities`; the first real table will exercise the pack + pac auth + import path)
-
-**Backlog items carried out of Phase 2:**
-- Verify Azure SQL auditing is enabled on the `plasticrecycling` server (surfaced during immutability validation when `priadmin` bypassed DENY by design)
-- Migrate the SQL admin to AAD-only auth (remove `priadmin` as a stealable password)
-- Rotate at least `dsb_migrate` to a real Key Vault-backed password before Phase 3's first migration apply via CI/CD
-- When the workflow needs Azure RBAC (e.g., Key Vault for SQL secrets), grant the SP a least-privilege role, restore `subscription-id` on `azure/login`, drop `allow-no-subscriptions`
+Build the Chart of Accounts master table (rm_chartofaccount), the Journal Entry header (rm_journalentry), and Journal Entry lines (rm_journalentryline). These are the operational core of the accounting system. After these tables exist with appropriate validation rules, we can start building the first plugin (PostJournalEntryPlugin).
 
 ## Completed Phases
 
 > Newest first.
+
+### Phase 3: First Real Dataverse Tables (completed 2026-05-19)
+
+**Focus:** Create the first five foundational tables in PRI-Books-Dev and prove the CI/CD pipeline end-to-end.
+
+**Outcome:**
+- 5 tables created in PRI-Books-Dev: rm_accounttype, rm_accountcategory, rm_fiscalyear, rm_fiscalperiod, rm_entity
+- 5 seed rows in rm_accounttype (Asset/Liability/Equity/Revenue/Expense with correct NormalBalance)
+- Solution shell bootstrap to PRI-Books-Dev
+- Pack-as-Unmanaged workflow pattern established for dev environment
+- pac CLI federated identity (--githubFederated) proven working
+- Full CI/CD pipeline now operational end-to-end
+
+**Issues encountered (resolved):**
+- PowerShell 5 vs 7 syntax differences in helper scripts
+- Solution shell didn't exist in PRI-Books-Dev; bootstrap import added it
+- Choice column default value bug (PowerShell [int] defaults to 0)
+- Metadata cache hiccup on rm_entity creation; recovered
+- Workflow initially packed as Managed; changed to Unmanaged for dev
+- pac CLI uses --githubFederated not --federatedToken
+
+**Next:** Phase 4 — Chart of Accounts + first Journal Entry tables.
 
 ### Phase 2 — Azure SQL provisioning + CI/CD foundation (2026-05-19)
 
