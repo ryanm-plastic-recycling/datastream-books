@@ -67,6 +67,62 @@ To be designed. Initial candidates:
 | Vendor banking info | Visible only to `Vendor Bank Change` role (TBD design) |
 | Posted ledger amounts in restricted accounts (e.g., payroll suspense, M&A) | TBD — driven by approval policy |
 
+## Credential Storage — Azure Key Vault
+
+All non-interactive credentials live in `kv-datastream-books`
+(`https://kv-datastream-books.vault.azure.net/`). No plaintext credentials
+in the repo, in `appsettings*`, in environment variables outside dev, or
+in any chat/email channel.
+
+Credential flow (dev today; prod once cutover):
+
+```
+                   ┌────────────────────────────────────┐
+                   │      kv-datastream-books           │
+                   │  (Azure RBAC, soft-delete 90d,     │
+                   │   purge protection, firewall:      │
+                   │   only ryanm dev IP today)         │
+                   └────────────────────────────────────┘
+                            ▲                ▲
+                            │ Get secret     │ Set secret (rotation)
+                            │ (Secrets User) │ (Administrator)
+                            │                │
+              ┌─────────────┴────────┐   ┌──┴────────────────────┐
+              │  Phase 6B plugin     │   │  ryanm (human admin)  │
+              │  runtime (uses       │   │  + automated rotation │
+              │  datastream-books-   │   │  scripts (TBD)        │
+              │  cicd SP)            │   │                       │
+              └──────────────────────┘   └───────────────────────┘
+                            │
+                            │ ADO.NET conn string
+                            ▼
+              ┌──────────────────────────────────┐
+              │  Azure SQL DatastreamBooks-Dev   │
+              │  user dsb_app (least-priv)       │
+              │  INSERT into ledger.*,           │
+              │  DENY UPDATE/DELETE              │
+              └──────────────────────────────────┘
+```
+
+Why this layer exists, and what it does **not** do:
+
+- It does **not** protect against `priadmin` (the SQL Server admin login).
+  `priadmin` maps to `dbo` and bypasses every DENY by SQL Server design.
+  That risk is mitigated organizationally (see [`../runbooks/sql-account-management.md`](../runbooks/sql-account-management.md))
+  and by Azure SQL auditing — *not* by Key Vault.
+- It does protect against accidental credential exposure (commits, copy/
+  paste into chat, screen sharing, etc.) by ensuring no plaintext copy
+  of `dsb_app`'s password exists anywhere except in Vault.
+- It does centralize rotation: one place to update, all consumers pick up
+  the new value at next read.
+- It does deliver audit defensibility: every secret read/write/list/
+  delete is logged via the diagnostic setting to the shared Log Analytics
+  workspace.
+
+Operational details — RBAC, secret inventory, rotation procedures,
+break-glass — live in [`../runbooks/key-vault-management.md`](../runbooks/key-vault-management.md).
+Anyone touching credentials must read that runbook before acting.
+
 ## Privileged Identity Management
 
 - No standing admin access to PRI-Books (production). Admin actions go via
@@ -89,6 +145,10 @@ To be designed. Initial candidates:
 
 - [`data-model.md`](data-model.md)
 - [`immutability-design.md`](immutability-design.md)
+- [`immutability-validation.md`](immutability-validation.md) — `priadmin` bypass finding (why dsb_app exists)
+- [`../runbooks/key-vault-management.md`](../runbooks/key-vault-management.md) — operational details for the credential store
+- [`../runbooks/sql-account-management.md`](../runbooks/sql-account-management.md)
+- [`../runbooks/cicd-setup.md`](../runbooks/cicd-setup.md)
 - [`../controls/sod-matrix.md`](../controls/sod-matrix.md)
 - [`../controls/approval-policies.md`](../controls/approval-policies.md)
 - [`../controls/audit-controls.md`](../controls/audit-controls.md)

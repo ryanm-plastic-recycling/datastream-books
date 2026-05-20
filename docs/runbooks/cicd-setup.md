@@ -217,6 +217,46 @@ The first end-to-end run should:
 A clean PASS through the auth steps is success for today. The "no
 components to deploy" failure surface is the next session's problem.
 
+## Client secret (break-glass fallback to federated identity)
+
+Federated identity (Step 5 above) is the primary auth path — no client
+secret is required for the GitHub Actions OIDC flow. A client secret
+exists as a break-glass path for the scenarios where federation is
+unavailable (e.g., during the rotation of the federated credential
+itself, or when authenticating from a context that cannot present an
+OIDC token).
+
+| Field | Value |
+|---|---|
+| Display name | `Key Vault and CI/CD authentication` |
+| Created | 2026-05-20 |
+| Expires | 2027-05-20 (12 months; calendar reminder to rotate ~2 weeks before) |
+| Stored in | `kv-datastream-books` as secret `cicd-sp-client-secret` |
+| Rotation procedure | See [`key-vault-management.md`](key-vault-management.md) §Rotation procedures |
+
+The secret value lives in Key Vault only. It is never committed to the
+repo, set as a GitHub secret, or stored in any developer workstation.
+GitHub Actions does not consume this secret today — federated identity
+covers the runner. If a future workflow needs to act outside the OIDC
+context, it acquires this secret at runtime via Key Vault using its
+own managed identity (TBD when that scenario arrives).
+
+## Step 6 RBAC follow-up — Key Vault access for the SP
+
+In addition to the Dataverse System Administrator role granted in
+Step 4, the `datastream-books-cicd` SP holds **`Key Vault Secrets User`**
+on `kv-datastream-books` (Vault scope). This grants `Get` on secrets
+only — no `List`, no `Set`, no `Delete`, no key access. Required for
+the Phase 6B `PostJournalEntryPlugin` runtime to read
+`dsb-app-connection-string` at posting time.
+
+Verify:
+
+```powershell
+$vaultId = "/subscriptions/7d6df7e7-d474-4284-be38-ba20eec9ef7f/resourceGroups/Datastream/providers/Microsoft.KeyVault/vaults/kv-datastream-books"
+az role assignment list --assignee a58747ee-f26f-4702-b911-044ee44df9a5 --scope $vaultId -o table
+```
+
 ## What this runbook produced (single-source-of-truth values)
 
 | Field | Value |
@@ -229,6 +269,9 @@ components to deploy" failure surface is the next session's problem.
 | Federated credential subject | `repo:ryanm-plastic-recycling/datastream-books:ref:refs/heads/main` |
 | Federated credential id | `ee8f671d-2fe4-48c4-8f20-6e513091932d` |
 | Dataverse role granted | System Administrator on PRI-Books-Dev |
+| Key Vault role granted | `Key Vault Secrets User` on `kv-datastream-books` (added 2026-05-20) |
+| Client secret display name | `Key Vault and CI/CD authentication` |
+| Client secret expires | 2027-05-20 (stored in Vault as `cicd-sp-client-secret`) |
 
 ## Teardown (to remove the SP and all related access)
 
@@ -250,6 +293,8 @@ az ad app delete --id a58747ee-f26f-4702-b911-044ee44df9a5
 
 ## See also
 
+- [`key-vault-management.md`](key-vault-management.md) — Vault that stores
+  the SP client secret and the dsb_app connection string
 - [`sql-account-management.md`](sql-account-management.md) — managing `dsb_*` accounts that eventually pair with this SP
 - [`../../.github/workflows/deploy-dev.yml`](../../.github/workflows/deploy-dev.yml) — the workflow that uses these secrets
 - [`../decisions/datastream-books-decisions.md`](../decisions/datastream-books-decisions.md) — auth strategy context

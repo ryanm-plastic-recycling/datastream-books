@@ -7,27 +7,130 @@
 
 **Phase 6B: PostJournalEntryPlugin — Azure SQL dual-write + per-entity hash chain**
 
-Picks up after the Key Vault session that follows Phase 6A. Adds the
-ledger-side work that was intentionally deferred:
+Picks up directly after the 2026-05-20 Key Vault provisioning session
+(now Completed). Adds the ledger-side work that was intentionally
+deferred from Phase 6A:
 
 - Open a SQL transaction against `ledger.GeneralLedgerEntries` in the
   same plugin call that flips `rm_status` to Posted
 - Compute `RowHash = SHA256(canonical_payload || PreviousRowHash)` per
   the field order frozen in [`architecture/immutability-design.md`](architecture/immutability-design.md) §B
 - INSERT each posted JE line as a ledger row; commit both stores atomically
-- Read the SQL connection string from Azure Key Vault via the managed
-  identity granted Key Vault Secrets User in the Key Vault session
+- Read the `dsb-app-connection-string` secret from
+  `kv-datastream-books` via the `datastream-books-cicd` SP (which now
+  holds `Key Vault Secrets User` at Vault scope — wired during the
+  Key Vault session)
 - Add `LedgerRowHasher` to `plugins/DatastreamBooks.Plugins/Immutability/`
   with deterministic field-order tests
 - Extend the FakeXrmEasy test suite with a SQL-stubbed assertion that
   the row was written with the correct hash
 
-Blocked on the Key Vault session: the plugin SP needs a Key Vault role
-assignment before it can read the connection string from prod.
+Unblocked: `kv-datastream-books` provisioned, RBAC granted, secrets
+stored, dsb_app credential validated end-to-end (positive + negative).
+See [`runbooks/key-vault-management.md`](runbooks/key-vault-management.md).
 
 ## Completed Phases
 
 > Newest first.
+
+### Key Vault provisioning + credential rotation (completed 2026-05-20)
+
+**Focus:** Stand up `kv-datastream-books` as the credential store for
+Datastream Books, rotate `dsb_app`'s SQL password into a known value
+stored in Vault, generate a fresh 12-month client secret for the
+`datastream-books-cicd` SP and store that in Vault too, enable diagnostic
+logging from day one, and grant the SP `Key Vault Secrets User` so the
+Phase 6B plugin runtime can authenticate to Azure SQL as `dsb_app` —
+*not* `priadmin` (the immutability architecture depends on this).
+
+**Outcome:**
+- `kv-datastream-books` provisioned in the shared Datastream RG (East US,
+  standard, Azure RBAC, soft-delete 90 days + purge protection on,
+  public network with firewall `Deny` default + only ryanm dev IP
+  `12.201.35.226/32` in the allow-list, `bypass=None`).
+- Diagnostic setting `kv-datastream-books-diagnostics` routes
+  `AuditEvent` logs and `AllMetrics` to the existing Log Analytics
+  workspace `7d6df7e7-d474-4284-be38-ba20eec9ef7f-Datastream-EUS` in the
+  Datastream RG (reused, not re-created).
+- RBAC at Vault scope: ryanm = `Key Vault Administrator` (setup +
+  break-glass), `datastream-books-cicd` SP =
+  `Key Vault Secrets User` (Get-only).
+- `dsb_app` SQL password rotated (32-char, alphanumeric + safe symbols
+  `! @ # $ % ^ & * - _ +`, never logged or echoed). Verified live as
+  `dsb_app`: positive tests (SELECT @@VERSION, SELECT TOP 1 from
+  ledger, INSERT-in-transaction-then-ROLLBACK) all pass; negative tests
+  (UPDATE / DELETE) both throw SQL 229 *permission denied*, confirming
+  the V0002 DENY architecture survives the rotation.
+- ADO.NET connection string stored as `dsb-app-connection-string`
+  (content-type `text/plain;charset=utf-8`; tags `purpose=plugin-runtime,
+  environment=dev, target=datastream-books-dev`).
+- Fresh 12-month client secret generated on the `datastream-books-cicd`
+  app reg (display name "Key Vault and CI/CD authentication", keyId
+  `efb08aa2-a161-4f54-92b9-011197d07c88`, expires 2027-05-20). Stored
+  as `cicd-sp-client-secret`. Federated identity (OIDC) remains the
+  primary auth path for GitHub Actions — this secret is break-glass
+  fallback only.
+- New runbook
+  [`runbooks/key-vault-management.md`](runbooks/key-vault-management.md)
+  authored as the single source of truth (configuration, RBAC, diagnostic
+  logging, secret inventory, rotation procedures, break-glass for SP
+  credential loss / Vault lockout / RBAC mis-grant / accidental Vault
+  delete). Cross-references added in `sql-account-management.md`,
+  `security-model.md`, and `cicd-setup.md`.
+
+**Decisions made:**
+- **Azure RBAC, not legacy access policies.** Modern recommendation;
+  enables least-privilege roles like `Key Vault Secrets User` (read-only
+  on secrets) that don't exist in the access-policy model.
+- **Diagnostic logging on at provisioning.** Auditor-defensibility lives
+  or dies on continuous audit. Day-zero coverage means there is no
+  "what happened before logging was enabled" gap.
+- **Purge protection on, irreversibly.** Trade-off accepted: cannot
+  fully purge the Vault for 90 days post-deletion, but cannot be
+  silently destroyed by an attacker or accident either.
+- **Firewall = explicit allow only, `bypass=None`.** No
+  `AllowAzureServices` — that bypass is functionally "trust arbitrary
+  Microsoft-hosted code". Phase 6B revisits when plugin egress IPs are
+  known.
+- **Reuse the existing shared Log Analytics workspace** in the
+  Datastream RG rather than create a new one. Same audit horizon as
+  the rest of the PRI Azure footprint; one place to query.
+- **Service principal client secret stays as a break-glass path,
+  not the primary auth.** GitHub Actions continues to use federated
+  identity (OIDC) — no secret in CI logs or in GitHub Secrets storage.
+- **Decline to delete the unidentified pre-session credential.** An
+  unrecognized credential named "secret" (keyId
+  `3eaf8a5a-1cf8-4d5c-89e5-e322567abf4a`) was found on the cicd app reg
+  with a creation timestamp ~8 minutes before this session started. Its
+  origin is unknown; deleting it without confirmation could disable
+  some other consumer. Surfaced to the user; left intact pending
+  investigation.
+
+**Issues encountered (resolved):**
+- The `Microsoft.KeyVault` resource provider was not registered on the
+  PRI subscription — first-time use. Registered explicitly with
+  `az provider register --namespace Microsoft.KeyVault --wait`, then
+  Vault create succeeded.
+- Azure SQL serverless cold-start: `DatastreamBooks-Dev` (GP_S_Gen5_1,
+  60-minute auto-pause) was paused at the start of the rotation. First
+  connection timed out in post-login at the default 30-second
+  threshold. Resolved by bumping `Connect Timeout` to 120s for the
+  rotation-and-verification connections specifically. The Vault-stored
+  connection string keeps the standard 30s timeout — runtime callers
+  pay the wake-up cost once per pause cycle and recover on retry.
+- `az ad app credential reset` JSON-parse failure on a non-suppressed
+  CLI warning broke the first secret-capture attempt; the resulting
+  credential was unrecoverable. Deleted by keyId, then retried with
+  `--only-show-errors 2>$null` for a clean stdout, succeeded.
+- `az ad app credential reset --output json` returned an empty `keyId`
+  in the response object even though Azure created the credential with
+  a valid `keyId`. Cross-referenced via `az ad app credential list`
+  after creation and patched the Vault tag via
+  `az keyvault secret set-attributes`. Quirk documented in
+  `key-vault-management.md` so the next rotation doesn't trip on it.
+
+**Next:** Phase 6B — Azure SQL dual-write + hash chain in
+`PostJournalEntryPlugin`. All Vault-side dependencies satisfied.
 
 ### Phase 6A: PostJournalEntryPlugin — Dataverse-only validations (completed 2026-05-19)
 

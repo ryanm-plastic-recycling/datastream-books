@@ -25,9 +25,17 @@ Plus the bootstrap admin:
 - All four `dsb_*` accounts EXIST in `DatastreamBooks-Dev` with the grants
   and per-user DENY rows listed above. See `sys.database_principals` and
   `sys.database_permissions` to verify.
-- All four have **throwaway passwords known to no one** (generated in-memory
-  by the migration runner at apply time, never logged or persisted, then
-  discarded). The accounts cannot be logged into until intentionally rotated.
+- `dsb_app` — **rotated 2026-05-20 during the Key Vault provisioning
+  session.** Connection string (including password) stored as
+  `dsb-app-connection-string` in `kv-datastream-books`. Positive +
+  negative permissions verified at rotation time. See
+  [`key-vault-management.md`](key-vault-management.md) for the secret
+  inventory, rotation procedure, and break-glass paths.
+- `dsb_migrate`, `dsb_reader`, `dsb_admin` — still hold **throwaway
+  passwords known to no one** (generated in-memory by the migration
+  runner at apply time, never logged or persisted, then discarded). The
+  accounts cannot be logged into until intentionally rotated. Rotate
+  via the procedure below the first time a real consumer needs them.
 
 ## Rotating an account password (the one-line command)
 
@@ -166,6 +174,9 @@ ORDER  BY name;
 
 ## See also
 
+- [`key-vault-management.md`](key-vault-management.md) — the Key Vault
+  that stores rotated `dsb_*` credentials, secret inventory, and
+  rotation procedure (which calls back into this runbook)
 - [`../architecture/immutability-design.md`](../architecture/immutability-design.md) — what these accounts are protecting
 - [`../architecture/immutability-validation.md`](../architecture/immutability-validation.md) — the live test that confirmed DENY blocks `dsb_admin` and `dsb_app`
 - [`../../azure-sql/migrations/V0003__sql_logins.sql`](../../azure-sql/migrations/V0003__sql_logins.sql) — account definitions and grants source of truth
