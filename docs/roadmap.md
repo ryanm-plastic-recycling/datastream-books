@@ -5,19 +5,121 @@
 
 ## Current Phase
 
-**Phase 6: First Posting Plugin (`PostJournalEntryPlugin`)**
+**Phase 6B: PostJournalEntryPlugin — Azure SQL dual-write + per-entity hash chain**
 
-Server-side journal-entry posting. Two-phase commit across Dataverse + Azure SQL with full immutability + SoD enforcement:
-- Auto-generation of `rm_journalentrynumber` as `JE-{entitycode}-{NNNNNN}` (per-entity sequence)
-- Maintenance of `rm_totaldebit` / `rm_totalcredit` on line write
-- Validation gate: debits = credits, account active, fiscal period Open, `rm_createdby_user ≠ rm_approvedby_user`, `header.rm_entity = line.rm_entity` on every line, exactly-one-non-zero per line
-- Per-entity hash-chain compute and append to `ledger.GeneralLedgerEntries`
-- Status transition Draft → PendingApproval → Approved → Posted with state-machine guards
-- Unit tests via FakeXrmEasy
+Picks up after the Key Vault session that follows Phase 6A. Adds the
+ledger-side work that was intentionally deferred:
+
+- Open a SQL transaction against `ledger.GeneralLedgerEntries` in the
+  same plugin call that flips `rm_status` to Posted
+- Compute `RowHash = SHA256(canonical_payload || PreviousRowHash)` per
+  the field order frozen in [`architecture/immutability-design.md`](architecture/immutability-design.md) §B
+- INSERT each posted JE line as a ledger row; commit both stores atomically
+- Read the SQL connection string from Azure Key Vault via the managed
+  identity granted Key Vault Secrets User in the Key Vault session
+- Add `LedgerRowHasher` to `plugins/DatastreamBooks.Plugins/Immutability/`
+  with deterministic field-order tests
+- Extend the FakeXrmEasy test suite with a SQL-stubbed assertion that
+  the row was written with the correct hash
+
+Blocked on the Key Vault session: the plugin SP needs a Key Vault role
+assignment before it can read the connection string from prod.
 
 ## Completed Phases
 
 > Newest first.
+
+### Phase 6A: PostJournalEntryPlugin — Dataverse-only validations (completed 2026-05-19)
+
+**Focus:** Stand up the first server-side posting plugin with the six
+Dataverse-side validations the audit defensibility story relies on,
+without yet touching Azure SQL. Azure SQL dual-write + the hash chain
+are deferred to Phase 6B (after the Key Vault session) by design — the
+prod plugin SP cannot yet read the SQL connection string until Key
+Vault is wired.
+
+**Outcome:**
+- Single `PostJournalEntryPlugin` class in
+  `plugins/DatastreamBooks.Plugins/Posting/PostJournalEntryPlugin.cs`
+  dispatches across 8 message-processing steps. Six validations:
+  1. **Auto-number** `rm_journalentrynumber` on Create as
+     `JE-{entitycode}-{NNNNNN}`, per-entity sequence (max + 1 read at
+     write time — acceptable at solo-dev concurrency; documented
+     upgrade path to a counter table if needed).
+  2. **Maintain `rm_totaldebit` / `rm_totalcredit`** on the header
+     on every line write (post-op Create / Update / Delete), by
+     re-summing all live lines for the parent.
+  3. **Reject Approved transition when debits ≠ credits** — pre-op
+     header Update; error message includes both totals and the diff.
+  4. **SoD on Approved** — `rm_createdby_user` ≠ `rm_approvedby_user`;
+     plugin defaults a null approver to the calling user before the
+     check, so the comparison can never silently pass.
+  5. **Reject Posted transition when fiscal period is not Open** —
+     reads `rm_fiscalperiod.rm_status`; stamps `rm_postedby_user` =
+     calling user and `rm_posteddatetime` = UTC now on success.
+  6. **Immutability of Posted / Reversed / Voided headers and their
+     lines** — one allowed exception: Posted → Reversed (the lawful
+     one-way transition for reversing entries).
+- 16 xUnit tests in
+  `plugins/DatastreamBooks.Plugins.Tests/PostingTests/PostJournalEntryPluginTests.cs`,
+  one per rule plus interaction cases (per-entity sequences, multi-line
+  totals, SoD null-approver default, Voided always blocked, line writes
+  against a Posted header). All passing locally and in CI.
+- FakeXrmEasy.v9 2.x wired up via `MiddlewareBuilder.New().AddCrud()
+  .AddFakeMessageExecutors().UseCrud().UseMessages().SetLicense(NonCommercial)
+  .Build()` — the obsolete `XrmFakedContext()` default constructor
+  doesn't ship CRUD plumbing by default in 2.x.
+- New runbook
+  [`docs/runbooks/plugin-registration.md`](runbooks/plugin-registration.md)
+  documents the one-time PRT registration flow (assembly + 8 step rows
+  + PreImages), plus the smoke-test sequence and the
+  pull-solution-and-commit close-out. Subsequent plugin code changes
+  flow through the existing CI workflow without manual PRT touches.
+
+**Decisions made:**
+- **Single dispatching plugin class**, not one per step.
+  `PostJournalEntryPlugin` switches on `Message + PrimaryEntityName +
+  Stage` to pick which private method runs. Keeps related logic in one
+  file at the expense of a small dispatch block; matches what a future
+  auditor will want to read.
+- **Auto-numbering: read-max-and-increment** rather than a counter
+  table. At solo-dev concurrency the race window is irrelevant; if
+  multi-user write pressure arrives we replace the helper with a
+  counter-table lookup behind the same method signature.
+- **`ColumnSet(true)` on the single-row Retrieve calls** inside the
+  plugin. The retrievals touch 1 row each (entity, fiscal period,
+  parent header) — the bandwidth cost is negligible and the plugin
+  becomes robust against future field additions without code changes.
+- **Reversal exception coded as the single allowed transition** out of
+  Posted. Reversed and Voided are terminal — no escape hatch in code.
+- **Stamping the approver to current user when null** rather than
+  rejecting at the gate. Matches the maker-portal UX (a one-click
+  "Approve" button doesn't require the user to first set their own
+  GUID into the approver lookup).
+
+**Deferred to Phase 6B (post Key Vault session):**
+- Azure SQL `ledger.GeneralLedgerEntries` writes on Posted transition
+- Per-entity SHA-256 hash chain computation
+- The atomic two-phase commit across Dataverse + Azure SQL
+- `LedgerRowHasher` in `plugins/DatastreamBooks.Plugins/Immutability/`
+- Reading the SQL connection string from Key Vault
+
+**Issues encountered (resolved):**
+- FakeXrmEasy.v9 2.x default `XrmFakedContext()` constructor is
+  deprecated and ships without CRUD middleware wired up — Retrieve
+  silently returns entities with no attributes. Migrated to
+  `MiddlewareBuilder` per the deprecation warning.
+- FakeXrmEasy 2.x requires explicit acceptance of a license enum
+  (`FakeXrmEasyLicense.NonCommercial` is appropriate for an internal,
+  closed-source project).
+- `ExecutePluginWith<T>` returns a Castle DynamicProxy of `T`, not the
+  real instance — cannot be cast back to the concrete plugin type.
+  Tests now assert on the mutated Target entity rather than capturing
+  the plugin reference.
+
+**Next:** Phase 6B — Azure SQL dual-write + hash chain. Blocked on the
+Key Vault session (Pam-scheduled 8:30 PM reminder tomorrow per session
+brief).
 
 ### Phase 5: Journal Entry tables (completed 2026-05-19)
 
