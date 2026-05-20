@@ -173,29 +173,17 @@ jobs:
       # here. The correct pattern is `pac auth create ... --applicationId
       # --tenant --federatedToken <token>`. The federated token is at
       # $env:ACTIONS_ID_TOKEN_REQUEST_TOKEN / .../URL — fetched here.
-      - name: Get GitHub OIDC token for pac
-        if: steps.detect_solution.outputs.should_pack == 'true'
-        id: oidc
-        shell: pwsh
-        run: |
-          $audience = "api://AzureADTokenExchange"
-          $tokenUrl = "$env:ACTIONS_ID_TOKEN_REQUEST_URL" + "&audience=" + [uri]::EscapeDataString($audience)
-          $headers = @{ Authorization = "bearer $env:ACTIONS_ID_TOKEN_REQUEST_TOKEN" }
-          $resp = Invoke-RestMethod -Headers $headers -Uri $tokenUrl
-          # Mask the token in logs
-          Write-Host "::add-mask::$($resp.value)"
-          "fed_token=$($resp.value)" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
 
-      - name: Authenticate pac to PRI-Books-Dev
+      - name: Authenticate pac to PRI-Books-Dev (GitHub federated identity)
         if: steps.detect_solution.outputs.should_pack == 'true'
         shell: pwsh
         run: |
-          pac auth create `
-            --name github-actions-dev `
-            --url "$env:ENVIRONMENT_URL" `
-            --tenant "${{ secrets.AZURE_TENANT_ID }}" `
-            --applicationId "${{ secrets.AZURE_CLIENT_ID }}" `
-            --federatedToken "${{ steps.oidc.outputs.fed_token }}"
+            pac auth create `
+              --name github-actions-dev `
+              --environment "$env:ENVIRONMENT_URL" `
+              --tenant "${{ secrets.AZURE_TENANT_ID }}" `
+              --applicationId "${{ secrets.AZURE_CLIENT_ID }}" `
+              --githubFederated
 
       - name: Import solution to PRI-Books-Dev
         if: steps.detect_solution.outputs.should_pack == 'true'
