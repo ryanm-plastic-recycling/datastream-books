@@ -101,7 +101,7 @@ All steps:
 | 6 | Create  | rm_journalentryline  | PostOperation | *(none)*                                                   | n/a                                                        | Recompute header totals                       |
 | 7 | Update  | rm_journalentryline  | PostOperation | `rm_debit`, `rm_credit`                                    | `rm_journalentry`                                          | Recompute header totals                       |
 | 8 | Delete  | rm_journalentryline  | PostOperation | *(none)*                                                   | `rm_journalentry`                                          | Recompute header totals                       |
-
+| 9 | Delete  | rm_journalentry      | PreOperation  | *(none — fires on every create)*                           | `rm_journalentry`                                          |            |
 For each step that lists a Pre-Image:
 
 1. After saving the step, right-click the step → **Register New Image**.
