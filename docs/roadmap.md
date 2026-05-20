@@ -5,9 +5,9 @@
 
 ## Current Phase
 
-**Phase 4: Chart of Accounts + Journal Entry tables**
+**Phase 4: Chart of Accounts (this session)**
 
-Build the Chart of Accounts master table (rm_chartofaccount), the Journal Entry header (rm_journalentry), and Journal Entry lines (rm_journalentryline). These are the operational core of the accounting system. After these tables exist with appropriate validation rules, we can start building the first plugin (PostJournalEntryPlugin).
+Build the Chart of Accounts master table (`rm_chartofaccount`) in PRI-Books-Dev, seed it with a standard ~50-account starter set hung off a placeholder `Default Operating Entity`, and prove the seed script is re-runnable against any environment. After this lands, the next session moves to Journal Entry tables (`rm_journalentry`, `rm_journalentryline`) followed by the first plugin (`PostJournalEntryPlugin`).
 
 ## Completed Phases
 
@@ -18,22 +18,22 @@ Build the Chart of Accounts master table (rm_chartofaccount), the Journal Entry 
 **Focus:** Create the first five foundational tables in PRI-Books-Dev and prove the CI/CD pipeline end-to-end.
 
 **Outcome:**
-- 5 tables created in PRI-Books-Dev: rm_accounttype, rm_accountcategory, rm_fiscalyear, rm_fiscalperiod, rm_entity
-- 5 seed rows in rm_accounttype (Asset/Liability/Equity/Revenue/Expense with correct NormalBalance)
-- Solution shell bootstrap to PRI-Books-Dev
-- Pack-as-Unmanaged workflow pattern established for dev environment
-- pac CLI federated identity (--githubFederated) proven working
-- Full CI/CD pipeline now operational end-to-end
+- 5 tables created in PRI-Books-Dev: `rm_accounttype`, `rm_accountcategory`, `rm_fiscalyear`, `rm_fiscalperiod`, `rm_entity`
+- 5 seed rows in `rm_accounttype` (Asset / Liability / Equity / Revenue / Expense with correct `NormalBalance`)
+- Solution shell bootstrap to PRI-Books-Dev — solution didn't exist in dev until the first GitHub Actions run pushed an empty unmanaged shell
+- Pack-as-Unmanaged workflow pattern established for dev environment (managed/unmanaged target is workflow-controlled, not source-controlled)
+- pac CLI federated identity proven working via `--githubFederated` (note: not `--federatedToken` as some docs suggest)
+- Full CI/CD pipeline now operational end-to-end: source push → GitHub Actions → OIDC auth → pac solution pack → import to PRI-Books-Dev
 
 **Issues encountered (resolved):**
-- PowerShell 5 vs 7 syntax differences in helper scripts
-- Solution shell didn't exist in PRI-Books-Dev; bootstrap import added it
-- Choice column default value bug (PowerShell [int] defaults to 0)
-- Metadata cache hiccup on rm_entity creation; recovered
-- Workflow initially packed as Managed; changed to Unmanaged for dev
-- pac CLI uses --githubFederated not --federatedToken
+- PowerShell 5 vs 7 syntax differences in helper scripts (`@{}` splatting, `Set-Variable -Force` semantics) — kept scripts PS7-clean
+- Solution shell didn't exist in PRI-Books-Dev until first bootstrap import — the workflow's first run created it
+- Choice column default value bug (PowerShell `[int]` defaults to 0, which can collide with a real option value) — `DefaultFormValue` only emitted when a non-zero default is intended
+- Metadata cache hiccup on `rm_entity` creation; recovered on retry
+- Workflow initially packed as Managed; changed to Unmanaged for dev — managed dev imports lock the table for further customization
+- `pac` CLI flag is `--githubFederated`, not `--federatedToken`
 
-**Next:** Phase 4 — Chart of Accounts + first Journal Entry tables.
+**Next:** Phase 4 — Chart of Accounts.
 
 ### Phase 2 — Azure SQL provisioning + CI/CD foundation (2026-05-19)
 
@@ -77,25 +77,29 @@ Build the Chart of Accounts master table (rm_chartofaccount), the Journal Entry 
 ## Future Phases
 
 > Placeholders. Order is approximate; reshuffles as priorities shift.
-> (Phase 3 has been promoted to Current Phase — see top of file.)
+> (Phase 4 has been promoted to Current Phase — see top of file.)
 
-### Phase 4 — First Posting Plugin (`PostJournalEntryPlugin`)
+### Phase 5 — Journal Entry tables (`rm_journalentry`, `rm_journalentryline`)
+
+Header + lines for pre-post journal entries in Dataverse. Auto-numbering on the header (`JE-{Entity short}-{YYYY}-{NNNNN}`). Lookups to `rm_entity`, `rm_fiscalperiod`, `rm_chartofaccount`. Status choice (Draft / PendingApproval / Approved / Posted / Reversed / Voided). No plugins yet — schema first.
+
+### Phase 6 — First Posting Plugin (`PostJournalEntryPlugin`)
 
 The two-phase Dataverse + Azure SQL commit. SoD enforcement (`ApprovedBy != PostedBy`). Period-lock check. Per-entity hash-chain computation. Unit tests via FakeXrmEasy.
 
-### Phase 5 — Vendor / Customer Integration with ERP
+### Phase 7 — Vendor / Customer Integration with ERP
 
 Books AR references `rm_customer` from PRI-Datastream rather than duplicating. Cross-solution lookup design. Read-only relationship; ownership boundary documented per `erp-pattern-notes.md` Pattern 3. Books-owned vendor master decision per decision log §22 — confirm scope before AP design.
 
-### Phase 6 — AP / AR Core
+### Phase 8 — AP / AR Core
 
 Bills, invoices, receipts, aging reports. NACHA file generation for ACH payments (replaces the Leahy dependency tied to Macola). Track1099 integration for 1099 generation and W-9 collection.
 
-### Phase 7 — Period Close + Reporting
+### Phase 9 — Period Close + Reporting
 
 Native model-driven reports: Trial Balance, Balance Sheet, P&L, Cash Flow, AR/AP aging, JE audit trail, ChangeRequest log. Period close attestation flow. Hash-chain verification job.
 
-### Phase 8 — Macola Data Migration + Cutover
+### Phase 10 — Macola Data Migration + Cutover
 
 Historical archive into `archive` schema. Parallel run with Macola for at least one full close cycle (ideally two). Penny-perfect reconciliation. User-driven green light. Cutover at fiscal-period boundary per decision log §26.
 
