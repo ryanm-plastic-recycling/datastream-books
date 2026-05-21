@@ -93,7 +93,7 @@
       <RootComponent type="1" schemaName="systemuser" behavior="1" />
       <RootComponent type="62" schemaName="rm_DatastreamBooksDev" behavior="0" />
       <RootComponent type="80" schemaName="rm_DatastreamBooksDev" behavior="0" />
-      <RootComponent type="91" id="{43831b3a-0a11-4c9d-a400-b99fe7167300}" schemaName="DatastreamBooks.Plugins, Version=1.0.0.0, Culture=neutral, PublicKeyToken=22499a66286c5935" behavior="0" />
+      <RootComponent type="91" id="{43831b3a-0a11-4c9d-a400-b99fe7167300}" schemaName="DatastreamBooks.Plugins, Version=1.0.0.4, Culture=neutral, PublicKeyToken=22499a66286c5935" behavior="0" />
     </RootComponents>
     <MissingDependencies>
       <MissingDependency>
