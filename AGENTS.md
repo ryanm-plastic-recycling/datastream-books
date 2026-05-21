@@ -193,6 +193,7 @@ table's data-model entry.
 - Use `Write-Host` for user messages, `Write-Verbose` for debugging, `Write-Error` for errors
 - All scripts must support `-WhatIf` where applicable
 - Never hardcode environment URLs or credentials — read from auth profiles or env vars
+- **ASCII-only source, UTF-8 with BOM on disk.** No em-dashes (use `--`), no section signs (write the word `section`), no smart quotes. Save as UTF-8 *with* BOM so Windows PowerShell 5.1 reads the file deterministically — non-BOM UTF-8 is read using the legacy code page and any non-ASCII byte becomes mojibake that breaks the parser. Both safeguards belt-and-suspenders: ASCII source means even a no-BOM accident is harmless; the BOM means even a non-ASCII slip is parseable. Verify new scripts with `powershell.exe -NoProfile -File <path> -WhatIf` before committing. Codified in [`docs/decisions/datastream-books-decisions.md`](docs/decisions/datastream-books-decisions.md) §64.
 
 ## Build and Test Commands
 

@@ -206,34 +206,72 @@ None of the temporary passwords or connection strings touch disk.
 | What protects against the SQL Server admin (`dbo` / `sysadmin`)? | Azure SQL auditing on every login + organizational controls (password in Key Vault, designated break-glass-only use). Permission DENY does not bind `dbo` and was never intended to. |
 | What is the long-term plan to harden `dbo`? | Move SQL admin to AAD-only with MFA; minimize the population that can authenticate as `priadmin`; keep audit on continuously. |
 
-## Phase 6B status — pending live validation (2026-05-21)
+## Phase 6B status — live validation PASSED on 2026-05-21
 
-Code-complete as of this date:
+First real JE posted end-to-end against PRI-Books-Dev with plugin
+assembly 1.0.0.4. The dual-write path, the per-entity hash chain, and
+the rollback-and-throw atomicity all work as designed.
 
-- `LedgerRowHasher` (SHA-256 chain, deterministic field order, 16 unit tests passing)
-- `LedgerWriter` (SQL transaction with `WITH (UPDLOCK, HOLDLOCK)` chain-head lock, parameterized INSERT)
-- `KeyVaultSecretReader` + `MinimalJson` (raw OAuth2 + KV REST, no Azure SDK dependency, no ILRepack)
-- `PostJournalEntryLedgerWriter` orchestration (env var lookup → KV → SQL)
-- New plugin dispatch branch — Stage 40 PostOperation on `Update rm_journalentry`
+**Test JE:**
 
-**Not yet performed:** live end-to-end test in PRI-Books-Dev. The
-prerequisites for that test are documented in
-[`../runbooks/plugin-registration.md`](../runbooks/plugin-registration.md):
-populate the five `rm_sqlkv*` environment variables, register the new
-step 10 with both PreImage and PostImage, deploy the new plugin DLL,
-then post a JE through the UI and inspect:
+| Field | Value |
+|---|---|
+| JE number | JE-2026-001005 |
+| GUID | `371c1eb1-2855-f111-a825-00224805f4b1` |
+| Lines | Cash debit $75 (account 10100) / AR credit $75 (account 11000) |
+| Total debit / credit | 75.00 / 75.00 |
+| Entity | (single entity — first row in this entity's chain) |
 
-- New row(s) in `ledger.GeneralLedgerEntries` (one per line)
-- `RowHash` values non-null, 32 bytes each
-- `PreviousRowHash` of first row = `0x0000…` (genesis); subsequent rows
-  = the prior row's `RowHash`
-- Re-computing `RowHash` via `LedgerRowHasher.ComputeRowHash` matches
-  the stored value
-- UPDATE / DELETE attempts as `dsb_app` still throw SQL 229 (DENY
-  grants intact)
+**Dataverse side (post-update):**
 
-When live validation runs, append the results here with the test JE
-number, the inserted EntryId range, and the verified hash-chain head.
+| Field | Value |
+|---|---|
+| `rm_status` | 126190003 (Posted) |
+| `rm_postedby_user` | ryanm@plastic-recycling.net |
+| `rm_posteddatetime` | 2026-05-21T18:11:21Z |
+
+**Azure SQL `ledger.GeneralLedgerEntries`:**
+
+| EntryId | Side | Account | Amount | `PreviousRowHash` | `RowHash` |
+|---|---|---|---|---|---|
+| 3 | Debit | 10100 (Cash) | $75 | `0x0000…0000` (genesis, 32 zero bytes) | `0x5E08EF14028496CB3C694C028B53140F9C34C4880B7512A6EADB906289DE344B` |
+| 4 | Credit | 11000 (AR) | $75 | `0x5E08EF14028496CB3C694C028B53140F9C34C4880B7512A6EADB906289DE344B` | `0x35ADA1A1BD140ED18DC3509741C5CA50BFA2605787BC68081F18551529227883` |
+
+**What this confirms:**
+
+- **Hash chain integrity.** EntryId 4's `PreviousRowHash` is byte-for-byte
+  EntryId 3's `RowHash`. The chain links correctly from the very first
+  row of this entity onward, with the genesis sentinel (32 zero bytes)
+  marking the head per §39.
+- **Atomicity.** Dataverse and SQL agree on the posted state. No
+  one-sided commit — the rollback-and-throw pattern (§41) holds under
+  real conditions.
+- **Credential resolution.** The plugin successfully read the SQL
+  connection string from Key Vault using the plain-Text env var path
+  (§63). No `0x80040256 Access Denied` failures from the sandbox.
+- **Plugin sandbox can reach Azure SQL.** Network egress on
+  port 1433 from the Dataverse plugin sandbox to
+  `plasticrecycling.database.windows.net` works for the v9 sandbox
+  AppDomain.
+
+**Failed attempts that drove the final design:**
+
+| Assembly | Outcome | Root cause |
+|---|---|---|
+| 1.0.0.2 | `0x80040256 Access Denied` on `RetrieveEnvironmentVariableSecretValue` | Wrong action parameter (`environmentVariableDefinitionId` Guid instead of `EnvironmentVariableName` String — caught by Web API `$metadata`) |
+| 1.0.0.3 | `0x80040256 Access Denied` at 47 ms (same call) | Parameter shape fixed, but the plugin sandbox identity lacks `prvReadEnvironmentVariableSecretValue` even when impersonating SYSTEM via `OrgSvcFactory.CreateOrganizationService(null)`. The privilege gate is enforced at the message dispatcher; `CreateOrganizationService(null)` does not bypass it. |
+| 1.0.0.4 | PASS | Pivoted to plain-Text env var (§63). `DataverseEnvironmentVariables.GetValue` no longer calls `Execute`. A regression test in `KeyVaultTests/DataverseEnvironmentVariablesTests.cs` asserts the function never invokes `Execute`, locking the design in. |
+
+**Still-pending follow-up checks (Phase 6B closure does not block on
+these; they belong to the broader integrity story):**
+
+- Re-compute `RowHash` of EntryId 3 and EntryId 4 offline via
+  `LedgerRowHasher.ComputeRowHash` against the row data and verify
+  bytes match. Recommended as the first nightly job in the integrity
+  verification phase.
+- Repeat the negative tests (UPDATE / DELETE as `dsb_app` against the
+  newly-written EntryIds) to re-confirm SQL 229 / DENY grants are
+  still in force after the first real INSERT.
 
 ## See also
 

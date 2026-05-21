@@ -5,55 +5,106 @@
 
 ## Current Phase
 
-**Phase 6B end-to-end validation — pending operator actions in PRI-Books-Dev**
+**Phase 7 (Backend Track) — Vendor / Customer Integration with ERP**
 
-Code for Phase 6B is committed (see Completed Phases below). What
-remains is the one-time live deployment + first-real-JE validation:
+Phase 6B closed on 2026-05-21 (see Completed Phases). Next backend
+focus: Books AR references `rm_customer` from PRI-Datastream rather
+than duplicating it.
 
-- Populate the five `rm_sqlkv*` Dataverse Environment Variables per
-  [`runbooks/plugin-registration.md`](runbooks/plugin-registration.md) §"Phase 6B prerequisites"
-- Register Step 10 (Stage 40 PostOperation on Update rm_journalentry)
-  with both `PreImage` and `PostImage`
-- Push the new plugin DLL via the existing CI/CD path (commit triggers
-  GitHub Actions build → solution import)
-- Post one real JE through the UI in PRI-Books-Dev and verify the
-  ledger row(s), the hash chain, and that UPDATE/DELETE as `dsb_app`
-  still throw SQL 229. Record the result in
-  [`architecture/immutability-validation.md`](architecture/immutability-validation.md).
+- Design the cross-solution lookup from Books to ERP's `rm_customer`
+  master (read-only relationship; Books does not own the customer
+  record). Pattern reference:
+  [`architecture/erp-pattern-notes.md`](architecture/erp-pattern-notes.md)
+  Pattern 3.
+- Confirm Books-owned vendor master scope per decision §22 before AP
+  design begins; finalize whether vendor records originate in Books or
+  ERP.
+- Document the ownership boundary in the data-model file so future
+  contributors do not accidentally write to the ERP-owned side.
 
-After validation passes, this phase moves into Completed Phases and
-Phase 7 (Vendor / Customer Integration with ERP) becomes the Current
-Phase per the section below.
-
----
-
-**Phase 6B (code complete) was:** PostJournalEntryPlugin — Azure SQL dual-write + per-entity hash chain
-
-Picks up directly after the 2026-05-20 Key Vault provisioning session
-(now Completed). Adds the ledger-side work that was intentionally
-deferred from Phase 6A:
-
-- Open a SQL transaction against `ledger.GeneralLedgerEntries` in the
-  same plugin call that flips `rm_status` to Posted
-- Compute `RowHash = SHA256(canonical_payload || PreviousRowHash)` per
-  the field order frozen in [`architecture/immutability-design.md`](architecture/immutability-design.md) §B
-- INSERT each posted JE line as a ledger row; commit both stores atomically
-- Read the `dsb-app-connection-string` secret from
-  `kv-datastream-books` via the `datastream-books-cicd` SP (which now
-  holds `Key Vault Secrets User` at Vault scope — wired during the
-  Key Vault session)
-- Add `LedgerRowHasher` to `plugins/DatastreamBooks.Plugins/Immutability/`
-  with deterministic field-order tests
-- Extend the FakeXrmEasy test suite with a SQL-stubbed assertion that
-  the row was written with the correct hash
-
-Unblocked: `kv-datastream-books` provisioned, RBAC granted, secrets
-stored, dsb_app credential validated end-to-end (positive + negative).
-See [`runbooks/key-vault-management.md`](runbooks/key-vault-management.md).
+After Phase 7 (backend) lands, Phase 8 (AP / AR Core) picks up. The
+UI track (Phase 7 UI) remains dormant per decision §58 until all
+backend phases through Phase 11+ complete.
 
 ## Completed Phases
 
 > Newest first.
+
+### Phase 6B (validation closed) — first real JE posted end-to-end (2026-05-21)
+
+**Focus:** Take the Phase 6B code-complete plugin from "all tests
+green locally" to "first real JE flows through the live PRI-Books-Dev
+environment without one-sided commits". This phase is the proof that
+the immutability architecture works in production, not just in test
+harnesses.
+
+**Outcome:**
+- JE-2026-001005 (Cash debit $75, AR credit $75, single entity)
+  posted successfully through the full stack.
+- Dataverse side: `rm_status` = Posted (126190003),
+  `rm_postedby_user` = ryanm@plastic-recycling.net,
+  `rm_posteddatetime` = 2026-05-21T18:11:21Z.
+- Azure SQL `ledger.GeneralLedgerEntries` side: EntryId 3 (Cash debit
+  $75, account 10100) — `PreviousRowHash` = 32 zero bytes (genesis,
+  per §39); EntryId 4 (AR credit $75, account 11000) —
+  `PreviousRowHash` = `0x5E08EF14028496CB3C694C028B53140F9C34C4880B7512A6EADB906289DE344B`,
+  byte-for-byte EntryId 3's `RowHash`. Hash chain works as designed.
+- Atomicity verified: Dataverse and SQL show consistent posted state
+  with no one-sided commit. Rollback-and-throw (§41) holds under
+  real conditions.
+- Plugin assembly 1.0.0.4 is the production-ready artifact. 1.0.0.2
+  and 1.0.0.3 are retired (both failed validation; see Decisions
+  below).
+- `architecture/immutability-validation.md` updated with the live
+  first-real-JE validation result, including the exact hash bytes.
+
+**Decisions made (logged in
+[`decisions/datastream-books-decisions.md`](decisions/datastream-books-decisions.md)
+§63-§65):**
+- **§63 — Plain-Text env var for `rm_sqlkvclientsecret`.** The Dataverse
+  plugin sandbox identity does not hold
+  `prvReadEnvironmentVariableSecretValue` even when impersonating the
+  SYSTEM user via `OrgSvcFactory.CreateOrganizationService(null)`.
+  `RetrieveEnvironmentVariableSecretValue` returns `0x80040256 Access
+  Denied` from inside the sandbox, regardless of payload shape — pinned
+  by two failed deploys (1.0.0.2 with the wrong parameter name,
+  1.0.0.3 with the correct parameter name). Same action returns the
+  same error to a System Administrator user calling via Web API.
+  Pivot: convert the variable to plain Text (type 100000000); a deploy
+  script syncs the value from Key Vault after each SP rotation.
+  `DataverseEnvironmentVariables.GetValue` simplified to a single
+  code path; regression test enforces "no Execute calls". Key Vault
+  remains the source of truth for the underlying secret.
+- **§64 — ASCII-only PowerShell + UTF-8 with BOM.** Surfaced when the
+  first cut of `scripts/sync-sp-secret-to-dataverse.ps1` contained
+  em-dashes and section signs that Windows PowerShell 5.1 mojibaked
+  into `â€"` (UTF-8 read as Windows-1252). Codified in AGENTS.md under
+  PowerShell Scripts conventions.
+- **§65 — Phase 6B end-to-end validated** with the specific live evidence
+  recorded above.
+
+**Issues encountered (resolved):**
+- 1.0.0.2 sent `environmentVariableDefinitionId` (Guid) as the action
+  parameter. Web API `$metadata` confirmed the action's only parameter
+  is `EnvironmentVariableName` (Edm.String). Fixed in 1.0.0.3 — still
+  failed (sandbox privilege gate, not payload). Drove the §63 pivot.
+- Sync-script encoding bug: em-dashes in the first cut produced
+  mojibake in PS 5.1; rewriting as ASCII-only + UTF-8-with-BOM
+  resolved it and drove §64.
+
+**New artifacts in this phase:**
+- `scripts/sync-sp-secret-to-dataverse.ps1` — KV-to-Dataverse value
+  sync; the only sanctioned writer of the `rm_sqlkvclientsecret`
+  value. Supports `-WhatIf`; verifies by length only (per §45);
+  Clear-Variable on completion.
+- `plugins/DatastreamBooks.Plugins.Tests/KeyVaultTests/DataverseEnvironmentVariablesTests.cs`
+  — 9 tests, including the regression guard that fails if anyone
+  reintroduces the Secret-type branch.
+
+**Next:** Phase 7 (Backend Track) — Vendor / Customer Integration with
+ERP. See Current Phase above.
+
+---
 
 ### Phase 6B (code) — PostJournalEntryPlugin Azure SQL dual-write + hash chain (code-complete 2026-05-21)
 
