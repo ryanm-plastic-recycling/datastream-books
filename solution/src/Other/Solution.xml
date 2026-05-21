@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ImportExportXml version="9.2.26024.146" SolutionPackageVersion="9.2" languagecode="1033" generatedBy="CrmLive" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" OrganizationVersion="9.2.26024.146" OrganizationSchemaType="Full" CRMServerServiceabilityVersion="9.2.26052.00130">
+<ImportExportXml version="9.2.26024.146" SolutionPackageVersion="9.2" languagecode="1033" generatedBy="CrmLive" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" OrganizationVersion="9.2.26024.146" OrganizationSchemaType="Full" CRMServerServiceabilityVersion="9.2.26052.00134">
   <SolutionManifest>
     <UniqueName>DatastreamBooks</UniqueName>
     <LocalizedNames>
@@ -91,11 +91,26 @@
       <RootComponent type="1" schemaName="rm_journalentry" behavior="0" />
       <RootComponent type="1" schemaName="rm_journalentryline" behavior="0" />
       <RootComponent type="1" schemaName="systemuser" behavior="1" />
+      <RootComponent type="62" schemaName="rm_DatastreamBooksDev" behavior="0" />
+      <RootComponent type="80" schemaName="rm_DatastreamBooksDev" behavior="0" />
+      <RootComponent type="91" id="{43831b3a-0a11-4c9d-a400-b99fe7167300}" schemaName="DatastreamBooks.Plugins, Version=1.0.0.0, Culture=neutral, PublicKeyToken=22499a66286c5935" behavior="0" />
     </RootComponents>
     <MissingDependencies>
       <MissingDependency>
         <Required type="1" schemaName="systemuser" displayName="SystemUser" parentSchemaName="" solution="msdyn_OmnichannelBotEnablerPatch (1.5.27.8)" />
         <Dependent type="1" schemaName="systemuser" displayName="SystemUser" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="61" schemaName="msdyn_/Images/AppModule_Default_Icon.png" displayName="msdyn_/Images/AppModule_Default_Icon.png" solution="AppModuleWebResources (2.5)">
+          <package appName="AppModule Web Resources Package" version="2.5">AppModuleWebResources (2.5)</package>
+        </Required>
+        <Dependent type="80" schemaName="rm_DatastreamBooksDev" displayName="Datastream Books Dev" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="SettingDefinition" displayName="AppChannel" solution="msdyn_AppFrameworkInfraExtensions (1.0.0.15)" id.uniquename="AppChannel">
+          <package appName="PowerAppsAppFramework Package" version="1.0.0.25">PowerAppsAppFramework_Anchor (1.0.0.25)</package>
+        </Required>
+        <Dependent type="AppSetting" displayName="parentappmoduleid.uniquename=rm_DatastreamBooksDev,settingdefinitionid.uniquename=AppChannel" id.parentappmoduleid.uniquename="rm_DatastreamBooksDev" id.settingdefinitionid.uniquename="AppChannel" />
       </MissingDependency>
     </MissingDependencies>
   </SolutionManifest>

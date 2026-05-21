@@ -11,7 +11,13 @@
       <grid name="resultset" jump="rm_fiscalperiodname" select="1" icon="1" preview="1">
         <row name="result" id="rm_fiscalperiodid">
           <cell name="rm_fiscalperiodname" width="300" />
-          <cell name="createdon" width="125" />
+          <cell name="rm_closedby" width="100" />
+          <cell name="rm_closeddate" width="109" />
+          <cell name="rm_startdate" width="100" />
+          <cell name="rm_enddate" width="100" />
+          <cell name="rm_fiscalyear" width="103" />
+          <cell name="rm_periodnumber" width="126" />
+          <cell name="rm_status" width="100" />
         </row>
       </grid>
     </layoutxml>
@@ -21,11 +27,17 @@
         <entity name="rm_fiscalperiod">
           <attribute name="rm_fiscalperiodid" />
           <attribute name="rm_fiscalperiodname" />
-          <attribute name="createdon" />
           <order attribute="rm_fiscalperiodname" descending="false" />
           <filter type="and">
             <condition attribute="statecode" operator="eq" value="0" />
           </filter>
+          <attribute name="rm_closedby" />
+          <attribute name="rm_closeddate" />
+          <attribute name="rm_startdate" />
+          <attribute name="rm_enddate" />
+          <attribute name="rm_fiscalyear" />
+          <attribute name="rm_periodnumber" />
+          <attribute name="rm_status" />
         </entity>
       </fetch>
     </fetchxml>

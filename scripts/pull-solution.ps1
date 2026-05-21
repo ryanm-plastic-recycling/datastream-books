@@ -80,7 +80,7 @@ if ($PSCmdlet.ShouldProcess("$tempZip -> $srcDir", "pac solution unpack")) {
     pac solution unpack `
         --zipfile $tempZip `
         --folder  $srcDir `
-        --packagetype ($Managed ? 'Managed' : 'Unmanaged') `
+        --packagetype $(if ($Managed) { 'Managed' } else { 'Unmanaged' }) `
         --allowDelete `
         --allowWrite
 

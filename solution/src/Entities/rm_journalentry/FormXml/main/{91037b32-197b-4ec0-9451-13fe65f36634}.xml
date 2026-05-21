@@ -5,16 +5,16 @@
     <IntroducedVersion>1.0</IntroducedVersion>
     <FormPresentation>1</FormPresentation>
     <FormActivationState>1</FormActivationState>
-    <form>
+    <form headerdensity="HighWithControls">
       <tabs>
-        <tab verticallayout="true" id="{567253a7-2ed1-4fe8-affe-3f2663f9f714}" IsUserDefined="1">
+        <tab verticallayout="true" id="{567253a7-2ed1-4fe8-affe-3f2663f9f714}" IsUserDefined="1" name="General">
           <labels>
             <label description="General" languagecode="1033" />
           </labels>
           <columns>
             <column width="100%">
               <sections>
-                <section showlabel="false" showbar="false" IsUserDefined="0" id="{6a85a1ba-edc1-4328-b63d-529accb215d3}">
+                <section showlabel="true" showbar="false" IsUserDefined="0" id="{6a85a1ba-edc1-4328-b63d-529accb215d3}" name="General" columns="111">
                   <labels>
                     <label description="General" languagecode="1033" />
                   </labels>
@@ -24,7 +24,320 @@
                         <labels>
                           <label description="Journal Entry Number" languagecode="1033" />
                         </labels>
-                        <control id="rm_journalentrynumber" classid="{4273EDBD-AC1D-40d3-9FB2-095C621B552D}" datafieldname="rm_journalentrynumber" />
+                        <control id="rm_journalentrynumber" classid="{4273EDBD-AC1D-40d3-9FB2-095C621B552D}" datafieldname="rm_journalentrynumber" disabled="true" />
+                      </cell>
+                      <cell id="{a1c216f2-8fce-487a-b494-d3df6b95a792}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Is Reversal" languagecode="1033" />
+                        </labels>
+                        <control id="rm_isreversal" classid="{67FAC785-CD58-4F9F-ABB3-4B7DDC6ED5ED}" datafieldname="rm_isreversal" disabled="false" />
+                      </cell>
+                      <cell id="{39d43602-1cde-424c-af4a-ccb609036d84}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Created By (User)" languagecode="1033" />
+                        </labels>
+                        <control id="rm_createdby_user" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="rm_createdby_user" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{be14afe7-3eeb-4037-bc02-3843626f5283}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Description" languagecode="1033" />
+                        </labels>
+                        <control id="rm_journaldescription" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="rm_journaldescription" disabled="false" />
+                      </cell>
+                      <cell id="{a85f63c6-222e-4284-a450-065786e0d55f}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Reversed By JE" languagecode="1033" />
+                        </labels>
+                        <control id="rm_reversedbyje" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="rm_reversedbyje" disabled="false" />
+                      </cell>
+                      <cell id="{6a2e503b-d86b-4f21-8151-c9bf686bdb7c}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Posted By (User)" languagecode="1033" />
+                        </labels>
+                        <control id="rm_postedby_user" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="rm_postedby_user" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{25885e5e-ddf3-4865-ae0c-67e1474e3c1a}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Entity" languagecode="1033" />
+                        </labels>
+                        <control id="rm_entity" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="rm_entity" disabled="false" />
+                      </cell>
+                      <cell id="{ff126bcb-a294-4ff6-84a6-fe051449f656}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Reverses JE" languagecode="1033" />
+                        </labels>
+                        <control id="rm_reversesje" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="rm_reversesje" disabled="false" />
+                      </cell>
+                      <cell id="{e8bbdb8a-4156-4ccf-a60a-42e5f7deaf15}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Posted Date/Time" languagecode="1033" />
+                        </labels>
+                        <control id="rm_posteddatetime" classid="{5B773807-9FB2-42DB-97C3-7A91EFF8ADFF}" datafieldname="rm_posteddatetime" disabled="true" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{5c5cd1a9-4636-457f-89fb-b38c39253b59}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Fiscal Period" languagecode="1033" />
+                        </labels>
+                        <control id="rm_fiscalperiod" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="rm_fiscalperiod" disabled="false" />
+                      </cell>
+                      <cell id="{49bb8161-2cdc-496a-966f-750819d7bc02}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Source Document" languagecode="1033" />
+                        </labels>
+                        <control id="rm_sourcedocument" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="rm_sourcedocument" disabled="false" />
+                      </cell>
+                      <cell id="{8a67ad2d-22ca-449f-bcf9-e830138ba3f6}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Approved Date/Time" languagecode="1033" />
+                        </labels>
+                        <control id="rm_approveddatetime" classid="{5B773807-9FB2-42DB-97C3-7A91EFF8ADFF}" datafieldname="rm_approveddatetime" disabled="true" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell locklevel="0" id="{afe16880-6323-4b22-ba03-c3fdc651f995}">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                      </cell>
+                      <cell id="{7663b6ca-395a-4b80-9db9-a328203cc3b2}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Reference Number" languagecode="1033" />
+                        </labels>
+                        <control id="rm_referencenumber" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="rm_referencenumber" disabled="false" />
+                      </cell>
+                      <cell locklevel="0" id="{dc35b1be-f60e-40f3-b669-9fb4fb60a3c2}">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                      </cell>
+                    </row>
+                    <row>
+                      <cell locklevel="0" id="{ff078d30-4ffe-4b9c-8807-f8e42fa9728c}">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                      </cell>
+                      <cell id="{91132984-88ca-4245-923a-5d5d5b897656}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Status" languagecode="1033" />
+                        </labels>
+                        <control id="rm_status" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="rm_status" disabled="false" />
+                      </cell>
+                      <cell locklevel="0" id="{bbb98b91-9ca8-435d-8408-163766e32a96}">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{646ccbaa-a716-472d-bff5-4da6c3e9a034}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="JE Type" languagecode="1033" />
+                        </labels>
+                        <control id="rm_jetype" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="rm_jetype" disabled="false" />
+                      </cell>
+                      <cell locklevel="0" id="{0373f4a7-862c-4089-b1f1-82bec6755fa0}">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                      </cell>
+                      <cell locklevel="0" id="{5c9fced4-5b6e-46d4-8285-319124379970}">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{6025ae6a-d829-478a-a68e-239bdc252eaa}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Posting Date" languagecode="1033" />
+                        </labels>
+                        <control id="rm_postingdate" classid="{5B773807-9FB2-42DB-97C3-7A91EFF8ADFF}" datafieldname="rm_postingdate" disabled="false" />
+                      </cell>
+                      <cell locklevel="0" id="{7807966c-e170-442c-8823-9d89c3d3b160}">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                      </cell>
+                      <cell locklevel="0" id="{aca7d5db-0704-4cba-bce8-fc08fd6a019c}">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{cf7005f2-4fa2-4d86-a934-f4fac43600e7}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Approved By (User)" languagecode="1033" />
+                        </labels>
+                        <control id="rm_approvedby_user" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="rm_approvedby_user" disabled="false" />
+                      </cell>
+                      <cell locklevel="0" id="{1b2f18ca-b6cf-4389-b3f1-6d7df23d2165}">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                      </cell>
+                      <cell locklevel="0" id="{764dfc19-74dc-4c13-84a6-c9a72ffbedcf}">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{db5fae2c-e234-4cfa-86cf-99de0f7b057b}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Total Credit" languagecode="1033" />
+                        </labels>
+                        <control id="rm_totalcredit" classid="{C3EFE0C3-0EC6-42BE-8349-CBD9079DFD8E}" datafieldname="rm_totalcredit" disabled="true" />
+                      </cell>
+                      <cell locklevel="0" id="{a5d0c748-32e4-4d47-b0cb-3057a426e22d}">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                      </cell>
+                      <cell locklevel="0" id="{86a5ce81-2e90-4e5d-ac82-6a0127bf2c3e}">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{17143dc2-043c-44a0-8447-37be4c293a5e}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Total Debit" languagecode="1033" />
+                        </labels>
+                        <control id="rm_totaldebit" classid="{C3EFE0C3-0EC6-42BE-8349-CBD9079DFD8E}" datafieldname="rm_totaldebit" disabled="true" />
+                      </cell>
+                      <cell locklevel="0" id="{edded852-ea73-49f8-8003-49c4997d0e9c}">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                      </cell>
+                      <cell locklevel="0" id="{f726eb27-cf13-4026-a5b2-4e9ede54b502}">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                      </cell>
+                    </row>
+                  </rows>
+                </section>
+                <section name="null_section_3" id="43b293f5-2ee7-4247-9d4e-1f5eae5d4acc" IsUserDefined="0" locklevel="0" showlabel="false" showbar="false" layout="varwidth" celllabelalignment="Left" celllabelposition="Left" columns="1" labelwidth="115">
+                  <labels>
+                    <label description="Lines" languagecode="1033" />
+                  </labels>
+                  <rows>
+                    <row />
+                    <row>
+                      <cell locklevel="0" id="{ec1fe699-f222-4db2-9ae4-e851c1b6b989}" rowspan="4" colspan="1" auto="false" showlabel="true">
+                        <labels>
+                          <label description="Lines" languagecode="1033" />
+                        </labels>
+                        <control indicationOfSubgrid="true" id="Subgrid_new_1" classid="{E7A81278-8635-4D9E-8D4D-59480B391C5B}">
+                          <parameters>
+                            <RecordsPerPage>4</RecordsPerPage>
+                            <AutoExpand>Fixed</AutoExpand>
+                            <EnableQuickFind>false</EnableQuickFind>
+                            <EnableViewPicker>false</EnableViewPicker>
+                            <EnableChartPicker>true</EnableChartPicker>
+                            <ChartGridMode>All</ChartGridMode>
+                            <RelationshipName>rm_journalentry_journalentryline</RelationshipName>
+                            <TargetEntityType>rm_journalentryline</TargetEntityType>
+                            <ViewId>{03DF1251-8B21-4166-BFEB-08BCCDE207E0}</ViewId>
+                            <ViewIds>{03DF1251-8B21-4166-BFEB-08BCCDE207E0}</ViewIds>
+                          </parameters>
+                        </control>
+                      </cell>
+                    </row>
+                    <row />
+                    <row />
+                    <row />
+                  </rows>
+                </section>
+              </sections>
+            </column>
+          </columns>
+        </tab>
+        <tab name="tab_2" id="3004f4d5-da72-4d99-b8f4-69bec5126a8a" IsUserDefined="0" locklevel="0" showlabel="true">
+          <labels>
+            <label description="Metadata" languagecode="1033" />
+          </labels>
+          <columns>
+            <column width="100%">
+              <sections>
+                <section name="tab_2_section_1" id="752a3e25-21ff-4bbe-b662-66118e70ae93" IsUserDefined="0" locklevel="0" showlabel="true" showbar="false" layout="varwidth" celllabelalignment="Left" celllabelposition="Left" columns="1" labelwidth="115">
+                  <labels>
+                    <label description="Metadata" languagecode="1033" />
+                  </labels>
+                  <rows>
+                    <row />
+                    <row>
+                      <cell id="{bd1325fa-ae64-4bb2-a9c2-3c31a16bf160}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Created By" languagecode="1033" />
+                        </labels>
+                        <control id="createdby" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="createdby" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{5777a79c-3191-46f9-b815-f3bf89e60a5d}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Created By (Delegate)" languagecode="1033" />
+                        </labels>
+                        <control id="createdonbehalfby" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="createdonbehalfby" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{e7493a72-5b30-422a-94bf-7c8c8221c2fd}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Created On" languagecode="1033" />
+                        </labels>
+                        <control id="createdon" classid="{5B773807-9FB2-42DB-97C3-7A91EFF8ADFF}" datafieldname="createdon" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{391362d5-b022-42df-9483-c6b25ab197f6}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Modified By" languagecode="1033" />
+                        </labels>
+                        <control id="modifiedby" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="modifiedby" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{5a9cf0c5-01f3-4f2b-966e-aaa82dcf88c9}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Modified By (Delegate)" languagecode="1033" />
+                        </labels>
+                        <control id="modifiedonbehalfby" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="modifiedonbehalfby" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{b3a0c6e4-d756-40a7-b157-d846b14cfdb7}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Modified On" languagecode="1033" />
+                        </labels>
+                        <control id="modifiedon" classid="{5B773807-9FB2-42DB-97C3-7A91EFF8ADFF}" datafieldname="modifiedon" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{6c7894a4-65c2-4ea3-b45d-1f885eebd4ee}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Status Reason" languagecode="1033" />
+                        </labels>
+                        <control id="statuscode" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="statuscode" disabled="true" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{0e4ead76-8329-4cda-8754-15727148084c}" locklevel="0" colspan="1" rowspan="1" visible="false">
+                        <labels>
+                          <label description="Status" languagecode="1033" />
+                        </labels>
+                        <control id="statecode" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="statecode" disabled="false" />
                       </cell>
                     </row>
                   </rows>
@@ -34,6 +347,63 @@
           </columns>
         </tab>
       </tabs>
+      <header id="{243366e0-083e-4739-8a25-49596745df1a}" celllabelposition="Top" columns="111" labelwidth="115" celllabelalignment="Left">
+        <rows>
+          <row>
+            <cell id="{586ba748-b8e8-48e4-804f-630f36cf7953}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{4fa43ee7-a7e0-4acf-a59b-37ba212059a9}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{aceeff43-8b9c-44c2-a129-78ea71160db6}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{3d54bcf6-5c59-431d-979f-052b1725ca80}" locklevel="0" colspan="1" rowspan="1">
+              <labels>
+                <label description="Journal Entry Number" languagecode="1033" />
+              </labels>
+              <control id="header_rm_journalentrynumber" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="rm_journalentrynumber" disabled="false" />
+            </cell>
+            <cell id="{d5a70499-1ec0-46b6-aad0-6349919a121c}" locklevel="0" colspan="1" rowspan="1">
+              <labels>
+                <label description="Status" languagecode="1033" />
+              </labels>
+              <control id="header_rm_status" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="rm_status" disabled="false" />
+            </cell>
+          </row>
+        </rows>
+      </header>
+      <footer id="{d6071035-571b-44c1-bb77-5b3907252d19}" celllabelposition="Top" columns="111" labelwidth="115" celllabelalignment="Left">
+        <rows>
+          <row>
+            <cell id="{7950a1e7-e170-464c-a165-617772be5070}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{83895a38-25fc-4ae8-a3d7-ca24cbe2182b}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{4cb23d56-978c-4026-a757-7db33efc0ae1}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+          </row>
+        </rows>
+      </footer>
+      <DisplayConditions Order="0" FallbackForm="true">
+        <Everyone />
+      </DisplayConditions>
     </form>
     <IsCustomizable>1</IsCustomizable>
     <CanBeDeleted>1</CanBeDeleted>

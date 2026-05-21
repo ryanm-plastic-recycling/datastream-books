@@ -11,7 +11,15 @@
       <grid name="resultset" jump="rm_fiscalyearname" select="1" icon="1" preview="1">
         <row name="result" id="rm_fiscalyearid">
           <cell name="rm_fiscalyearname" width="300" />
-          <cell name="createdon" width="125" />
+          <cell name="rm_startdate" width="100" />
+          <cell name="rm_enddate" width="100" />
+          <cell name="rm_isclosed" width="100" />
+          <cell name="rm_status" width="100" />
+          <cell name="overriddencreatedon" width="149" />
+          <cell name="modifiedby" width="112" />
+          <cell name="modifiedon" width="113" />
+          <cell name="createdby" width="104" />
+          <cell name="createdon" width="105" />
         </row>
       </grid>
     </layoutxml>
@@ -21,11 +29,19 @@
         <entity name="rm_fiscalyear">
           <attribute name="rm_fiscalyearid" />
           <attribute name="rm_fiscalyearname" />
-          <attribute name="createdon" />
           <order attribute="rm_fiscalyearname" descending="false" />
           <filter type="and">
             <condition attribute="statecode" operator="eq" value="0" />
           </filter>
+          <attribute name="rm_startdate" />
+          <attribute name="rm_enddate" />
+          <attribute name="rm_isclosed" />
+          <attribute name="rm_status" />
+          <attribute name="overriddencreatedon" />
+          <attribute name="modifiedby" />
+          <attribute name="modifiedon" />
+          <attribute name="createdby" />
+          <attribute name="createdon" />
         </entity>
       </fetch>
     </fetchxml>

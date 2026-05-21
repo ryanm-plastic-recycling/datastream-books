@@ -1,0 +1,10 @@
+<environmentvariabledefinition schemaname="rm_sqlkvsecretname">
+  <displayname default="sqlkvsecretname">
+    <label description="sqlkvsecretname" languagecode="1033" />
+  </displayname>
+  <introducedversion>1.0</introducedversion>
+  <iscustomizable>1</iscustomizable>
+  <isrequired>0</isrequired>
+  <secretstore>0</secretstore>
+  <type>100000000</type>
+</environmentvariabledefinition>

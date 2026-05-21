@@ -11,7 +11,20 @@
       <grid name="resultset" jump="rm_chartofaccountname" select="1" icon="1" preview="1">
         <row name="result" id="rm_chartofaccountid">
           <cell name="rm_chartofaccountname" width="300" />
-          <cell name="createdon" width="125" />
+          <cell name="rm_accountnumber" width="137" />
+          <cell name="rm_accounttype" width="119" />
+          <cell name="rm_accountshort" width="122" />
+          <cell name="rm_accountlevel" width="123" />
+          <cell name="rm_accountcategory" width="143" />
+          <cell name="rm_accountdesc" width="157" />
+          <cell name="rm_currency" width="100" />
+          <cell name="rm_displayorder" width="120" />
+          <cell name="rm_entity" width="100" />
+          <cell name="rm_externalsystemid" width="148" />
+          <cell name="rm_isactive" width="100" />
+          <cell name="rm_iscashbankaccount" width="166" />
+          <cell name="rm_normalbalance" width="132" />
+          <cell name="rm_parentaccount" width="127" />
         </row>
       </grid>
     </layoutxml>
@@ -21,11 +34,24 @@
         <entity name="rm_chartofaccount">
           <attribute name="rm_chartofaccountid" />
           <attribute name="rm_chartofaccountname" />
-          <attribute name="createdon" />
           <order attribute="rm_chartofaccountname" descending="false" />
           <filter type="and">
             <condition attribute="statecode" operator="eq" value="0" />
           </filter>
+          <attribute name="rm_accountnumber" />
+          <attribute name="rm_accounttype" />
+          <attribute name="rm_accountshort" />
+          <attribute name="rm_accountlevel" />
+          <attribute name="rm_accountcategory" />
+          <attribute name="rm_accountdesc" />
+          <attribute name="rm_currency" />
+          <attribute name="rm_displayorder" />
+          <attribute name="rm_entity" />
+          <attribute name="rm_externalsystemid" />
+          <attribute name="rm_isactive" />
+          <attribute name="rm_iscashbankaccount" />
+          <attribute name="rm_normalbalance" />
+          <attribute name="rm_parentaccount" />
         </entity>
       </fetch>
     </fetchxml>

@@ -11,7 +11,10 @@
       <grid name="resultset" jump="rm_accounttypename" select="1" icon="1" preview="1">
         <row name="result" id="rm_accounttypeid">
           <cell name="rm_accounttypename" width="300" />
-          <cell name="createdon" width="125" />
+          <cell name="rm_accounttypeshort" width="153" />
+          <cell name="rm_accounttypecode" width="152" />
+          <cell name="rm_accounttypedesc" width="188" />
+          <cell name="overriddencreatedon" width="149" />
         </row>
       </grid>
     </layoutxml>
@@ -21,11 +24,14 @@
         <entity name="rm_accounttype">
           <attribute name="rm_accounttypeid" />
           <attribute name="rm_accounttypename" />
-          <attribute name="createdon" />
           <order attribute="rm_accounttypename" descending="false" />
           <filter type="and">
             <condition attribute="statecode" operator="eq" value="0" />
           </filter>
+          <attribute name="rm_accounttypeshort" />
+          <attribute name="rm_accounttypecode" />
+          <attribute name="rm_accounttypedesc" />
+          <attribute name="overriddencreatedon" />
         </entity>
       </fetch>
     </fetchxml>

@@ -11,7 +11,12 @@
       <grid name="resultset" jump="rm_accountcategoryname" select="1" icon="1" preview="1">
         <row name="result" id="rm_accountcategoryid">
           <cell name="rm_accountcategoryname" width="300" />
-          <cell name="createdon" width="125" />
+          <cell name="rm_accountcategorycode" width="176" />
+          <cell name="rm_accountcategorydesc" width="212" />
+          <cell name="rm_accountcategoryshort" width="177" />
+          <cell name="rm_accounttype" width="119" />
+          <cell name="rm_displayorder" width="120" />
+          <cell name="overriddencreatedon" width="149" />
         </row>
       </grid>
     </layoutxml>
@@ -21,11 +26,16 @@
         <entity name="rm_accountcategory">
           <attribute name="rm_accountcategoryid" />
           <attribute name="rm_accountcategoryname" />
-          <attribute name="createdon" />
           <order attribute="rm_accountcategoryname" descending="false" />
           <filter type="and">
             <condition attribute="statecode" operator="eq" value="0" />
           </filter>
+          <attribute name="rm_accountcategorycode" />
+          <attribute name="rm_accountcategorydesc" />
+          <attribute name="rm_accountcategoryshort" />
+          <attribute name="rm_accounttype" />
+          <attribute name="rm_displayorder" />
+          <attribute name="overriddencreatedon" />
         </entity>
       </fetch>
     </fetchxml>

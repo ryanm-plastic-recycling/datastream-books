@@ -11,7 +11,30 @@
       <grid name="resultset" jump="rm_journalentrynumber" select="1" icon="1" preview="1">
         <row name="result" id="rm_journalentryid">
           <cell name="rm_journalentrynumber" width="300" />
-          <cell name="createdon" width="125" />
+          <cell name="rm_totalcredit" width="108" />
+          <cell name="rm_totaldebit" width="104" />
+          <cell name="rm_journaldescription" width="106" />
+          <cell name="rm_entity" width="100" />
+          <cell name="rm_fiscalperiod" width="114" />
+          <cell name="rm_isreversal" width="103" />
+          <cell name="rm_jetype" width="100" />
+          <cell name="rm_postedby_user" width="137" />
+          <cell name="rm_posteddatetime" width="141" />
+          <cell name="rm_postingdate" width="112" />
+          <cell name="rm_referencenumber" width="147" />
+          <cell name="rm_reversedbyje" width="130" />
+          <cell name="rm_reversesje" width="109" />
+          <cell name="rm_sourcedocument" width="141" />
+          <cell name="rm_status" width="100" />
+          <cell name="rm_approvedby_user" width="156" />
+          <cell name="rm_approveddatetime" width="159" />
+          <cell name="createdby" width="104" />
+          <cell name="createdonbehalfby" width="166" />
+          <cell name="rm_createdby_user" width="143" />
+          <cell name="createdon" width="105" />
+          <cell name="modifiedby" width="112" />
+          <cell name="modifiedonbehalfby" width="175" />
+          <cell name="modifiedon" width="113" />
         </row>
       </grid>
     </layoutxml>
@@ -21,11 +44,34 @@
         <entity name="rm_journalentry">
           <attribute name="rm_journalentryid" />
           <attribute name="rm_journalentrynumber" />
-          <attribute name="createdon" />
           <order attribute="rm_journalentrynumber" descending="false" />
           <filter type="and">
             <condition attribute="statecode" operator="eq" value="0" />
           </filter>
+          <attribute name="rm_journaldescription" />
+          <attribute name="rm_entity" />
+          <attribute name="rm_fiscalperiod" />
+          <attribute name="rm_isreversal" />
+          <attribute name="rm_jetype" />
+          <attribute name="rm_postedby_user" />
+          <attribute name="rm_posteddatetime" />
+          <attribute name="rm_postingdate" />
+          <attribute name="rm_referencenumber" />
+          <attribute name="rm_reversedbyje" />
+          <attribute name="rm_reversesje" />
+          <attribute name="rm_sourcedocument" />
+          <attribute name="rm_status" />
+          <attribute name="rm_totalcredit" />
+          <attribute name="rm_totaldebit" />
+          <attribute name="rm_approvedby_user" />
+          <attribute name="rm_approveddatetime" />
+          <attribute name="createdby" />
+          <attribute name="createdonbehalfby" />
+          <attribute name="rm_createdby_user" />
+          <attribute name="createdon" />
+          <attribute name="modifiedby" />
+          <attribute name="modifiedonbehalfby" />
+          <attribute name="modifiedon" />
         </entity>
       </fetch>
     </fetchxml>

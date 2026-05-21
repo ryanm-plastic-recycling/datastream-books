@@ -11,7 +11,8 @@
       <grid name="resultset" jump="rm_chartofaccountname" select="1" icon="1" preview="1">
         <row name="result" id="rm_chartofaccountid">
           <cell name="rm_chartofaccountname" width="300" />
-          <cell name="createdon" width="125" />
+          <cell name="rm_accountshort" width="122" />
+          <cell name="rm_accountnumber" width="137" />
         </row>
       </grid>
     </layoutxml>
@@ -21,8 +22,9 @@
         <entity name="rm_chartofaccount">
           <attribute name="rm_chartofaccountid" />
           <attribute name="rm_chartofaccountname" />
-          <attribute name="createdon" />
           <order attribute="rm_chartofaccountname" descending="false" />
+          <attribute name="rm_accountshort" />
+          <attribute name="rm_accountnumber" />
         </entity>
       </fetch>
     </fetchxml>

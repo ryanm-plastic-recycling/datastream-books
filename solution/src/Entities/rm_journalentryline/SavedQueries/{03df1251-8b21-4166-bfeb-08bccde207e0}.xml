@@ -11,7 +11,15 @@
       <grid name="resultset" jump="rm_journalentrylinename" select="1" icon="1" preview="1">
         <row name="result" id="rm_journalentrylineid">
           <cell name="rm_journalentrylinename" width="300" />
-          <cell name="createdon" width="125" />
+          <cell name="rm_debit" width="100" />
+          <cell name="rm_credit" width="100" />
+          <cell name="rm_entity" width="100" />
+          <cell name="rm_account" width="100" />
+          <cell name="rm_costcenter" width="107" />
+          <cell name="rm_journalentry" width="116" />
+          <cell name="rm_linedescription" width="135" />
+          <cell name="rm_linenumber" width="116" />
+          <cell name="rm_externalrefnumber" width="161" />
         </row>
       </grid>
     </layoutxml>
@@ -21,11 +29,19 @@
         <entity name="rm_journalentryline">
           <attribute name="rm_journalentrylineid" />
           <attribute name="rm_journalentrylinename" />
-          <attribute name="createdon" />
           <order attribute="rm_journalentrylinename" descending="false" />
           <filter type="and">
             <condition attribute="statecode" operator="eq" value="0" />
           </filter>
+          <attribute name="rm_debit" />
+          <attribute name="rm_credit" />
+          <attribute name="rm_entity" />
+          <attribute name="rm_account" />
+          <attribute name="rm_costcenter" />
+          <attribute name="rm_journalentry" />
+          <attribute name="rm_linedescription" />
+          <attribute name="rm_linenumber" />
+          <attribute name="rm_externalrefnumber" />
         </entity>
       </fetch>
     </fetchxml>

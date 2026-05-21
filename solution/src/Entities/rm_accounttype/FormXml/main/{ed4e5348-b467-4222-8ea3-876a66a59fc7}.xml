@@ -5,7 +5,7 @@
     <IntroducedVersion>1.0</IntroducedVersion>
     <FormPresentation>1</FormPresentation>
     <FormActivationState>1</FormActivationState>
-    <form>
+    <form headerdensity="HighWithControls">
       <tabs>
         <tab verticallayout="true" id="{d0cb9bc8-1c88-47aa-ae8f-6d57cf44d056}" IsUserDefined="1">
           <labels>
@@ -14,7 +14,7 @@
           <columns>
             <column width="100%">
               <sections>
-                <section showlabel="false" showbar="false" IsUserDefined="0" id="{9ebc1a89-35af-4b01-9e85-bb2331106a06}">
+                <section showlabel="true" showbar="false" IsUserDefined="0" id="{9ebc1a89-35af-4b01-9e85-bb2331106a06}" name="General">
                   <labels>
                     <label description="General" languagecode="1033" />
                   </labels>
@@ -27,6 +27,121 @@
                         <control id="rm_accounttypename" classid="{4273EDBD-AC1D-40d3-9FB2-095C621B552D}" datafieldname="rm_accounttypename" />
                       </cell>
                     </row>
+                    <row>
+                      <cell id="{73a6c360-800e-427a-9c54-f90689e02bb7}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Account Type Code" languagecode="1033" />
+                        </labels>
+                        <control id="rm_accounttypecode" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="rm_accounttypecode" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{a73e79ef-48aa-4432-b4eb-b608e95e31b4}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Account Type Short" languagecode="1033" />
+                        </labels>
+                        <control id="rm_accounttypeshort" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="rm_accounttypeshort" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{94a149f8-5c2d-408d-9069-890e0aab6071}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Account Type Description" languagecode="1033" />
+                        </labels>
+                        <control id="rm_accounttypedesc" classid="{E0DECE4B-6FC8-4A8F-A065-082708572369}" datafieldname="rm_accounttypedesc" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{572738e9-2e17-4477-9259-61aeeb81bb3e}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Normal Balance" languagecode="1033" />
+                        </labels>
+                        <control id="rm_normalbalance" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="rm_normalbalance" disabled="false" />
+                      </cell>
+                    </row>
+                  </rows>
+                </section>
+              </sections>
+            </column>
+          </columns>
+        </tab>
+        <tab name="tab_2" id="b40e0e90-9f06-45cf-b751-4f81fab88a9f" IsUserDefined="0" locklevel="0" showlabel="true">
+          <labels>
+            <label description="Metadata" languagecode="1033" />
+          </labels>
+          <columns>
+            <column width="100%">
+              <sections>
+                <section name="tab_2_section_1" id="66385367-516d-42eb-bf19-6b8115759b90" IsUserDefined="0" locklevel="0" showlabel="true" showbar="false" layout="varwidth" celllabelalignment="Left" celllabelposition="Left" columns="1" labelwidth="115">
+                  <labels>
+                    <label description="Metadata" languagecode="1033" />
+                  </labels>
+                  <rows>
+                    <row />
+                    <row>
+                      <cell id="{ba89ea53-eb89-4902-9a13-f485aa18b816}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Created By" languagecode="1033" />
+                        </labels>
+                        <control id="createdby" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="createdby" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{5d2bc878-4fd3-40d8-82d6-d8d6649143ab}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Created By (Delegate)" languagecode="1033" />
+                        </labels>
+                        <control id="createdonbehalfby" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="createdonbehalfby" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{78094f6a-168e-4b1f-9e8c-20fa5bb5e69f}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Created On" languagecode="1033" />
+                        </labels>
+                        <control id="createdon" classid="{5B773807-9FB2-42DB-97C3-7A91EFF8ADFF}" datafieldname="createdon" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{41582852-c0e1-40ff-9b19-138b80e582c8}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Modified By" languagecode="1033" />
+                        </labels>
+                        <control id="modifiedby" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="modifiedby" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{1ef9f405-f6ae-44b9-a211-1c5339d9a795}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Modified By (Delegate)" languagecode="1033" />
+                        </labels>
+                        <control id="modifiedonbehalfby" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="modifiedonbehalfby" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{f78136a4-423a-4e01-9c18-54ee7922ee05}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Modified On" languagecode="1033" />
+                        </labels>
+                        <control id="modifiedon" classid="{5B773807-9FB2-42DB-97C3-7A91EFF8ADFF}" datafieldname="modifiedon" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{f371bb96-331f-418a-9f68-5329884f1351}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Status" languagecode="1033" />
+                        </labels>
+                        <control id="statecode" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="statecode" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{bdcf3065-48ce-465f-89d0-0b11ef4e6971}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Status Reason" languagecode="1033" />
+                        </labels>
+                        <control id="statuscode" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="statuscode" disabled="true" />
+                      </cell>
+                    </row>
                   </rows>
                 </section>
               </sections>
@@ -34,6 +149,51 @@
           </columns>
         </tab>
       </tabs>
+      <header id="{c7901751-21d4-4a83-a788-7d07c0564a2a}" celllabelposition="Top" columns="111" labelwidth="115" celllabelalignment="Left">
+        <rows>
+          <row>
+            <cell id="{080640d6-0ecd-43ae-8a81-0d3fded8dee7}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{069d8728-3306-47fe-b0af-f3da22f5b95d}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{04ac5650-10bf-4a3d-a8ba-3bfdc0a08903}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+          </row>
+        </rows>
+      </header>
+      <footer id="{1081b1f6-eda7-49ee-af96-429654120aa0}" celllabelposition="Top" columns="111" labelwidth="115" celllabelalignment="Left">
+        <rows>
+          <row>
+            <cell id="{7f85b504-5ede-4d76-b42e-65c0ef43e232}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{3a87a5f4-0cca-40ce-9727-2742947102f5}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{543a382a-3cfd-41e9-a542-9e1093e6a143}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+          </row>
+        </rows>
+      </footer>
+      <DisplayConditions Order="0" FallbackForm="true">
+        <Everyone />
+      </DisplayConditions>
     </form>
     <IsCustomizable>1</IsCustomizable>
     <CanBeDeleted>1</CanBeDeleted>

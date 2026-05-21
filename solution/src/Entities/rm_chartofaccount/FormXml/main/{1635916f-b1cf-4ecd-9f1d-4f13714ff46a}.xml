@@ -5,7 +5,7 @@
     <IntroducedVersion>1.0</IntroducedVersion>
     <FormPresentation>1</FormPresentation>
     <FormActivationState>1</FormActivationState>
-    <form>
+    <form headerdensity="HighWithControls">
       <tabs>
         <tab verticallayout="true" id="{35ee1e6e-f6b7-4b57-aa7a-e0bca2ec0d21}" IsUserDefined="1">
           <labels>
@@ -27,6 +27,118 @@
                         <control id="rm_chartofaccountname" classid="{4273EDBD-AC1D-40d3-9FB2-095C621B552D}" datafieldname="rm_chartofaccountname" />
                       </cell>
                     </row>
+                    <row>
+                      <cell id="{54d6047a-6374-4d6f-8655-8ff984be2bd4}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Account Category" languagecode="1033" />
+                        </labels>
+                        <control id="rm_accountcategory" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="rm_accountcategory" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{0f0a7c41-3552-4972-9acd-083a5414a2c4}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Account Description" languagecode="1033" />
+                        </labels>
+                        <control id="rm_accountdesc" classid="{E0DECE4B-6FC8-4A8F-A065-082708572369}" datafieldname="rm_accountdesc" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{14abc3b4-c157-4ba6-8bad-6b197759dbf7}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Account Level" languagecode="1033" />
+                        </labels>
+                        <control id="rm_accountlevel" classid="{C6D124CA-7EDA-4A60-AEA9-7FB8D318B68F}" datafieldname="rm_accountlevel" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{0a836a17-3c70-4b21-adc5-6b34611e2a70}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Account Number" languagecode="1033" />
+                        </labels>
+                        <control id="rm_accountnumber" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="rm_accountnumber" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{3dbd32aa-a826-47b7-9665-9358cc82153d}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Account Short" languagecode="1033" />
+                        </labels>
+                        <control id="rm_accountshort" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="rm_accountshort" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{295b834a-c031-43b3-99ec-50fa02f8933c}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Account Type" languagecode="1033" />
+                        </labels>
+                        <control id="rm_accounttype" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="rm_accounttype" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{957a545d-f662-4f90-9758-21c7d0769107}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Display Order" languagecode="1033" />
+                        </labels>
+                        <control id="rm_displayorder" classid="{C6D124CA-7EDA-4A60-AEA9-7FB8D318B68F}" datafieldname="rm_displayorder" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{bd3b6f8c-b69e-47ad-bcca-9f33189dfd5e}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Entity" languagecode="1033" />
+                        </labels>
+                        <control id="rm_entity" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="rm_entity" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{3dbc09e2-c6c1-45f9-836a-133e9f611764}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="External System Id" languagecode="1033" />
+                        </labels>
+                        <control id="rm_externalsystemid" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="rm_externalsystemid" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{0edc1253-5bc9-4748-b554-44fd969a25fc}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Is Active" languagecode="1033" />
+                        </labels>
+                        <control id="rm_isactive" classid="{67FAC785-CD58-4F9F-ABB3-4B7DDC6ED5ED}" datafieldname="rm_isactive" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{99f79e3a-0515-4e0b-9f8e-38d79c39132c}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Is Cash/Bank Account" languagecode="1033" />
+                        </labels>
+                        <control id="rm_iscashbankaccount" classid="{67FAC785-CD58-4F9F-ABB3-4B7DDC6ED5ED}" datafieldname="rm_iscashbankaccount" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{0c7bc9ec-4917-4c7e-aa66-24d9a7332a9a}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Normal Balance" languagecode="1033" />
+                        </labels>
+                        <control id="rm_normalbalance" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="rm_normalbalance" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{e6324421-da85-4118-93c8-cb119c15f5a5}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Parent Account" languagecode="1033" />
+                        </labels>
+                        <control id="rm_parentaccount" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="rm_parentaccount" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{2346a855-3e86-4e2b-b8df-e4953eaed8a7}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Currency" languagecode="1033" />
+                        </labels>
+                        <control id="rm_currency" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="rm_currency" disabled="false" />
+                      </cell>
+                    </row>
                   </rows>
                 </section>
               </sections>
@@ -34,6 +146,51 @@
           </columns>
         </tab>
       </tabs>
+      <header id="{5e67a0f8-8bce-4264-b904-a442aedcd4ff}" celllabelposition="Top" columns="111" labelwidth="115" celllabelalignment="Left">
+        <rows>
+          <row>
+            <cell id="{bf3c540f-586a-418e-8d14-0802a8e2aefb}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{97af9319-4b01-4fc4-94fc-4db60a3c4d8a}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{26e0746d-1095-40f6-8d2e-ac25e14c9a5c}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+          </row>
+        </rows>
+      </header>
+      <footer id="{b166930e-dc13-4828-8ac4-8c9b94396c2a}" celllabelposition="Top" columns="111" labelwidth="115" celllabelalignment="Left">
+        <rows>
+          <row>
+            <cell id="{42037a27-6bd5-40cf-babd-10ac64cc35bc}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{b353279c-ef1d-4860-a0c3-097889914afc}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{694e9c04-5c13-485b-af38-24e9eedbf4ed}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+          </row>
+        </rows>
+      </footer>
+      <DisplayConditions Order="0" FallbackForm="true">
+        <Everyone />
+      </DisplayConditions>
     </form>
     <IsCustomizable>1</IsCustomizable>
     <CanBeDeleted>1</CanBeDeleted>

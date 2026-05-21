@@ -11,7 +11,14 @@
       <grid name="resultset" jump="rm_entityname" select="1" icon="1" preview="1">
         <row name="result" id="rm_entityid">
           <cell name="rm_entityname" width="300" />
-          <cell name="createdon" width="125" />
+          <cell name="rm_entityshort" width="109" />
+          <cell name="rm_entitycode" width="108" />
+          <cell name="rm_entitytype" width="106" />
+          <cell name="rm_entitydesc" width="144" />
+          <cell name="rm_fiscalyearendday" width="156" />
+          <cell name="rm_fiscalyearendmonth" width="170" />
+          <cell name="rm_isactive" width="100" />
+          <cell name="rm_stateregistration" width="156" />
         </row>
       </grid>
     </layoutxml>
@@ -21,11 +28,18 @@
         <entity name="rm_entity">
           <attribute name="rm_entityid" />
           <attribute name="rm_entityname" />
-          <attribute name="createdon" />
           <order attribute="rm_entityname" descending="false" />
           <filter type="and">
             <condition attribute="statecode" operator="eq" value="0" />
           </filter>
+          <attribute name="rm_entityshort" />
+          <attribute name="rm_entitycode" />
+          <attribute name="rm_entitytype" />
+          <attribute name="rm_entitydesc" />
+          <attribute name="rm_fiscalyearendday" />
+          <attribute name="rm_fiscalyearendmonth" />
+          <attribute name="rm_isactive" />
+          <attribute name="rm_stateregistration" />
         </entity>
       </fetch>
     </fetchxml>
