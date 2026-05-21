@@ -38,7 +38,7 @@ namespace DatastreamBooks.Plugins.KeyVault
 
             var query = new QueryExpression(DefinitionEntity)
             {
-                ColumnSet = new ColumnSet("schemaname", "defaultvalue", "type"),
+                ColumnSet = new ColumnSet("schemaname", "defaultvalue", "type", "environmentvariabledefinitionid"),
                 Criteria = new FilterExpression(),
                 TopCount = 1,
             };
@@ -56,11 +56,38 @@ namespace DatastreamBooks.Plugins.KeyVault
             if (results.Count == 0)
             {
                 throw new InvalidPluginExecutionException(
-                    $"Dataverse Environment Variable definition '{schemaName}' was not found. " +
-                    $"It must be defined in the DatastreamBooks solution before the posting plugin can run.");
+                    $"Dataverse Environment Variable '{schemaName}' not found.");
             }
 
             var def = results[0];
+
+            // Detect Secret-type env vars by their type code (100000005 = Secret).
+            // For Secret types, the value column holds a Key Vault reference path,
+            // not the resolved secret. We must call RetrieveEnvironmentVariableSecretValue
+            // to get the actual decrypted secret value.
+            var typeOption = def.GetAttributeValue<OptionSetValue>("type");
+            var isSecret = typeOption != null && typeOption.Value == 100000005;
+
+            if (isSecret)
+            {
+                var definitionId = def.GetAttributeValue<Guid>("environmentvariabledefinitionid");
+                var request = new OrganizationRequest("RetrieveEnvironmentVariableSecretValue")
+                {
+                    Parameters = new ParameterCollection
+            {
+                { "environmentVariableDefinitionId", definitionId }
+            }
+                };
+                var response = svc.Execute(request);
+                var secretValue = response.Results["EnvironmentVariableSecretValue"] as string;
+                if (!string.IsNullOrEmpty(secretValue)) return secretValue;
+
+                throw new InvalidPluginExecutionException(
+                    $"Dataverse Secret Environment Variable '{schemaName}' did not return a value. " +
+                    $"Verify the Key Vault reference and Dataverse RBAC for kv-datastream-books.");
+            }
+
+            // Non-secret string env vars: read value column or fall back to default.
             var aliased = def.GetAttributeValue<AliasedValue>("v.value");
             var overrideValue = aliased?.Value as string;
             if (!string.IsNullOrEmpty(overrideValue)) return overrideValue;
@@ -68,7 +95,6 @@ namespace DatastreamBooks.Plugins.KeyVault
             var defaultValue = def.GetAttributeValue<string>("defaultvalue");
             if (!string.IsNullOrEmpty(defaultValue)) return defaultValue;
 
-            // Defined but no value — fail fast with a precise error.
             throw new InvalidPluginExecutionException(
                 $"Dataverse Environment Variable '{schemaName}' is defined but has neither a value " +
                 $"nor a defaultvalue. Populate it via the maker portal or the rotation deploy script.");
