@@ -81,7 +81,7 @@ We need dollar thresholds for system-enforced approvals.
 
 ## 6. Banking and Payments
 
-The current Macola system uses an add-on service called "Leahy" for ACH payments. This service is tied to Macola's SQL Server and will not be available after Macola is retired. We need a replacement.
+The current Macola system uses an add-on service called "Unknown Leahy Product Name" for ACH payments. This service is tied to Macola's SQL Server and will not be available after Macola is retired. We need a replacement.
 
 **6.1.** Which banks do we currently use? Please list all bank accounts by entity.
 
