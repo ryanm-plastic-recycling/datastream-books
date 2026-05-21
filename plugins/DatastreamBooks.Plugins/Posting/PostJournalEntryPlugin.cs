@@ -58,6 +58,12 @@ namespace DatastreamBooks.Plugins.Posting
 
             if (entity == HeaderEntity)
             {
+                if (stage == 20 && msg == "Create")
+                {
+                    var target = (Entity)ctx.PluginExecutionContext.InputParameters["Target"];
+                    PopulateCreatedByUser(ctx.PluginExecutionContext, target);
+                    return;
+                }
                 if (stage == 20 && msg == "Update")
                 {
                     ValidateHeaderUpdate(ctx, svc);
@@ -169,6 +175,23 @@ namespace DatastreamBooks.Plugins.Posting
             if (approver == null)
             {
                 target["rm_approvedby_user"] = new EntityReference("systemuser", ec.UserId);
+            }
+        }
+
+        /// <summary>
+        /// On Create of a Journal Entry, auto-populates rm_createdby_user from
+        /// the initiating user if the caller hasn't explicitly set it.
+        /// This ensures the SoD validation on later Approval has a creator to compare against.
+        /// </summary>
+        internal static void PopulateCreatedByUser(IPluginExecutionContext ctx, Entity target)
+        {
+            if (target == null) return;
+
+            // Only set if not already set — respect explicit caller values
+            if (target.GetAttributeValue<EntityReference>("rm_createdby_user") == null)
+            {
+                var initiatingUserId = ctx.InitiatingUserId;
+                target["rm_createdby_user"] = new EntityReference("systemuser", initiatingUserId);
             }
         }
 
