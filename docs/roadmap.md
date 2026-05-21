@@ -5,7 +5,9 @@
 
 ## Current Phase
 
-**Phase 7 (Backend Track) — Vendor / Customer Integration with ERP**
+**Two tracks active in parallel as of 2026-05-21 (provisional, per §66):**
+
+### Track A: Phase 7 (Backend Track) — Vendor / Customer Integration with ERP
 
 Phase 6B closed on 2026-05-21 (see Completed Phases). Next backend
 focus: Books AR references `rm_customer` from PRI-Datastream rather
@@ -22,9 +24,23 @@ than duplicating it.
 - Document the ownership boundary in the data-model file so future
   contributors do not accidentally write to the ERP-owned side.
 
-After Phase 7 (backend) lands, Phase 8 (AP / AR Core) picks up. The
-UI track (Phase 7 UI) remains dormant per decision §58 until all
-backend phases through Phase 11+ complete.
+### Track B: Phase 7A (UI Foundation) — research items only
+
+Per decision **§66** (parallel-track override of §58, *provisional*):
+documentation + research items in Phase 7A Sessions S1-S3 run in
+parallel with backend, scope-bounded. **No build work yet -- S4 app
+module construction and everything past it require separate operator
+confirmation in a new session.**
+
+- S1 (complete 2026-05-21): credential cleanup + Phase 6B carry-forward
+  state verified. See [`architecture/immutability-validation.md`](architecture/immutability-validation.md) 2026-05-21 follow-up section.
+- S2 (complete 2026-05-21): visual identity extraction. See [`architecture/ui-styling.md`](architecture/ui-styling.md).
+- S3 (complete 2026-05-21): sitemap design. See [`architecture/ui-sitemap.md`](architecture/ui-sitemap.md).
+
+Phase 8 (AP / AR Core) picks up after backend Phase 7 lands. The
+rest of the UI track (Phase 7A S4 onward and Phase 7B-7F) remains
+gated on the §66 follow-up decision and -- separately -- on §58's
+original strict-sequential mandate for transactional pages.
 
 ## Completed Phases
 

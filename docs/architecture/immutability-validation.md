@@ -272,6 +272,45 @@ these; they belong to the broader integrity story):**
 - Repeat the negative tests (UPDATE / DELETE as `dsb_app` against the
   newly-written EntryIds) to re-confirm SQL 229 / DENY grants are
   still in force after the first real INSERT.
+- **Maintenance-window backlog (logged 2026-05-21):** the POST branch of
+  `scripts/sync-sp-secret-to-dataverse.ps1` has never been exercised
+  live -- only the PATCH branch ran during Phase 6B closure. Testing
+  POST requires deleting the `rm_sqlkvclientsecret` env var value row
+  to force a value-row-not-yet-present condition, which causes a brief
+  outage window for the plugin runtime (any JE post during the window
+  throws). Schedule for a dedicated maintenance window with documented
+  rollback plan. Not blocking; the PATCH branch covers the steady-state
+  rotation path.
+
+## 2026-05-21 follow-up -- app-reg credential state verified
+
+During Phase 7A Session S1 (pre-flight + Phase 6B carry-forward
+cleanup), the `datastream-books-cicd` Entra app registration was
+inspected via `az ad app credential list` to verify the cleanup
+documented in §45 actually held live.
+
+**Live state:** exactly **one** password credential present, keyId
+`987e5ce6-934e-48db-a3d0-8972e98c7d63` (displayName "secret3",
+2026-05-20 -- 2028-05-19, hint `lRP`). Federated credential
+`github-main` (OIDC, subject `repo:ryanm-plastic-recycling/datastream-books:ref:refs/heads/main`)
+present and untouched.
+
+**Cross-reference with decision log:** efb08aa2 (§37 -- deleted) and
+3eaf8a5a (§37 retained, §45 deleted after `--query value` exposure)
+are both **absent** from the live app reg. State matches §45's
+documented end-state.
+
+**Key Vault alignment** (length-only check per §45 safe-diagnostic
+pattern): `kv-datastream-books / cicd-sp-client-secret` is enabled,
+non-empty, tag `key-id` pins the live credential
+(`987e5ce6-934e-48db-a3d0-8972e98c7d63`), last updated 2026-05-20T18:12:39Z.
+
+**Carry-forward concern from Phase 6B handoff is closed.** The
+"unidentified credential keyId 3eaf8a5a-..." item the operator brief
+flagged was a stale snapshot that predated §45's resolution. No
+disposition action was taken; nothing required deletion. This note
+exists so a future operator does not re-investigate the same closed
+issue.
 
 ## See also
 
