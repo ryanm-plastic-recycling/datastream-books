@@ -283,6 +283,7 @@ npm run build
 - ❌ **Never use HTML `<form>` tags in PCF controls** — use event handlers
 - ❌ **Never use `localStorage` / `sessionStorage` in PCF or custom pages** — use Dataverse state
 - ❌ **Never skip the Change Request system** for production changes
+- ❌ **Never use the Plugin Registration Tool for routine plugin changes** — PRT is for first-time registration of a new assembly or first step on a new entity only. Routine code changes, additional steps on an existing assembly, image edits, and bug-fix redeploys all flow through CI/CD so the change lands in source control with a git commit (and, eventually, a CR). PRT-side changes that aren't followed by `pull-solution.ps1` + commit break the audit-defensibility narrative ("every production-affecting change has a CR and a Git history entry"). See `docs/runbooks/plugin-registration.md` § "When to use" and risk R-A-20.
 
 ## Change Management
 
