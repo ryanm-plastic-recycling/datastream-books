@@ -235,14 +235,24 @@ crossing the §67 deferral boundary.
 
 ## Before Implementation
 
+The canonical implementation path is the runbook at
+[`../runbooks/r-a-19-business-rule-implementation.md`](../runbooks/r-a-19-business-rule-implementation.md)
+(drafted 2026-05-22), which includes the maker-portal click-path,
+the pre-flight checklist, the live verification checklist against
+JE-2026-001005 and a fresh Draft JE, the capture step with the
+expected diff location, the rollback procedure, and the
+post-implementation backlog / risk-register / design-doc updates.
+The conceptual pre-flight checklist below is retained for design
+traceability; the runbook expands each item into operational steps.
+
 A separate implementation session should:
 
 1. **Verify the current form state.** Open the JE main form in the
    PRI-Books-Dev maker portal. Confirm `rm_postedby_user`,
-   `rm_journalentrynumber`, `rm_totaldebit`, `rm_totalcredit` are
-   present and currently editable. If any field is already locked
-   by some other mechanism, the design here is over-scoped and
-   should narrow.
+   `rm_journalentrynumber`, `rm_totaldebit`, `rm_totalcredit`, and
+   `rm_posteddatetime` are present and currently editable. If any
+   field is already locked by some other mechanism, the design
+   here is over-scoped and should narrow.
 2. **Verify `rm_status` is on the form.** The business rule
    condition reads `rm_status`. If the field is not on the form
    (it should be -- it's the status picklist) the rule can still
@@ -280,7 +290,8 @@ A separate implementation session should:
 
 ## See Also
 
-- [`../decisions/datastream-books-decisions.md`](../decisions/datastream-books-decisions.md) -- decisions §41 (rollback-and-throw), §50 (hybrid JE entry, Phase 7B), §60 (Fluent UI v9 defaults), §66 (Phase 7A parallel-track, provisional), §67 (S4-S11 deferred).
+- [`../runbooks/r-a-19-business-rule-implementation.md`](../runbooks/r-a-19-business-rule-implementation.md) -- the implementation runbook (operator-driven session, 30-45 min)
+- [`../decisions/datastream-books-decisions.md`](../decisions/datastream-books-decisions.md) -- decisions §41 (rollback-and-throw), §50 (hybrid JE entry, Phase 7B), §60 (Fluent UI v9 defaults), §66 (Phase 7A parallel-track, provisional), §67 (S4-S11 deferred), §68 (operating principles).
 - [`../risk-register.md`](../risk-register.md) -- R-A-19 (the risk this doc mitigates).
 - [`../backlog.md`](../backlog.md) -- BL-47 (R-A-19 mitigation tracking item).
 - [`./immutability-design.md`](./immutability-design.md) -- the broader audit-defensibility narrative this mitigation supports.

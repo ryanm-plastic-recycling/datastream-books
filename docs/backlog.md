@@ -185,12 +185,12 @@ The Pam-input items gating the upcoming Pam conversation (week of
 
 ### BL-47 -- (NEW per audit risk R-A-19) Form-level read-only fields on JE form
 
-- **Description:** Make `rm_postedby_user`, `rm_journalentrynumber`, `rm_totaldebit`, `rm_totalcredit` read-only at the form level (maker portal property), not just at the plugin layer. Currently the maker portal accepts edits to these fields and the save throws -- confusing during Pam-facing demo. Design committed 2026-05-22 in [`architecture/form-readonly-enforcement.md`](architecture/form-readonly-enforcement.md) (Business Rule on the JE main form recommended).
+- **Description:** Make `rm_postedby_user`, `rm_journalentrynumber`, `rm_totaldebit`, `rm_totalcredit` read-only at the form level (maker portal property), not just at the plugin layer. Currently the maker portal accepts edits to these fields and the save throws -- confusing during Pam-facing demo. Design committed 2026-05-22 in [`architecture/form-readonly-enforcement.md`](architecture/form-readonly-enforcement.md) (Business Rule on the JE main form recommended). Implementation runbook committed 2026-05-22 in [`runbooks/r-a-19-business-rule-implementation.md`](runbooks/r-a-19-business-rule-implementation.md) (30-45 min operator-driven session; includes `rm_posteddatetime` as a fifth target field per the design doc's "default YES" recommendation).
 - **Source:** Risk-register R-A-19 (added 2026-05-21). Audit Section G5.
 - **Target phase:** Phase 7A.5 (any session) -- independent of S4-S11 deferral per §67.
 - **Priority:** P1 (Pam-demo-blocker; precondition for any Pam-facing shell demo).
 - **Pam-input-needed:** N -- IT-side technical fix; removes a blocker to showing Pam future artifacts rather than asking her for input.
-- **Status:** [Open]
+- **Status:** [Ready -- operator handoff] -- runbook in [`runbooks/r-a-19-business-rule-implementation.md`](runbooks/r-a-19-business-rule-implementation.md) waiting for a 30-45 min operator-driven implementation session.
 
 ---
 
@@ -623,6 +623,7 @@ The Pam-input items gating the upcoming Pam conversation (week of
 |---|---|---|
 | 2026-05-21 | Backlog file created from audit Section E. 46 items consolidated. Items BL-39 through BL-44 are doc-hygiene items completed during the same cleanup session. | Phase 7A audit cleanup (commit `09f833b`) |
 | 2026-05-22 | Priority Index added (50 items ranked P0-P3). Next Pam Conversation Agenda sub-section added. Inline Priority + Pam-input-needed fields populated on all items. BL-50 marked Done (closed by AGENTS.md What NOT to Do entry committed earlier this session as `e3b3b91`). BL-26-BL-29 reclassified P3 + "deferred per §67" target phase per decision §67. | 2026-05-22 morning execution session (item 4) |
+| 2026-05-22 | BL-47 status changed from `[Open]` to `[Ready -- operator handoff]`. Implementation runbook drafted at [`runbooks/r-a-19-business-rule-implementation.md`](runbooks/r-a-19-business-rule-implementation.md). `rm_posteddatetime` added as a fifth target field per the design doc's default-yes recommendation. Bucket totals unchanged (BL-47 not closing yet). | 2026-05-22 continuation session (item 4) |
 
 ## See also
 
