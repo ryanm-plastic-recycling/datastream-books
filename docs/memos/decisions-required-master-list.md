@@ -82,7 +82,9 @@ These have working answers in the decision log; just need explicit sign-off rath
 
 **Decision close-out discipline:** every answered item becomes a numbered decision in [`../decisions/datastream-books-decisions.md`](../decisions/datastream-books-decisions.md) within 48 hours of the conversation. No decision lives in someone's head.
 
-**Status tracking:** items not yet decided remain in [`./executive-questionnaire.md`](./executive-questionnaire.md) and [`../backlog.md`](../backlog.md). Items decided get marked `[Confirmed: §XX]` with citation.
+**Raising concerns about a Section 1 (architectural) decision:** Section 1 items are decided by the Technical Strategic Lead under [§71](../decisions/datastream-books-decisions.md) authority. Stakeholders (Pam, COO, President) raise concerns through [`../decisions/concurrence-log.md`](../decisions/concurrence-log.md) -- each architectural decision opens with a 5-business-day concern window before it locks. Concerns can be raised verbally, by email, or in the upcoming exec rollout meeting; the Technical Strategic Lead captures them in the concurrence log and either resolves them in-place or opens a new formal decision that supersedes the original. This is the structural channel for cross-domain concurrence; ad-hoc objection in Slack or hallway conversation is welcome but should be captured in the concurrence log so the audit trail is complete.
+
+**Status tracking:** items not yet decided remain in [`./executive-questionnaire.md`](./executive-questionnaire.md) and [`../backlog.md`](../backlog.md). Items decided get marked `[Confirmed: §XX]` with citation. Section 1 items additionally carry a concurrence-window close date; review [`../decisions/concurrence-log.md`](../decisions/concurrence-log.md) for the active window list and locked-entry archive.
 
 ---
 

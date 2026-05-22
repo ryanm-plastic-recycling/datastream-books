@@ -12,6 +12,7 @@
 - **Finance System Owner:** Pam
 - **Executive Sponsor:** President
 - **Technical Lead:** ryanm@plastic-recycling.net
+- **Technical Strategic Lead:** Ryan M (engineering + strategy + maintenance; see [§72](docs/decisions/datastream-books-decisions.md))
 
 ## Why This Exists
 
