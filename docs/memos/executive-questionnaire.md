@@ -1,12 +1,37 @@
-# Datastream Books — Executive Questionnaire
+# Datastream Books -- Executive Questionnaire
 
 **Purpose:** Items requiring executive input before design can be finalized. Please respond inline where possible.
 
 **Format note:** Reply inline under each question. If a question is not applicable or needs delegation, mark accordingly.
 
+**Status flag legend (added 2026-05-21 per audit):**
+
+- **[Active]** -- still needs an answer; downstream work depends on it.
+- **[Pending Pam]** -- specific to Finance System Owner; on the Pam agenda.
+- **[Confirmed]** -- answered in a decision or other doc; retained for traceability with a citation.
+- **[Archived]** -- moved to the "Archived Questions" section near the end of this doc.
+
 ---
 
-## 1. Legal Entity Structure
+## Recommended Pam-facing conversation agenda (added 2026-05-21 per audit)
+
+Three questions block the largest amount of downstream work and could be batched into a single 30-45 minute Pam conversation:
+
+1. **§1 Legal Entity Structure** -- unblocks `rm_entity` real seeding; blocks Phase 10 cutover.
+2. **§3 Approval Thresholds** -- unblocks `rm_approvalpolicy` row authoring; blocks Phase 8 approval workflows.
+3. **§11 Chart of Accounts** -- confirms ownership of the 54-row seed already loaded in PRI-Books-Dev; blocks COA review acceptance.
+
+Recommend scheduling this conversation before Phase 8 design kickoff. §1 and §11 are also relevant to Pam's Finance System Owner framing -- both are deliverables where her name lands on the artifact (per the Ownership Artifacts table in [`../decisions/datastream-books-decisions.md`](../decisions/datastream-books-decisions.md) "Finance System Owner -- Pam" section).
+
+Out-of-agenda follow-ups (kept separate so they do not bloat the core conversation):
+
+- **§6 Banking and Payments** -- requires a banking-specific deep dive; blocks Phase 8 NACHA decisions but is not Pam-only (involves IT + treasury function).
+- **§12 Reporting Requirements** -- affects Phase 7C report scope; can be a written response since the question is descriptive ("what reports do we currently rely on").
+- **§17 Vendor Master Scope** (NEW 2026-05-21) -- added below; blocks Phase 7-Backend / Phase 8 AP design.
+
+---
+
+## 1. Legal Entity Structure [Active] [Pending Pam + Executives]
 
 Datastream Books needs to be built with multi-entity support from day one. We need a clear picture of the legal structure.
 
@@ -20,7 +45,7 @@ Datastream Books needs to be built with multi-entity support from day one. We ne
 
 **1.2.** Describe the parent/subsidiary relationships between entities.
 
-**1.3.** Inter-company transactions — how frequent are they between entities, and what types? (e.g., expense allocations, lease payments between operating and real estate entities, loans, capital transfers)
+**1.3.** Inter-company transactions -- how frequent are they between entities, and what types? (e.g., expense allocations, lease payments between operating and real estate entities, loans, capital transfers)
 
 **1.4.** Do we need to produce consolidated financial statements (combining all entities and eliminating inter-company transactions), or do we report only on individual entity statements?
 
@@ -28,17 +53,19 @@ Datastream Books needs to be built with multi-entity support from day one. We ne
 
 ---
 
-## 2. Currency
+## 2. Currency [Active] [Pending Pam]
 
 **2.1.** Do we have any transactions, vendors, customers, or bank accounts in non-USD currency?
 
-**2.2.** Do we anticipate any in the next 3–5 years?
+**2.2.** Do we anticipate any in the next 3-5 years?
 
 **2.3.** *If yes to either:* Confirm whether foreign currency handling is required in v1 or can be deferred.
 
+*Implicit answer pending confirmation:* §24 of the decision log defers FX to post-v1; v1 schema is USD-only with currency-aware columns retained for future extension.
+
 ---
 
-## 3. Approval Thresholds
+## 3. Approval Thresholds [Active] [Pending Pam]
 
 We need dollar thresholds for system-enforced approvals.
 
@@ -51,25 +78,25 @@ We need dollar thresholds for system-enforced approvals.
 **3.4.** Should ALL wire transfers require dual approval regardless of amount? (Recommended: yes)
 
 **3.5.** Do we want approval workflows for:
-- New vendor setup (recommended: yes — fraud prevention)
-- Vendor bank info changes (recommended: yes — known fraud vector)
-- Period reopening (recommended: yes — Controller + executive)
-- Manual JE posting to bank accounts (recommended: yes — Controller)
-- Recurring JE setup or modification (recommended: yes — Controller)
+- New vendor setup (recommended: yes -- fraud prevention)
+- Vendor bank info changes (recommended: yes -- known fraud vector)
+- Period reopening (recommended: yes -- Controller + executive)
+- Manual JE posting to bank accounts (recommended: yes -- Controller)
+- Recurring JE setup or modification (recommended: yes -- Controller)
 
 ---
 
-## 4. Data Retention and Physical Documents
+## 4. Data Retention and Physical Documents [Active] [Pending Pam]
 
 **4.1.** Do we have an existing data retention policy? Default proposal is 7 years for tax records and supporting documents.
 
 **4.2.** Do we have any requirement to retain physical paper documents going forward, or can we go fully digital (SharePoint)?
 
-**4.3.** The physical banker boxes in our basement — what is the plan for those? (Destroy after digitizing? Retain? Audit-driven decision?)
+**4.3.** The physical banker boxes in our basement -- what is the plan for those? (Destroy after digitizing? Retain? Audit-driven decision?)
 
 ---
 
-## 5. External Audit
+## 5. External Audit [Active] [Pending Pam + Executives]
 
 **5.1.** Do we engage an external auditor today? If yes, what is the scope (full audit / review / compilation / agreed-upon procedures)?
 
@@ -79,7 +106,7 @@ We need dollar thresholds for system-enforced approvals.
 
 ---
 
-## 6. Banking and Payments
+## 6. Banking and Payments [Active] [Pending Pam + Treasury]
 
 The current Macola system uses an add-on service called "Unknown Leahy Product Name" for ACH payments. This service is tied to Macola's SQL Server and will not be available after Macola is retired. We need a replacement.
 
@@ -93,7 +120,7 @@ The current Macola system uses an add-on service called "Unknown Leahy Product N
 
 ---
 
-## 7. Sales Tax
+## 7. Sales Tax [Active] [Pending Pam]
 
 **7.1.** Do we currently collect sales tax on any transactions?
 
@@ -101,17 +128,13 @@ The current Macola system uses an add-on service called "Unknown Leahy Product N
 
 ---
 
-## 8. Credit Management
+## 8. Credit Management [Archived 2026-05-21]
 
-**8.1.** Do we extend credit to customers (Net 30 / Net 60 / etc.)?
-
-**8.2.** Do we currently manage customer credit limits in any system?
-
-**8.3.** Is credit limit management and enforcement required in v1, or can it be deferred to Phase 2?
+Archived because §17 of the decision log explicitly defers credit limit management and enforcement to Phase 2. See "Archived Questions" section near the end of this doc for the full text.
 
 ---
 
-## 9. Insurance and Compliance
+## 9. Insurance and Compliance [Active] [Pending Pam + IT]
 
 **9.1.** Does our cyber insurance policy specify any controls or requirements for our financial systems?
 
@@ -121,29 +144,27 @@ The current Macola system uses an add-on service called "Unknown Leahy Product N
 
 ---
 
-## 10. Document Processing AI
+## 10. Document Processing AI [Archived 2026-05-21]
 
-We currently use Microsoft AI Builder in SharePoint to extract data from documents (invoices, POs, etc.). The accuracy is uneven, particularly for variable document formats.
-
-**10.1.** Confirm that the strategic value of AI-driven invoice/PO discrepancy detection is recognized — meaning, if AI can flag only the discrepancies, we can reallocate accounting headcount from manual validation to higher-value work.
-
-**10.2.** Are we open to evaluating Anthropic Claude API (or similar) as a Phase 2 replacement for AI Builder, if cost and accuracy comparisons favor it?
-
-**10.3.** Any concerns about sending document content to a third-party AI service for processing? (Note: Claude API offers zero data retention and enterprise data protections.)
+Archived because §12 of the decision log explicitly identifies Claude API as the Phase 2 document AI path, and the president-memo.md confirms the strategic value of AI-driven discrepancy detection. See "Archived Questions" section near the end of this doc for the full text.
 
 ---
 
-## 11. Chart of Accounts
+## 11. Chart of Accounts [Active] [Pending Pam]
 
 **11.1.** Is the current Macola chart of accounts considered fit-for-purpose, or do we have known issues we want to fix during migration?
 
 **11.2.** We propose pre-populating Datastream Books with a standard chart of accounts (covering operating companies and real estate entities) and having the finance team modify it. Acceptable approach?
 
+*Implicit answer pending confirmation:* §23 of the decision log adopted the pre-populate approach; the 54-row standard COA was seeded into PRI-Books-Dev under "Default Operating Entity" during Phase 4 (2026-05-19). Pam's role is to review and approve.
+
 **11.3.** Who from the finance team will own COA review?
+
+*Implicit answer pending confirmation:* Pam, as Finance System Owner (per the Ownership Artifacts table in [`../decisions/datastream-books-decisions.md`](../decisions/datastream-books-decisions.md)).
 
 ---
 
-## 12. Reporting Requirements
+## 12. Reporting Requirements [Active] [Pending Pam]
 
 **12.1.** Beyond standard financial statements (Balance Sheet, P&L, Cash Flow, Trial Balance, Aging reports), are there specific reports the finance team or executives currently rely on that we need to replicate?
 
@@ -153,19 +174,13 @@ We currently use Microsoft AI Builder in SharePoint to extract data from documen
 
 ---
 
-## 13. Project Sponsorship and Resources
+## 13. Project Sponsorship and Resources [Archived 2026-05-21]
 
-**13.1.** Confirm executive sponsor for the Datastream Books project.
-
-**13.2.** Confirm finance lead (the SME who will own requirements, testing, and signoff on the finance side).
-
-**13.3.** Confirm IT lead (build and architecture owner).
-
-**13.4.** Confirm acceptable internal budget envelope for build effort and ongoing operations.
+Archived because the Sponsorship and Owner roles are now confirmed in the decision log (§30 Pam as Finance System Owner, §32 President as Executive Sponsor) and documented in both README and AGENTS.md. See "Archived Questions" section near the end of this doc for the full text.
 
 ---
 
-## 14. Cutover Timing
+## 14. Cutover Timing [Active] [Pending Pam + Executives]
 
 **14.1.** What is the ideal target cutover date? (Recommendation: fiscal year-end for clean accounting break.)
 
@@ -173,9 +188,11 @@ We currently use Microsoft AI Builder in SharePoint to extract data from documen
 
 **14.3.** How long are we willing to run Macola and Datastream Books in parallel? (Recommendation: minimum one full close cycle, ideally two.)
 
+*Implicit answer pending confirmation:* §26 of the decision log adopted the fiscal-period-boundary + user-driven green light pattern. Specific date is still open.
+
 ---
 
-## 15. Macola Decommissioning
+## 15. Macola Decommissioning [Active] [Pending Pam + IT]
 
 **15.1.** How long must we retain access to the Macola archive after cutover? (Default proposal: 7 years read-only, then archive to cold storage.)
 
@@ -185,14 +202,81 @@ We currently use Microsoft AI Builder in SharePoint to extract data from documen
 
 ---
 
-## 16. Lighthouse Alignment
+## 16. Lighthouse Alignment [Archived 2026-05-21]
 
-The successful cutover of Datastream Books enables broader IT modernization aligned with The Lighthouse strategy:
+Archived because §32 of the decision log captures the cascading Lighthouse benefits (President + COO endorsed the framing during the rollout meeting per the decision log), and the president-memo.md "Secondary Strategic Benefit: The Lighthouse" section documents the downstream IT modernization scope. See "Archived Questions" section near the end of this doc for the full text.
 
-- Decommission of local domain controller (full Entra ID migration)
-- Decommission of local file server (all documents in SharePoint)
-- Reduction of on-premise infrastructure
-- Users no longer required to be physically present at HQ to access systems
+---
+
+## 17. Vendor Master Scope (NEW 2026-05-21 per audit) [Active] [Pending Pam]
+
+Decision §22 of the decision log says "Vendors/customers added as needed -- natural data hygiene." The "as needed" wording is broad enough that it leaves open three different operating models:
+
+**17.1.** When a bill arrives from a new vendor, who creates the vendor record?
+- AP Clerk in Books (Books-owned master)?
+- Operations in ERP, then synced to Books?
+- Both -- depending on whether the vendor is also an ERP supplier?
+
+**17.2.** For vendors that already exist in PRI-Datastream ERP (some of which may be operational suppliers), is the canonical record the ERP one or the Books one? Or are vendor records intentionally not shared?
+
+**17.3.** What vendor master fields does Books require beyond ERP's existing schema -- W-9 status, 1099 reportability, payment terms, NACHA banking, AP-specific approval routing?
+
+This question blocks Phase 7-Backend (Track A) and Phase 8 (AP Core). Resolution informs the vendor-cross-solution-lookup decision (mirror `rm_customer` Pattern 3 from `erp-pattern-notes.md`, or own a separate Books-side vendor master).
+
+---
+
+## Archived Questions
+
+Questions retained here for traceability after their substantive content has been answered elsewhere. Archive reason cited per question.
+
+### §8 Credit Management [Archived 2026-05-21]
+
+**Archive reason:** Resolved by §17 of the decision log (credit limit management and enforcement deferred to Phase 2; not in v1 scope). Pam may revisit at Phase 2 kickoff if customer credit risk becomes material.
+
+Original questions:
+
+**8.1.** Do we extend credit to customers (Net 30 / Net 60 / etc.)?
+
+**8.2.** Do we currently manage customer credit limits in any system?
+
+**8.3.** Is credit limit management and enforcement required in v1, or can it be deferred to Phase 2?
+
+### §10 Document Processing AI [Archived 2026-05-21]
+
+**Archive reason:** Resolved by §12 of the decision log (Claude API selected as Phase 2 document AI; AI Builder is interim v1 pattern). President-memo.md "The Strategic Value Driver: AI-Driven Document Processing" section documents the strategic case and the headcount-reallocation outcome. Pam and executives have signed off on the direction.
+
+Original questions:
+
+**10.1.** Confirm that the strategic value of AI-driven invoice/PO discrepancy detection is recognized -- meaning, if AI can flag only the discrepancies, we can reallocate accounting headcount from manual validation to higher-value work.
+
+**10.2.** Are we open to evaluating Anthropic Claude API (or similar) as a Phase 2 replacement for AI Builder, if cost and accuracy comparisons favor it?
+
+**10.3.** Any concerns about sending document content to a third-party AI service for processing? (Note: Claude API offers zero data retention and enterprise data protections.)
+
+### §13 Project Sponsorship and Resources [Archived 2026-05-21]
+
+**Archive reason:** Sponsorship and ownership are confirmed:
+
+- Executive Sponsor: President (§32)
+- Finance System Owner: Pam (§30)
+- Technical Lead / IT: Ryan McCauley (AGENTS.md, README.md)
+- Budget envelope: implied by the cost comparison in president-memo.md ($130K-$255K 5-year total accepted vs $200K-$390K BC alternative)
+
+Original questions:
+
+**13.1.** Confirm executive sponsor for the Datastream Books project.
+
+**13.2.** Confirm finance lead (the SME who will own requirements, testing, and signoff on the finance side).
+
+**13.3.** Confirm IT lead (build and architecture owner).
+
+**13.4.** Confirm acceptable internal budget envelope for build effort and ongoing operations.
+
+### §16 Lighthouse Alignment [Archived 2026-05-21]
+
+**Archive reason:** Lighthouse alignment is captured in §32 of the decision log and the president-memo.md "Secondary Strategic Benefit: The Lighthouse" section. President + COO confirmed during the rollout meeting (per the decision log Finance System Owner section). Downstream parallel work streams (Entra migration, file server retirement) sequence after Macola cutover.
+
+Original questions:
 
 **16.1.** Confirm that these downstream benefits are recognized and in scope for the overall initiative.
 

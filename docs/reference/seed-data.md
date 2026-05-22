@@ -39,18 +39,40 @@ accounting system.
 
 When you seed a new environment, add a row above with the date.
 
+## Chart of Accounts (`rm_chartofaccount`) [seeded Phase 4]
+
+Standard 54-row Chart of Accounts (20 parent + 34 child) seeded into
+PRI-Books-Dev under the placeholder "Default Operating Entity"
+(`rm_entitycode = DEFAULT`) during Phase 4 (2026-05-19) per decision
+§23 + §34. Source data in
+[`chart-of-accounts.csv`](chart-of-accounts.csv) (if committed) or
+inline in the seed script. Pam owns COA review and modification per
+the Ownership Artifacts table in
+[`../decisions/datastream-books-decisions.md`](../decisions/datastream-books-decisions.md).
+
+**Loader:** `scripts/seed-rm_chartofaccount.ps1` (+ companion
+`scripts/seed-default-entity.ps1` which seeds the placeholder entity
+FK target).
+
+**Applied environments:**
+| Environment | Applied date | Applied by |
+|---|---|---|
+| PRI-Books-Dev | 2026-05-19 | Phase 4 build session (Claude Code via Web API) |
+
 ## Future seed data
 
 These tables will need reference-data sections here when their loaders
 are built:
 
-- `rm_entity` — actual legal entities under the corporate umbrella (Pam +
-  executive questionnaire §1 must be complete first; not committed to
-  source because EIN values are sensitive and the list may be PII-adjacent).
-- Initial chart of accounts (`rm_chartofaccount` — Phase 4). Pam owns the
-  starter list per the decision log.
-- `rm_fiscalyear` / `rm_fiscalperiod` — generated programmatically (not
-  static seed data) based on each entity's fiscal-year-end month/day.
+- `rm_entity` -- actual legal entities under the corporate umbrella
+  (executive questionnaire §1 must be complete first; not committed to
+  source because EIN values are sensitive and the list may be
+  PII-adjacent). Today PRI-Books-Dev holds one placeholder entity
+  ("Default Operating Entity", `rm_entitycode = DEFAULT`) -- real
+  entities replace this once §1 is answered.
+- `rm_fiscalyear` / `rm_fiscalperiod` -- generated programmatically
+  (not static seed data) based on each entity's fiscal-year-end
+  month/day.
 
 ## See also
 

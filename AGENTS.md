@@ -269,7 +269,6 @@ npm run build
 | SQL migration file | `V<NNNN>__<description>.sql` | `V0003__hash_chain_constraints.sql` |
 | PCF control | PascalCase folder | `pcf/JournalEntryGrid/` |
 | PowerShell script | kebab-case | `pull-solution.ps1` |
-| Branch | `feature/<short-description>` | `feature/je-posting-plugin` |
 
 ## What NOT to Do
 

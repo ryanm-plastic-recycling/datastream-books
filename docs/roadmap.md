@@ -523,6 +523,8 @@ Books AR references `rm_customer` from PRI-Datastream rather than duplicating. C
 
 Bills, invoices, receipts, aging reports. NACHA file generation for ACH payments (replaces the Leahy dependency tied to Macola). Track1099 integration for 1099 generation and W-9 collection. **Email + Teams notifications** (deferred from Phase 7 UI track per decision §53 — in-app notifications only in v1 UI; email and Teams added in this phase via Microsoft Graph API and Teams app registration respectively).
 
+**Scope question open (flagged 2026-05-21 per audit):** decision §53 deferred email + Teams "to Phase 8+" without an explicit row pinning the Phase 8 scope. Tagged for the Phase 8 design conversation -- confirm Graph-API email + Teams app registration are Phase 8 deliverables (vs. Phase 9 or later) when Phase 8 opens.
+
 ### Phase 9 — Period Close + Reporting
 
 Native model-driven reports: Trial Balance, Balance Sheet, P&L, Cash Flow, AR/AP aging, JE audit trail, ChangeRequest log. Period close attestation flow. Hash-chain verification job. Note: report **rendering** (on-screen, Excel, PDF) and **drill-down** are part of Phase 7 (UI Track) Phase 7C — this phase delivers the backend report queries, snapshot writes, and aggregation logic the UI sits on top of.
@@ -534,6 +536,8 @@ Historical archive into `archive` schema. Parallel run with Macola for at least 
 ### Phase 11/12+ — Remaining backend items
 
 Placeholder for any backend work that surfaces between now and the close of Phase 10 — likely candidates include a deeper PCF reporting layer, additional posting-plugin coverage as edge cases emerge, and the nightly hash-chain verification job promotion to production. Items here block Phase 7 (UI Track) start.
+
+**Intentionally backing-free per audit 2026-05-21:** this phase has no specific decision row driving its scope; the placeholder framing is the decision. Items land here as they surface during Phase 6B-10 execution.
 
 ### Phase 7 (UI Track) — UI/UX Front-End Build
 

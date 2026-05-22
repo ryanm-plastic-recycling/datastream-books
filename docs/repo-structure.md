@@ -164,14 +164,13 @@ datastream-books/
 
 ## Branching Strategy
 
-| Branch | Purpose | Deployment |
-|---|---|---|
-| `main` | Production-ready code | Manual approval → Prod (when ready) |
-| `develop` | Integration branch | Auto-deploy to Build env (when sandbox created) |
-| `feature/*` | Active feature development | Auto-deploy to Dev env (when sandbox created) |
-| `hotfix/*` | Emergency fixes | Approved → direct to main |
+Solo-developer project. Work directly on `main`, no branches, no
+worktrees. See AGENTS.md "Branching Policy" for the operating rule.
 
-For initial development with single PRI-Books environment: work in feature branches, merge to main, deploy manually.
+If the project later moves to multi-developer or multi-branch
+workflows, this section and AGENTS.md must be updated together. Do
+not create branches under the current rule even if older revisions
+of this section suggest otherwise -- AGENTS.md is authoritative.
 
 ---
 

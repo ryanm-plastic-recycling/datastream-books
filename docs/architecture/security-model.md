@@ -37,10 +37,16 @@ simplifies SoD audits: each app's roles are reviewable in isolation.
 | **System Admin** | IT (Ryan) | Privileged operations: deploy solutions, manage security roles, manage approval policies. Does **not** post JEs (separation between platform admin and finance operations). |
 | **Read-Only Auditor** | External auditor at audit time | Read-only access across all financial tables, audit trails, and report snapshots. No write privileges anywhere. Time-bound activation per the audit engagement letter. |
 
-**Detailed permissions per role are populated during Phase 7A** as pages
-are designed and attached. See
+**Detailed permissions per role are populated during Phase 7B** as
+pages are designed and attached. (Originally Phase 7A per the
+phase-7-ui-design.md draft; the security role scaffolding session was
+moved to Phase 7B in the 2026-05-21 Phase 7A kickoff conversation
+because roles only make sense once the transactional pages they attach
+to exist. See [`../decisions/datastream-books-decisions.md`](../decisions/datastream-books-decisions.md)
+§66 for the scope rebound.) The eventual full-kickoff prompt at
 [`../runbooks/phase-7a-foundation-prompt.md`](../runbooks/phase-7a-foundation-prompt.md)
-for the security role scaffolding session.
+still references "Phase 7A security role scaffolding session" but is
+marked DRAFT and amended to reflect the §66 reality.
 
 **Cross-reference:** The 10 SoD-purpose roles below (JE Entry, JE Approve,
 JE Post, etc.) are the **enforcement-level roles** — the GUID-comparison

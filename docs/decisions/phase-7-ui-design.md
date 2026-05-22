@@ -34,7 +34,7 @@ the existing CR design (multi-image attachment support per decision §31).
 | [§46](datastream-books-decisions.md) | UI architecture | Dataverse model-driven app + custom React pages for high-value screens |
 | [§47](datastream-books-decisions.md) | Personas | 5 base finance personas; UI is role-aware with persona-specific widgets and defaults |
 | [§48](datastream-books-decisions.md) | v1 screens | All 8 v1-priority screens included; partial cutover not viable |
-| [§49](datastream-books-decisions.md) | Visual identity | Match Datastream ERP color palette (blue) + corner logo; competitor finance UIs for pattern inspiration |
+| [§49](datastream-books-decisions.md) | Visual identity | Match Datastream ERP color palette (blue) + corner logo; competitor finance UIs for pattern inspiration. **Amended 2026-05-21 per [`../architecture/ui-styling.md`](../architecture/ui-styling.md): ERP has no custom theme; Books defines its own minimal CSS-variable theme with logo continuity to ERP.** |
 | [§50](datastream-books-decisions.md) | JE entry | Hybrid mode — Excel-like grid for power users, form mode for clerks, same screen |
 | [§51](datastream-books-decisions.md) | Mobile/tablet | Out of scope for v1; desktop only |
 | [§52](datastream-books-decisions.md) | Homepage | Single shared dashboard with role-aware widgets within |
@@ -53,19 +53,31 @@ the existing CR design (multi-image attachment support per decision §31).
 
 ### Phase 7A: Foundation (3 weeks)
 
+> **Status note 2026-05-21:** Sessions S1-S3 (research/documentation
+> items only) ran in parallel with the Backend Track under the
+> provisional override in [§66](datastream-books-decisions.md). S4
+> onward (app module build, PCF authoring, dashboard, security role
+> scaffolding) requires a separate operator confirmation before
+> resuming. Scope below reflects the *full* Phase 7A intent; some
+> deliverables have been re-scoped or descoped by the
+> S1-S3 conversation (see notes inline). See
+> [`../architecture/ui-styling.md`](../architecture/ui-styling.md)
+> and [`../architecture/ui-sitemap.md`](../architecture/ui-sitemap.md)
+> for the S2 / S3 artifacts.
+
 **Deliverables:**
-- Sitemap design grouped by user mental model (not by Dataverse table). Reviewed against persona task flows for AP Clerk, AR Clerk, Approver, Controller, Casual Contributor.
-- Global search PCF control — searches across JEs, bills, invoices, customers, vendors, accounts. Surfaces in the model-driven app shell. Addresses decision §62 (navigation pain).
-- Breadcrumb component — visible on every page; clickable to ancestor pages.
-- Recent items widget — last N items the current user touched, shown on the homepage and as a header dropdown.
-- Role-aware homepage shell — single shared dashboard, widgets selected by current user's role(s).
-- Datastream ERP visual styling extraction — color hex values, font choices, logo placement, header pattern. Captured as a styling note in this document or a sibling.
-- Finance-specific security role scaffolding — the 7 Dataverse security roles per decision §61 created in PRI-Books-Dev (empty privileges, populated as later sub-phases attach pages).
+- Sitemap design grouped by user mental model (not by Dataverse table). Reviewed against persona task flows for AP Clerk, AR Clerk, Approver, Controller, Casual Contributor. **S3 artifact 2026-05-21: [`../architecture/ui-sitemap.md`](../architecture/ui-sitemap.md). Accounting-workflow-first; Dataverse-table-second.**
+- Global search PCF control — searches across JEs, bills, invoices, customers, vendors, accounts. Surfaces in the model-driven app shell. Addresses decision §62 (navigation pain). **Descoped per S0 kickoff: Phase 7A leans on Dataverse built-in global search; custom PCF deferred to 7B / 7C alongside drill-down infrastructure.**
+- Breadcrumb component — visible on every page; clickable to ancestor pages. **Tentatively dropped per S0 "Better Option" call: lean on Dataverse built-in breadcrumb behavior; revisit only if Pam's CRs prove insufficient.**
+- Recent items widget — last N items the current user touched, shown on the homepage and as a header dropdown. **Descoped per S0 Q4 answer: lean on Dataverse built-in "Recently viewed"; build custom only if Pam's CRs prove built-in insufficient.**
+- Role-aware homepage shell — single shared dashboard, widgets selected by current user's role(s). **Gated on §66 reaffirmation for S7.**
+- Datastream ERP visual styling extraction — color hex values, font choices, logo placement, header pattern. Captured as a styling note in this document or a sibling. **S2 artifact 2026-05-21: [`../architecture/ui-styling.md`](../architecture/ui-styling.md). Finding: ERP has no custom theme; Books defines its own CSS-variable minimal theme with logo continuity to ERP. §49 amended in place.**
+- Finance-specific security role scaffolding — the 7 Dataverse security roles per decision §61 created in PRI-Books-Dev (empty privileges, populated as later sub-phases attach pages). **Moved to 7B per S0 kickoff: roles land alongside the transactional pages that attach to them.**
 
 **Exit criteria:**
-- App shell + homepage navigable as each persona.
-- Global search resolves a JE number, a vendor name, and an account number in <500ms.
-- Breadcrumbs render on every model-driven app page.
+- App shell + homepage navigable as each persona. **Gated on §66 S4+.**
+- Global search resolves a JE number, a vendor name, and an account number in <500ms. **No longer 7A scope -- moved to 7B / 7C.**
+- Breadcrumbs render on every model-driven app page. **No longer 7A scope -- platform built-in for 7A; custom revisited only on CR.**
 
 ### Phase 7B: Core Transactional Screens (4-5 weeks)
 
@@ -146,13 +158,28 @@ the existing CR design (multi-image attachment support per decision §31).
 
 ## Total timeline
 
-**16-20 weeks of build + UAT.** Starts only after all backend phases (the
-current backend Phase 7 Vendor/Customer through the expected Phase 11/12+
-items) are complete and the cutover ledger state has been accepted.
+**16-20 weeks of build + UAT.** Originally per [§58](datastream-books-decisions.md):
+starts only after all backend phases (the current backend Phase 7
+Vendor/Customer through the expected Phase 11/12+ items) are complete
+and the cutover ledger state has been accepted.
 
-Pam first sees UI ~7 months from project start. This trade-off was made
-explicitly per decision §58 — concentrating front-end attention when it
-happens vs. parallelizing build with backend. Risks captured below.
+**Amended 2026-05-21 per [§66](datastream-books-decisions.md):**
+Sessions S1-S3 of Phase 7A (research and documentation items only --
+credential cleanup, visual identity extraction, sitemap design) ran in
+parallel with the Backend Track. This is a **provisional override of
+§58** scoped to S1-S3 only. Anything past S3 -- app module build,
+PCF authoring, dashboards, security role scaffolding, and the full
+Phase 7B-7F build -- requires a separate operator confirmation. The
+16-20 week build window remains the same; only the start time has
+potentially shifted earlier by the S1-S3 duration.
+
+Pam first sees UI no earlier than the end of Phase 7A S4 (when the
+app module shell lands in PRI-Books-Dev). This trade-off was made
+explicitly per §58 -- concentrating front-end attention when it
+happens vs. parallelizing build with backend. The §66 partial-parallel
+shift trades a slightly earlier shell visibility for the
+"shell-without-data Pam dissatisfaction" risk documented in R-7-01.
+Risks captured below.
 
 ## Roles and ownership
 

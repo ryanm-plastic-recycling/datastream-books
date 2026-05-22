@@ -133,11 +133,14 @@ hash chain. We chose per-entity over a single global chain because:
   is the audit boundary that matters.
 
 **Verification:**
-- Live: a nightly verification job (to be authored in V0003+) walks each
-  entity's chain in `(EntityId, EntryId)` order and re-computes each
-  `RowHash`. Mismatch triggers an alert and writes an integrity-check row
-  to `audit.LedgerIntegrityCheckpoints`.
-- On-demand: `verify-integrity.ps1` (planned) calls the same procedure.
+- Live: a nightly verification job (BL-16 in `docs/backlog.md`; not
+  yet built) walks each entity's chain in `(EntityId, EntryId)` order
+  and re-computes each `RowHash`. Mismatch triggers an alert and
+  writes an integrity-check row to
+  `audit.LedgerIntegrityCheckpoints`. V0003 (SQL logins) is done;
+  the verification job is independent and pending.
+- On-demand: `verify-integrity.ps1` (BL-15; not yet built) calls the
+  same procedure.
 
 **Where the hash is computed:** In the writing plugin, NOT in SQL. We
 compute in C# so the same hashing code runs in unit tests against
@@ -148,8 +151,13 @@ agree on the canonical form.
 
 ## C. Server-Side Posting Enforcement
 
-**Where it lives:** `DatastreamBooks.Plugins/Posting/PostJournalEntryPlugin.cs`
-(to be implemented). Triggered by the `Post` custom action on `rm_journalentry`.
+**Where it lives:** [`plugins/DatastreamBooks.Plugins/Posting/PostJournalEntryPlugin.cs`](../../plugins/DatastreamBooks.Plugins/Posting/PostJournalEntryPlugin.cs).
+Implemented in Phase 6A (Dataverse-side validations) and Phase 6B
+(Azure SQL dual-write + hash chain). Triggered by Stage 40
+PostOperation on `Update rm_journalentry` when status transitions
+into `Posted`. Live validation confirmed 2026-05-21 -- see
+[`immutability-validation.md`](immutability-validation.md) §"Phase 6B
+status -- live validation PASSED on 2026-05-21".
 
 **What it validates before writing:**
 - Source state is `Approved`
@@ -322,12 +330,29 @@ Questions an auditor will ask and where the answer is:
 
 ## Open Items
 
-- V0003+ migrations for `LedgerIntegrityCheckpoints`, `PeriodCloseAttestation`,
-  `AuditEvents`, `ReportSnapshots`
-- Plugin implementations: `PostJournalEntryPlugin`, `ApproveJournalEntryPlugin`,
-  `ClosePeriodPlugin`, `ReopenPeriodPlugin`, `ChangeRequestApprovalPlugin`
-- Nightly hash-chain verification job
-- DR runbook + annual restore test
+**Done (closed in Phase 6A/6B):**
+
+- `PostJournalEntryPlugin` -- code complete + live-validated against
+  JE-2026-001005 per §65 and `immutability-validation.md`.
+- Hash chain byte layout pinned by 16 tests in
+  `LedgerRowHasherTests.cs` per §39.
+- Per-entity chain-head locking via `WITH (UPDLOCK, HOLDLOCK)` per
+  §40.
+- Rollback-and-throw atomicity proven live per §41 / §65.
+
+**Still pending (tracked in `docs/backlog.md`):**
+
+- `ApproveJournalEntryPlugin` (BL-06).
+- `ClosePeriodPlugin` + `ReopenPeriodPlugin` (BL-07).
+- `ChangeRequestApprovalPlugin` (BL-10).
+- V0004 migration -- `audit.PeriodCloseAttestation` (BL-11).
+- V0005 migration -- `audit.AuditEvents` (BL-12).
+- V0006 migration -- `ReportSnapshots` (BL-13).
+- Nightly hash-chain verification job (BL-16).
+- `verify-integrity.ps1` on-demand verifier (BL-15).
+- DR runbook + annual restore test (BL-20, BL-21).
+- Re-hash EntryIds 3 and 4 offline as Phase 6B integrity post-check
+  (BL-17).
 
 ## See Also
 

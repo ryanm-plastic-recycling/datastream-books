@@ -84,7 +84,7 @@ Sitemap area `gl`. Entities: `rm_journalentry`, `rm_journalentryline`,
 
 | Item | Type | Phase delivered | 7A behavior |
 |---|---|---|---|
-| Journal Entries | Dataverse view (`rm_journalentry`) | Phase 5 (table) + 7B (form) | **Live in 7A shell** -- default Dataverse list view works today. JE-2026-001005 visible. |
+| Journal Entries | Dataverse view (`rm_journalentry`) + custom hybrid grid+form page (Phase 7B per §50) | Phase 5 (table) -> 7A shell (default Dataverse view) -> 7B (§50 hybrid grid + form on same screen) | **Default Dataverse list view is live in the 7A shell** (table exists since Phase 5; JE-2026-001005 visible). The §50 hybrid grid+form (Excel-style for power users + form mode for clerks, both writing through the same `PostJournalEntryPlugin`) is the 7B deliverable; **NOT in 7A scope.** |
 | Recurring Journal Entries | Filtered view | Phase 8/9 | Placeholder page |
 | GL Detail by Account | Report | Phase 9 + 7C | Placeholder page |
 

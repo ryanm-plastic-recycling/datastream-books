@@ -1,11 +1,25 @@
 # DRAFT — Phase 7A Foundation Claude Code Prompt
 
-> **DRAFT. Do not execute until backend phases (current Phase 6B through
-> the expected Phase 11/12+ backend items) are complete and the cutover
-> ledger state is accepted.** This runbook captures the first Phase 7 (UI
-> Track) session prompt so it is ready to use when Phase 7 opens. The
-> prompt itself sits inside the fenced block below; copy it into Claude
-> Code when the time comes.
+> **AMENDED 2026-05-21 per decision §66.** Phase 7A Sessions S1-S3
+> (research / documentation items: credential cleanup, visual identity
+> extraction, sitemap design) ran in parallel with the Backend Track
+> under the provisional override in
+> [`../decisions/datastream-books-decisions.md`](../decisions/datastream-books-decisions.md)
+> §66. The pre-flight checklist below was written *before* §66 and
+> requires Backend Phase 8 / 9 / 10 / 11+ complete -- those items were
+> **not** complete when S1-S3 ran, and that gap was intentional and
+> documented in §66. This prompt now describes the *eventual* full
+> Phase 7A kickoff (S4 onward); if you are resuming Phase 7A after
+> §66 reaffirmation, re-read §66 and treat the pre-flight checklist
+> as advisory rather than blocking. Artifacts produced by S1-S3:
+> [`../architecture/ui-styling.md`](../architecture/ui-styling.md),
+> [`../architecture/ui-sitemap.md`](../architecture/ui-sitemap.md),
+> and a follow-up section in
+> [`../architecture/immutability-validation.md`](../architecture/immutability-validation.md).
+>
+> **DRAFT.** Original framing follows. Original purpose was a kickoff
+> prompt for a Phase 7A session that opens *after* all backend phases
+> complete. Retained for the eventual full-kickoff use case.
 
 ## Before running this prompt — pre-flight checklist
 
