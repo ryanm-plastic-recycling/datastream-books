@@ -2,8 +2,8 @@
 
 > **Purpose:** Master list of decisions that must be made before Datastream Books can complete. Each decision unlocks a phase of the build. Most are decided once; a few get refined over time.
 >
-> **Who decides each item (per [§71](../decisions/datastream-books-decisions.md)):**
-> - **IT-decides (architectural):** cross-system data flow, schema ownership, integration patterns, system-of-record boundaries. Pam consults; COO concurs on cross-domain impact.
+> **Who decides each item (per [§71](../decisions/datastream-books-decisions.md) + [§72](../decisions/datastream-books-decisions.md)):**
+> - **Technical Strategic Lead-decides (architectural):** cross-system data flow, schema ownership, integration patterns, system-of-record boundaries. Pam consults; COO concurs on cross-domain impact. The Technical Strategic Lead role (Ryan M) is defined in §72 -- a combined engineering + strategy + maintenance function, distinct from a traditional IT support role.
 > - **Pam-decides (operational):** finance / accounting workflows, field lists, approval rules, COA, reporting, period-close mechanics.
 > - **Exec-decides (strategic):** scope, budget, timeline, external audit engagement, compliance.
 >
@@ -11,13 +11,13 @@
 
 ---
 
-## Section 1 -- Decisions IT Owns (Architectural)
+## Section 1 -- Decisions the Technical Strategic Lead Owns (Architectural)
 
-Per [§71](../decisions/datastream-books-decisions.md): IT proposes, Pam consults on finance-domain detail, COO concurs on cross-domain impact. These are not Pam-authorize items even when finance touches them.
+Per [§71](../decisions/datastream-books-decisions.md) + [§72](../decisions/datastream-books-decisions.md): the Technical Strategic Lead proposes, Pam consults on finance-domain detail, COO concurs on cross-domain impact. These are not Pam-authorize items even when finance touches them. Stakeholders raise concerns about pending decisions in this section through the concurrence log ([`../decisions/concurrence-log.md`](../decisions/concurrence-log.md)) within a 5-business-day window before each decision locks.
 
-| # | Decision | What IT proposes / has decided | Who consults / concurs | Unlocks |
+| # | Decision | What the Technical Strategic Lead proposes / has decided | Who consults / concurs | Unlocks |
 |---|---|---|---|---|
-| 3 | **Vendor / customer master ownership architecture** [Confirmed: §70 -- 2026-05-22] | Books is system of record for vendor / customer entity records. ERP receives a downstream projection of Books-mastered fields via plugin-driven push. ERP retains write authority on operations-only fields (site locations, transportation, operational flags). Same record, two writers, field-level lanes -- not table-level read-only. See §70 for the field list. | Pam consults on Books-mastered field list and new-vendor intake workflow. COO concurs on operations impact (the two dual-role operations users shift their "add new" pattern to Books). Confirmation expected in the upcoming exec rollout meeting. | Backend Track A (vendor / customer integration), Phase 8 (AP core), 1099 reporting |
+| 3 | **Vendor / customer master ownership architecture** [Confirmed: §70 -- 2026-05-22; concurrence window closes 2026-05-29] | Books is system of record for vendor / customer entity records. ERP receives a downstream projection of Books-mastered fields via plugin-driven push. ERP retains write authority on operations-only fields (site locations, transportation, operational flags). Same record, two writers, field-level lanes -- not table-level read-only. See §70 for the field list. | Pam consults on Books-mastered field list and new-vendor intake workflow. COO concurs on operations impact (the two dual-role operations users shift their "add new" pattern to Books). Confirmation expected in the upcoming exec rollout meeting. | Backend Track A (vendor / customer integration), Phase 8 (AP core), 1099 reporting |
 
 ---
 
@@ -74,7 +74,7 @@ These have working answers in the decision log; just need explicit sign-off rath
 
 ## How To Use This Sheet
 
-**Categorization rule (per [§71](../decisions/datastream-books-decisions.md)):** Architectural items live in Section 1 (IT-decides). Operational finance items live in Section 2 (Pam-decides). Strategic / scope / budget items live in Section 3 (Exec-decides). Settled items live in Section 4. When a new decision arises, classify before adding -- the classification determines which conversation owns the answer.
+**Categorization rule (per [§71](../decisions/datastream-books-decisions.md) + [§72](../decisions/datastream-books-decisions.md)):** Architectural items live in Section 1 (Technical Strategic Lead-decides). Operational finance items live in Section 2 (Pam-decides). Strategic / scope / budget items live in Section 3 (Exec-decides). Settled items live in Section 4. When a new decision arises, classify before adding -- the classification determines which conversation owns the answer.
 
 **Before any Pam meeting:** confirm which Pam-owned items (Section 2) are on the agenda. Architectural items from Section 1 may also appear, framed as "here is what we are proposing; what operational details do you own?" -- not as "you decide who owns vendor records." The upcoming conversation covers #1, #2, #4, and the Pam-consult portion of #3 -- the architectural decision on #3 is already made.
 
@@ -102,7 +102,7 @@ If items 1-13 are answered cleanly, the build path is fully scoped through cutov
 ## What's *Not* On This List (And Why)
 
 - **Day-to-day workflow details** -- these get decided in build sessions with screen mockups in front of Pam, not in strategic conversations
-- **Lower-level technical architecture choices** -- IT owns these too, but they don't rise to the "decisions sheet" level (data model, plugin internals, SQL DDL, security role internals). The architectural items that *do* land here are the ones where another stakeholder needs to be informed or concur (e.g., vendor master ownership affects operations and finance both -- so it lands in Section 1 with COO concurrence and Pam consult).
+- **Lower-level technical architecture choices** -- the Technical Strategic Lead owns these too, but they don't rise to the "decisions sheet" level (data model, plugin internals, SQL DDL, security role internals). The architectural items that *do* land here are the ones where another stakeholder needs to be informed or concur (e.g., vendor master ownership affects operations and finance both -- so it lands in Section 1 with COO concurrence and Pam consult).
 - **Specific column lists, field placements, report layouts** -- these emerge from user testing, not advance planning
 - **Phase 2 detailed scope** -- by design, deferred until v1 stabilizes
 
@@ -116,8 +116,9 @@ The list above is *strategic* decisions only. Tactical decisions are intentional
 
 | # | Decision | Owner | Status |
 |---|---|---|---|
-| 3 | Vendor / customer master ownership architecture | IT (Pam consult, COO concur) | **[Confirmed: §70 -- 2026-05-22]** |
-| -- | Governance principle (IT-decides / Pam-decides / Exec-decides) | IT | **[Confirmed: §71 -- 2026-05-22]** |
+| 3 | Vendor / customer master ownership architecture | Technical Strategic Lead (Pam consult, COO concur) | **[Confirmed: §70 -- 2026-05-22; concurrence window closes 2026-05-29]** |
+| -- | Governance principle (Technical Strategic Lead-decides / Pam-decides / Exec-decides) | Technical Strategic Lead | **[Confirmed: §71 -- 2026-05-22; concurrence window closes 2026-05-29]** |
+| -- | Technical Strategic Lead role definition (Ryan M) | Technical Strategic Lead (President-reporting) | **[Confirmed: §72 -- 2026-05-22; concurrence window closes 2026-05-29]** |
 | 1 | Legal entity structure | Pam (+ exec confirmation) | [Pending: Pam, week of 2026-05-25] |
 | 2 | Chart of Accounts | Pam | [Pending: Pam, week of 2026-05-25] |
 | 4 | Approval thresholds | Pam | [Pending: Pam, week of 2026-05-25] |
@@ -145,4 +146,4 @@ The list above is *strategic* decisions only. Tactical decisions are intentional
 
 ---
 
-*Last updated: 2026-05-22. Restructured per [§71](../decisions/datastream-books-decisions.md) governance principle (IT-decides / Pam-decides / Exec-decides categorization). Entry #3 moved from Pam-decides to IT-decides and marked confirmed per [§70](../decisions/datastream-books-decisions.md).*
+*Last updated: 2026-05-22 (afternoon). Restructured per [§71](../decisions/datastream-books-decisions.md) governance principle (Technical Strategic Lead-decides / Pam-decides / Exec-decides categorization; original phrasing was "IT-decides", updated to "Technical Strategic Lead-decides" in the afternoon session per [§72](../decisions/datastream-books-decisions.md) role definition). Entry #3 moved from Pam-decides to Technical Strategic Lead-decides and marked confirmed per [§70](../decisions/datastream-books-decisions.md). §72 role definition added to the Status Tracking Table with a concurrence-window close of 2026-05-29.*
