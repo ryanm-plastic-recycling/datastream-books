@@ -206,7 +206,7 @@ Archived because the Sponsorship and Owner roles are now confirmed in the decisi
 
 ## 16. Lighthouse Alignment [Archived 2026-05-21]
 
-Archived because §32 of the decision log captures the cascading Lighthouse benefits (President + COO endorsed the framing during the rollout meeting per the decision log), and the president-memo.md "Secondary Strategic Benefit: The Lighthouse" section documents the downstream IT modernization scope. See "Archived Questions" section near the end of this doc for the full text.
+Archived because §32 of the decision log captures the cascading Lighthouse benefits (Brandon + Marco endorsed the framing during the executive working session per the decision log), and the president-memo.md "Secondary Strategic Benefit: The Lighthouse" section documents the downstream IT modernization scope. See "Archived Questions" section near the end of this doc for the full text.
 
 ---
 

@@ -3,7 +3,7 @@
 > **Purpose:** Master list of decisions that must be made before Datastream Books can complete. Each decision unlocks a phase of the build. Most are decided once; a few get refined over time.
 >
 > **Who decides each item (per [§71](../decisions/datastream-books-decisions.md) + [§72](../decisions/datastream-books-decisions.md)):**
-> - **Technical Strategic Lead-decides (architectural):** cross-system data flow, schema ownership, integration patterns, system-of-record boundaries. The Finance Lead consults; COO concurs on cross-domain impact. The Technical Strategic Lead role (Ryan M) is defined in §72 -- a combined engineering + strategy + maintenance function, distinct from a traditional IT support role.
+> - **Technical Strategic Lead-decides (architectural):** cross-system data flow, schema ownership, integration patterns, system-of-record boundaries. The Finance Lead consults; the COO (Marco) concurs on cross-domain impact. The Technical Strategic Lead role (Ryan M) is defined in §72 -- a combined engineering + strategy + maintenance function, distinct from a traditional IT support role.
 > - **Finance Lead-decides (operational):** finance / accounting workflows, field lists, approval rules, COA, reporting, period-close mechanics.
 > - **Exec-decides (strategic):** scope, budget, timeline, external audit engagement, compliance.
 >
@@ -13,11 +13,11 @@
 
 ## Section 1 -- Decisions the Technical Strategic Lead Owns (Architectural)
 
-Per [§71](../decisions/datastream-books-decisions.md) + [§72](../decisions/datastream-books-decisions.md): the Technical Strategic Lead proposes, The Finance Lead consults on finance-domain detail, COO concurs on cross-domain impact. These are not Finance Lead-authorize items even when finance touches them. Stakeholders raise concerns about pending decisions in this section through the concurrence log ([`../decisions/concurrence-log.md`](../decisions/concurrence-log.md)) within a 5-business-day window before each decision locks.
+Per [§71](../decisions/datastream-books-decisions.md) + [§72](../decisions/datastream-books-decisions.md): the Technical Strategic Lead proposes, the Finance Lead consults on finance-domain detail, the COO (Marco) concurs on cross-domain impact. These are not Finance Lead-authorize items even when finance touches them. Stakeholders raise concerns about pending decisions in this section through the concurrence log ([`../decisions/concurrence-log.md`](../decisions/concurrence-log.md)) within a 5-business-day window before each decision locks.
 
 | # | Decision | What the Technical Strategic Lead proposes / has decided | Who consults / concurs | Unlocks |
 |---|---|---|---|---|
-| 3 | **Vendor / customer master ownership architecture** [Confirmed: §70 -- 2026-05-22; concurrence window closes 2026-05-29] | Books is system of record for vendor / customer entity records. ERP receives a downstream projection of Books-mastered fields via plugin-driven push. ERP retains write authority on operations-only fields (site locations, transportation, operational flags). Same record, two writers, field-level lanes -- not table-level read-only. See §70 for the field list. | The Finance Lead consults on Books-mastered field list and new-vendor intake workflow. COO concurs on operations impact (the two dual-role operations users shift their "add new" pattern to Books). Confirmation expected in the upcoming exec rollout meeting. | Backend Track A (vendor / customer integration), Phase 8 (AP core), 1099 reporting |
+| 3 | **Vendor / customer master ownership architecture** [Confirmed: §70 -- 2026-05-22; concurrence window closes 2026-05-29] | Books is system of record for vendor / customer entity records. ERP receives a downstream projection of Books-mastered fields via plugin-driven push. ERP retains write authority on operations-only fields (site locations, transportation, operational flags). Same record, two writers, field-level lanes -- not table-level read-only. See §70 for the field list. | The Finance Lead consults on Books-mastered field list and new-vendor intake workflow. Marco concurs on operations impact (the two dual-role operations users shift their "add new" pattern to Books). Confirmation expected in the upcoming exec rollout meeting. | Backend Track A (vendor / customer integration), Phase 8 (AP core), 1099 reporting |
 
 ---
 
@@ -78,7 +78,7 @@ These have working answers in the decision log; just need explicit sign-off rath
 
 **Before any Finance Lead meeting:** confirm which Finance Lead-owned items (Section 2) are on the agenda. Architectural items from Section 1 may also appear, framed as "here is what we are proposing; what operational details do you own?" -- not as "you decide who owns vendor records." The upcoming conversation covers #1, #2, #4, and the Finance Lead-consult portion of #3 -- the architectural decision on #3 is already made.
 
-**Before any executive meeting:** confirm which Section 3 items are open. Some can be batched (#11, #12, #13 fit naturally in one conversation). Section 1 architectural items get COO concurrence in the same conversation -- not authorization, concurrence.
+**Before any executive meeting:** confirm which Section 3 items are open. Some can be batched (#11, #12, #13 fit naturally in one conversation). Section 1 architectural items get Marco's concurrence in the same conversation -- not authorization, concurrence.
 
 **Decision close-out discipline:** every answered item becomes a numbered decision in [`../decisions/datastream-books-decisions.md`](../decisions/datastream-books-decisions.md) within 48 hours of the conversation. No decision lives in someone's head.
 
@@ -104,7 +104,7 @@ If items 1-13 are answered cleanly, the build path is fully scoped through cutov
 ## What's *Not* On This List (And Why)
 
 - **Day-to-day workflow details** -- these get decided in build sessions with screen mockups in front of the Finance Lead, not in strategic conversations
-- **Lower-level technical architecture choices** -- the Technical Strategic Lead owns these too, but they don't rise to the "decisions sheet" level (data model, plugin internals, SQL DDL, security role internals). The architectural items that *do* land here are the ones where another stakeholder needs to be informed or concur (e.g., vendor master ownership affects operations and finance both -- so it lands in Section 1 with COO concurrence and Finance Lead consult).
+- **Lower-level technical architecture choices** -- the Technical Strategic Lead owns these too, but they don't rise to the "decisions sheet" level (data model, plugin internals, SQL DDL, security role internals). The architectural items that *do* land here are the ones where another stakeholder needs to be informed or concur (e.g., vendor master ownership affects operations and finance both -- so it lands in Section 1 with Marco's concurrence and Finance Lead consult).
 - **Specific column lists, field placements, report layouts** -- these emerge from user testing, not advance planning
 - **Phase 2 detailed scope** -- by design, deferred until v1 stabilizes
 
@@ -118,7 +118,7 @@ The list above is *strategic* decisions only. Tactical decisions are intentional
 
 | # | Decision | Owner | Status |
 |---|---|---|---|
-| 3 | Vendor / customer master ownership architecture | Technical Strategic Lead (Finance Lead consult, COO concur) | **[Confirmed: §70 -- 2026-05-22; concurrence window closes 2026-05-29]** |
+| 3 | Vendor / customer master ownership architecture | Technical Strategic Lead (Finance Lead consult, Marco concur) | **[Confirmed: §70 -- 2026-05-22; concurrence window closes 2026-05-29]** |
 | -- | Governance principle (Technical Strategic Lead-decides / Finance Lead-decides / Exec-decides) | Technical Strategic Lead | **[Confirmed: §71 -- 2026-05-22; concurrence window closes 2026-05-29]** |
 | -- | Technical Strategic Lead role definition (Ryan M) | Technical Strategic Lead (President-reporting) | **[Confirmed: §72 -- 2026-05-22; concurrence window closes 2026-05-29]** |
 | 1 | Legal entity structure | Finance Lead (+ exec confirmation) | [Pending: Finance Lead, week of 2026-05-25] |

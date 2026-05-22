@@ -165,7 +165,7 @@ For each phase in `roadmap.md` -- which decisions back it, where the gaps are.
 | §10 Document AI (10.1, 10.2, 10.3) | Implicit | §12 (Claude API in Phase 2), president-memo.md | Yes (Phase 2 confirmation only) | **Archive (mostly answered)**. |
 | §11 Chart of Accounts (11.1, 11.2, 11.3) | Implicit | §23 (pre-populate standard, Finance Lead reviews); Phase 4 has 54 rows live | Yes -- confirm Finance Lead owns COA review going forward. | **Keep + confirmation only**. |
 | §12 Reporting Requirements (12.1, 12.2, 12.3) | **No** | -- | Yes -- affects Phase 7C report scope beyond the 9 listed in ui-sitemap.md. | **Keep + follow-up**. |
-| §13 Project Sponsorship (13.1, 13.2, 13.3, 13.4) | Yes | §30 (Finance Lead role), §32 (President sponsor), repo README, AGENTS.md | Yes | **Archive**. |
+| §13 Project Sponsorship (13.1, 13.2, 13.3, 13.4) | Yes | §30 (Finance Lead role), §32 (President (Brandon) sponsor), repo README, AGENTS.md | Yes | **Archive**. |
 | §14 Cutover Timing (14.1, 14.2, 14.3) | Implicit | §26 (fiscal period boundary, user-driven green light) | Yes -- confirm specific date. | **Keep + follow-up**. |
 | §15 Macola Decommissioning (15.1, 15.2, 15.3) | **No** | -- | Yes | **Keep**. Lower priority. |
 | §16 Lighthouse Alignment (16.1, 16.2) | Implicit | §32, president-memo.md | Yes | **Archive**. |

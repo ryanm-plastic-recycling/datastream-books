@@ -121,7 +121,7 @@ the existing CR design (multi-image attachment support per decision §31).
 
 **Exit criteria:**
 - Controller can run period close end-to-end through the UI.
-- President can open the multi-entity dashboard and see consolidated BS without IT assistance.
+- The President (Brandon) can open the multi-entity dashboard and see consolidated BS without IT assistance.
 
 ### Phase 7E: Refinement and CR Burn-down (2-3 weeks)
 
@@ -187,7 +187,7 @@ Risks captured below.
 | IT (Ryan) | Designs direction; builds all pages; owns sitemap, design system, security role privilege population |
 | Finance Lead | **No design review during construction.** Uses CR system after pages land in dev. Owns UAT. Triages and prioritizes finance-side CRs. |
 | AP / AR clerks | Persona-specific UAT participation in Phase 7F. May exercise pages in dev during Phase 7E refinement window. |
-| President / COO / CFO | Stakeholder updates only — not design review. |
+| Brandon / Marco / Fred | Stakeholder updates only — not design review. |
 
 ## CR workflow during Phase 7
 

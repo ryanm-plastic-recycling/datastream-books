@@ -22,7 +22,7 @@
   thresholds, COA, period close mechanics). IT authorizes architecture
   (cross-system data flow, schema ownership, integration patterns,
   system-of-record boundaries). The Finance Lead consults on architectural items
-  that touch finance; COO concurs on cross-domain impact. Item 1 of
+  that touch finance; the COO (Marco) concurs on cross-domain impact. Item 1 of
   this agenda is now a Finance Lead-consult item (architecture decided under
   §70); Items 2-4 remain Finance Lead-authorize.
 
