@@ -58,6 +58,7 @@
 | 34 | Posted-ledger field-level security on restricted accounts | **P1** | Phase 8 | Y (driven by approval policy) |
 | 37 | Field-level security on `rm_entity.rm_ein` | **P1** | Phase 10 (before real entity seeding) | Y (gated by §1) |
 | 47 | Form-level read-only on JE form (R-A-19 mitigation) | **P1** | Phase 7A.5 (any session) | N (Pam-demo-blocker) |
+| 54 | Cutover-day reconciliation: existing ERP vendor / customer records vs Books-migrated Macola data | **P1** | Phase 10 (cutover) | Y (Pam owns dedup review) |
 | 02 | `rm_isintercompany` flag on `rm_chartofaccount` | P2 | Phase 8 | N |
 | 06 | `ApproveJournalEntryPlugin` (SoD-enforced) | P2 | Phase 7B / 8 | N |
 | 07 | `ClosePeriodPlugin` + `ReopenPeriodPlugin` | P2 | Phase 9 | N |
@@ -83,6 +84,8 @@
 | 45 | Explicit decision row for Phase 8 email + Teams Graph API scope | P2 | Phase 8 kickoff | N |
 | 48 | Per-JE line numbering plugin Option B (R-A-18 mitigation) | P2 | Phase 7B | N |
 | 49 | User-guide docs of "Saving in Progress" hiccup (R-A-17 mitigation) | P2 | Phase 7B | N |
+| 52 | Books -> ERP vendor / customer push plugin design (§70) | P2 | Phase 8 | N |
+| 53 | ERP-side write-permission lockdown on Books-mastered fields (§70) | P2 | Phase 8 | N |
 | 03 | Memo-only JE lines | P3 | Phase 8+ (when use case surfaces) | N |
 | 05 | `rm_accountnumberingscheme` table | P3 | When COA validation plugin lands | N |
 | 19 | POST-branch test of `sync-sp-secret-to-dataverse.ps1` | P3 | Maintenance window | N |
@@ -99,7 +102,7 @@
 | 43 | phase-7a-foundation-prompt.md amendment banner | [Done 2026-05-21] | -- | -- |
 | 44 | risk-register.md update | [Done 2026-05-21] | -- | -- |
 
-**Bucket totals:** P0 = 2, P1 = 8, P2 = 25, P3 = 8, Done = 7. Total = 50.
+**Bucket totals:** P0 = 2, P1 = 9, P2 = 27, P3 = 8, Done = 7. Total = 53. (Updated 2026-05-22 §70 session: +BL-52 P2 Phase 8 push plugin design, +BL-53 P2 Phase 8 ERP write-permission lockdown, +BL-54 P1 Phase 10 cutover-day reconciliation.)
 
 ### Next Pam Conversation Agenda
 
@@ -308,6 +311,24 @@ The Pam-input items gating the upcoming Pam conversation (week of
 - **Pam-input-needed:** N.
 - **Status:** [Open]
 
+### BL-52 -- Books -> ERP vendor / customer push plugin design (§70)
+
+- **Description:** Detailed design of the plugin pattern that propagates Books-mastered vendor / customer field changes downstream to PRI-Datastream ERP. Per [§70](decisions/datastream-books-decisions.md): plugin fires on Books vendor / customer entity Update message; pushes the Books-mastered field set (legal name, EIN, tax classification, W-9 status, 1099 reportable flag, banking / NACHA details, payment terms, hold-payment flag, credit terms for customers, approval status, AP / AR routing) to the corresponding ERP record. Open design questions: (a) sync vs async semantics (§70 indicates async + retry + verification job, but the exact retry policy and SLA is open); (b) failure handling when ERP-side record is missing (create-on-push vs alert-and-halt); (c) conflict resolution if an ERP-only field is touched by Books in error (likely never -- plugin should write only Books-mastered fields); (d) field mapping when Books schema diverges from ERP schema (1099 reportable flag may need to translate to an ERP column that does not exist today); (e) instrumentation for the verification job that reconciles Books and ERP nightly. Implementation in DatastreamBooks.Plugins follows the §38 pattern (sandbox plugin reading config from KV at runtime).
+- **Source:** Decision [§70](decisions/datastream-books-decisions.md) -- "Detailed plugin design is a Phase 8 (or earlier) scoping item -- not specified here."
+- **Target phase:** Phase 8 (AP / AR core).
+- **Priority:** P2 (phase-tied technical work).
+- **Pam-input-needed:** N -- IT-side plugin design. Pam-consult inputs on the field list itself flow through the upcoming conversation (per [`memos/pam-conversation-prep-2026-05-w22.md`](memos/pam-conversation-prep-2026-05-w22.md) Item 1).
+- **Status:** [Open]
+
+### BL-53 -- ERP-side write-permission lockdown on Books-mastered fields (§70)
+
+- **Description:** PRI-Datastream ERP-side security model changes to enforce the §70 field-level lanes: Books-mastered fields become read-only in ERP after sync; ERP-mastered fields retain their existing write authority. Three workstreams: (a) security role changes -- modify the existing ERP operations roles to remove update privilege on the affected columns of the vendor / customer entities; (b) form adjustments -- mark the Books-mastered fields read-only on the ERP main form so the UX matches the security enforcement (avoids the "save fails after editing" failure mode that R-A-19 addresses on the Books side); (c) communication to the two dual-role operations users currently authorized to add vendors / customers on the ERP side -- explain the new "add new vendors / customers in Books" pattern, the timing of the cutover, and the operations-only fields they still own on each record. Implementation depends on BL-52's plugin landing first (so the sync direction is established before write privileges flip). Coordinated with COO per the §71 cross-domain concurrence pattern.
+- **Source:** Decision [§70](decisions/datastream-books-decisions.md) -- "ERP retains write authority on operations-only fields. Same record, two writers, field-level lanes -- not table-level read-only."
+- **Target phase:** Phase 8 (paired with BL-52 push plugin landing; lockdown follows verified sync).
+- **Priority:** P2 (phase-tied security + UX work).
+- **Pam-input-needed:** N -- IT + COO + operations coordination.
+- **Status:** [Open]
+
 ---
 
 ## Phase 9 (Period Close + Reporting)
@@ -413,6 +434,15 @@ The Pam-input items gating the upcoming Pam conversation (week of
 - **Target phase:** Phase 10 (before real entity seeding -- §1 of exec questionnaire answer triggers).
 - **Priority:** P1 (gated by §1 entity definitions from Pam).
 - **Pam-input-needed:** Y -- triggered when real EIN values are entered, which is gated by executive-questionnaire §1.
+- **Status:** [Open]
+
+### BL-54 -- Cutover-day reconciliation of existing ERP vendor / customer records with Books-migrated Macola data (§70)
+
+- **Description:** At cutover, two sources of truth for vendor and customer records collide: (a) the Books vendor / customer master, freshly populated from the Macola migration pass (now system of record per [§70](decisions/datastream-books-decisions.md)); and (b) the existing ERP-side vendor / customer records, which have been the operations-side master for some time and carry operations-only attributes (site locations, transportation routing, operational flags) that must survive cutover intact. Design the merge / dedup pass: (a) identify the join keys (legal name + EIN preferred; fuzzy match where keys are missing or dirty); (b) decide the policy for orphans on each side (ERP record with no Macola match -- keep, since operations relies on it; Books record with no ERP match -- create the ERP shell so the §70 push plugin has somewhere to land); (c) preserve ERP operations-only attributes for matched records (the merge must not overwrite site lists, transportation routing, etc.); (d) generate a reconciliation report for Pam's dedup review *before* cutover commits; (e) define the cutover sequencing -- when the §70 push plugin first fires for a vendor that already exists in ERP, the plugin must update-in-place not create-duplicate. Phase 10 (cutover) timeline; depends on §1 entity definitions (Macola migration plan), BL-52 (push plugin landed), and BL-53 (ERP write-permission lockdown in effect).
+- **Source:** Decision [§70](decisions/datastream-books-decisions.md) -- "the cutover-day reconciliation between Macola-migrated Books data and existing ERP records is a separate scoping item."
+- **Target phase:** Phase 10 (cutover).
+- **Priority:** P1 (cutover-blocker; Pam owns the dedup review).
+- **Pam-input-needed:** Y -- Pam owns the dedup review and the final accept/reject on each ambiguous match.
 - **Status:** [Open]
 
 ---
@@ -624,6 +654,7 @@ The Pam-input items gating the upcoming Pam conversation (week of
 | 2026-05-21 | Backlog file created from audit Section E. 46 items consolidated. Items BL-39 through BL-44 are doc-hygiene items completed during the same cleanup session. | Phase 7A audit cleanup (commit `09f833b`) |
 | 2026-05-22 | Priority Index added (50 items ranked P0-P3). Next Pam Conversation Agenda sub-section added. Inline Priority + Pam-input-needed fields populated on all items. BL-50 marked Done (closed by AGENTS.md What NOT to Do entry committed earlier this session as `e3b3b91`). BL-26-BL-29 reclassified P3 + "deferred per §67" target phase per decision §67. | 2026-05-22 morning execution session (item 4) |
 | 2026-05-22 | BL-47 status changed from `[Open]` to `[Ready -- operator handoff]`. Implementation runbook drafted at [`runbooks/r-a-19-business-rule-implementation.md`](runbooks/r-a-19-business-rule-implementation.md). `rm_posteddatetime` added as a fifth target field per the design doc's default-yes recommendation. Bucket totals unchanged (BL-47 not closing yet). | 2026-05-22 continuation session (item 4) |
+| 2026-05-22 | BL-52 (Books -> ERP vendor / customer push plugin design, P2 Phase 8), BL-53 (ERP-side write-permission lockdown on Books-mastered fields, P2 Phase 8), and BL-54 (cutover-day reconciliation of existing ERP vendor / customer records with Macola-migrated Books data, P1 Phase 10) added as follow-on items under [§70](decisions/datastream-books-decisions.md). Bucket totals updated: P0 = 2, P1 = 9 (+1), P2 = 27 (+2), P3 = 8, Done = 7. Total = 53 (+3). BL-46 (explicit decision row for §22 vendors) is logically closed by §70 but is left at `[Open]` in this session per the operator-driven scope discipline; close-out captured for the next backlog hygiene pass. | 2026-05-22 §70 / §71 session |
 
 ## See also
 
