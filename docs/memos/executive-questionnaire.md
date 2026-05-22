@@ -4,6 +4,8 @@
 
 **Format note:** Reply inline under each question. If a question is not applicable or needs delegation, mark accordingly.
 
+**Governance framing note (added 2026-05-22 per [§71](../decisions/datastream-books-decisions.md)):** Some items historically framed in this questionnaire as "for Pam to decide" are architectural decisions that IT owns under §71 (IT-decides / Pam-consults / COO-concurs on cross-domain impact). The substantive content of those items is unchanged; the framing of *who authorizes the decision* is now explicit. The Pam-consult portion (field lists, intake workflow, finance-domain detail) remains a Pam item. Items affected by this reframing carry an inline note where it changes the response expected from Pam -- see §17 below for the worked example. The master decisions sheet [`./decisions-required-master-list.md`](./decisions-required-master-list.md) now categorizes every item as IT-decides / Pam-decides / Exec-decides; consult it for the authoritative who-decides view.
+
 **Status flag legend (added 2026-05-21 per audit):**
 
 - **[Active]** -- still needs an answer; downstream work depends on it.
@@ -27,7 +29,7 @@ Out-of-agenda follow-ups (kept separate so they do not bloat the core conversati
 
 - **§6 Banking and Payments** -- requires a banking-specific deep dive; blocks Phase 8 NACHA decisions but is not Pam-only (involves IT + treasury function).
 - **§12 Reporting Requirements** -- affects Phase 7C report scope; can be a written response since the question is descriptive ("what reports do we currently rely on").
-- **§17 Vendor Master Scope** (NEW 2026-05-21) -- added below; blocks Phase 7-Backend / Phase 8 AP design.
+- **§17 Vendor Master Scope** [Confirmed: §70 -- 2026-05-22] -- architectural decision resolved (Books is system of record; ERP receives Books-mastered field projection via plugin-driven push; ERP retains write authority on operations-only fields). Pam-consult portion (field list, intake workflow, 1099 rules, approval routing) now lives in the Pam conversation as a field-and-workflow item, not as an ownership decision. See §17 below for the decision summary and pointer to [§70](../decisions/datastream-books-decisions.md) + [`./decisions-required-master-list.md`](./decisions-required-master-list.md) entry #3.
 
 ---
 
@@ -208,20 +210,34 @@ Archived because §32 of the decision log captures the cascading Lighthouse bene
 
 ---
 
-## 17. Vendor Master Scope (NEW 2026-05-21 per audit) [Active] [Pending Pam]
+## 17. Vendor Master Scope [Confirmed: §70 -- 2026-05-22] [Pam-consult on field list and workflow]
 
-Decision §22 of the decision log says "Vendors/customers added as needed -- natural data hygiene." The "as needed" wording is broad enough that it leaves open three different operating models:
+**Decision summary (per [§70](../decisions/datastream-books-decisions.md)):** Books is the system of record for vendor and customer entity records. ERP receives a downstream projection of Books-mastered fields via plugin-driven push. ERP retains write authority on operations-only fields (site locations, transportation routing, operational status flags). Same record, two writers, field-level lanes -- not table-level read-only.
 
-**17.1.** When a bill arrives from a new vendor, who creates the vendor record?
-- AP Clerk in Books (Books-owned master)?
-- Operations in ERP, then synced to Books?
-- Both -- depending on whether the vendor is also an ERP supplier?
+- **Books-mastered fields** (read-only in ERP after sync): legal name, EIN, tax classification, W-9 status, 1099 reportable flag, banking / NACHA details, payment terms, hold-payment flag, credit terms (customers), approval status, AP / AR routing.
+- **ERP-mastered fields** (writable in ERP only): site locations and shipping points, transportation routing preferences, operational approval flags for PO eligibility, operational notes, preferred-vendor flags by product, operational status.
 
-**17.2.** For vendors that already exist in PRI-Datastream ERP (some of which may be operational suppliers), is the canonical record the ERP one or the Books one? Or are vendor records intentionally not shared?
+**Who decided and how (per [§71](../decisions/datastream-books-decisions.md)):** this is an IT architectural decision. Pam consults on the Books-mastered field list and new-vendor intake workflow. COO concurs on operations impact (the two dual-role operations users currently authorized to add vendors / customers on the operations side shift their "add new" pattern to Books going forward). Confirmation expected in the upcoming exec rollout meeting.
 
-**17.3.** What vendor master fields does Books require beyond ERP's existing schema -- W-9 status, 1099 reportability, payment terms, NACHA banking, AP-specific approval routing?
+**What still needs Pam input (consult, not authorize):**
+- The exact field list above -- is anything missing? anything Books shouldn't own?
+- New-vendor intake workflow design (who fills in what, in what order, with what approvals)
+- 1099 rules (which vendors are 1099-reportable; default behavior; override path)
+- Approval routing for new vendor setup -- which roles approve, single or dual approval
 
-This question blocks Phase 7-Backend (Track A) and Phase 8 (AP Core). Resolution informs the vendor-cross-solution-lookup decision (mirror `rm_customer` Pattern 3 from `erp-pattern-notes.md`, or own a separate Books-side vendor master).
+**Push pattern (deferred to Phase 8 scoping, not specified here):** plugin on Books vendor / customer entity Update message fires a downstream push to ERP. Async, retry on failure, reconcile via verification job. See backlog BL-52 (push plugin design), BL-53 (ERP-side write-permission lockdown), BL-54 (cutover-day reconciliation of existing ERP vendor / customer records with Books-migrated Macola data).
+
+**Cross-references:**
+- [§70](../decisions/datastream-books-decisions.md) -- full decision text with rationale
+- [`./decisions-required-master-list.md`](./decisions-required-master-list.md) entry #3 -- the master decisions sheet view (IT-decides / Pam-consult / COO-concur)
+- [`./pam-conversation-prep-2026-05-w22.md`](./pam-conversation-prep-2026-05-w22.md) Item 1 -- the rewritten Pam-consult agenda (field list, intake workflow, 1099 rules, approval routing)
+- [`../architecture/erp-pattern-notes.md`](../architecture/erp-pattern-notes.md) §3 -- the `rm_customer` cross-solution pattern that the push plugin will inform / diverge from
+
+**Original questions (retained for traceability):**
+
+- **17.1 (original):** When a bill arrives from a new vendor, who creates the vendor record? *Resolved by §70: AP in Books. The dual-role operations users shift their pattern.*
+- **17.2 (original):** For vendors that already exist in PRI-Datastream ERP, is the canonical record the ERP one or the Books one? *Resolved by §70: Books is canonical for Books-mastered fields; ERP retains write authority on operations-only fields on the same record. Cutover-day reconciliation of existing ERP records with Macola-migrated Books data is BL-54.*
+- **17.3 (original):** What vendor master fields does Books require beyond ERP's existing schema? *Resolved by §70's Books-mastered field list above; specific column-level design is a Pam-consult item ahead of Phase 8 AP scoping.*
 
 ---
 
