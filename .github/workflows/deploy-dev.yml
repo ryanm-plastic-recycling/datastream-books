@@ -193,7 +193,9 @@ jobs:
             --path "$env:RUNNER_TEMP/$env:SOLUTION_NAME.zip" `
             --force-overwrite `
             --publish-changes `
-            --activate-plugins
+            --activate-plugins `
+            --async `
+            --max-async-wait-time 30
 
       # -----------------------------------------------------------------
       # Future: SQL migrations against Azure SQL
