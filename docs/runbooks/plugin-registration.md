@@ -100,7 +100,7 @@ All steps:
 | 6  | Create  | rm_journalentryline  | PostOperation | *(none)*                                                   | n/a                                                        | n/a                                                                                          | Recompute header totals                       |
 | 7  | Update  | rm_journalentryline  | PostOperation | `rm_debit`, `rm_credit`                                    | `rm_journalentry`                                          | n/a                                                                                          | Recompute header totals                       |
 | 8  | Delete  | rm_journalentryline  | PostOperation | *(none)*                                                   | `rm_journalentry`                                          | n/a                                                                                          | Recompute header totals                       |
-| 9  | Delete  | rm_journalentry      | PreOperation  | *(none — fires on every create)*                           | `rm_journalentry`                                          | n/a                                                                                          | (Phase 6A placeholder; see source for current intent) |
+| 9  | Delete  | rm_journalentry      | PreOperation  | *(none -- Delete has no filter)*                          | `rm_journalentry`                                          | n/a                                                                                          | Block deletion of Posted / Reversed / Voided JE headers (immutability guard at the parent level; line-level guards are steps 3-5) |
 | 10 | Update  | rm_journalentry      | PostOperation | `rm_status`                                                | `rm_status`                                                | `rm_status`, `rm_entity`, `rm_journalentrynumber`, `rm_fiscalperiod`, `rm_postingdate`, `rm_postedby_user`, `rm_posteddatetime`, `rm_approvedby_user`, `rm_approveddatetime`, `rm_journaldescription` | **Phase 6B: Azure SQL dual-write + hash chain on Approved→Posted.** Reads connection string from Key Vault via 5 env vars; writes one row per line into `ledger.GeneralLedgerEntries`. |
 For each step that lists a Pre-Image:
 
@@ -117,7 +117,7 @@ For step 10 (Phase 6B), also register a **PostImage**:
 3. Name and Entity Alias: **PostImage** (matches `PostJournalEntryPlugin.PostImageName`).
 4. Attributes: the list in the PostImage column above.
 
-### Phase 6B prerequisites — Dataverse Environment Variables
+### Phase 6B prerequisites -- Dataverse Environment Variables [§63 update]
 
 Before the post-op ledger-write step can run successfully, five
 Environment Variable Definitions must exist in the `DatastreamBooks`
@@ -125,57 +125,47 @@ solution and have populated values for the target environment. See
 [`../architecture/credential-access-design.md`](../architecture/credential-access-design.md)
 §"Dataverse Environment Variables" for the schema-name table.
 
-#### Key Vault prerequisites — must be satisfied FIRST
+**Per decision §63, all five env vars are plain-Text type.** The
+originally designed Secret-type path for `rm_sqlkvclientsecret` was
+abandoned after live validation surfaced an unfixable
+`0x80040256 Access Denied` from the plugin sandbox -- the Dataverse
+plugin sandbox identity does not hold
+`prvReadEnvironmentVariableSecretValue`, so Secret-type resolution
+returns the same error regardless of payload shape. Pinned by failed
+deploys of plugin assemblies 1.0.0.2 and 1.0.0.3. Plain-Text path
+adopted for assembly 1.0.0.4, which is the production-ready artifact.
 
-`rm_sqlkvclientsecret` is a **Secret-type** env var that references a
-Key Vault secret. The maker portal's save operation for a Secret-type
-env var resolves the Vault secret on Dataverse's behalf — and that
-resolution fails (HTTP 403) unless **all** of the following are in
-place:
-
-1. Vault firewall is permissive enough for the Dataverse resolver:
-   - **Dev:** `defaultAction = Allow` with `bypass = AzureServices`
-   - **Prod:** Private Endpoint joined to a Dataverse enterprise policy
-   See [`key-vault-management.md`](key-vault-management.md) §Firewall
-   configuration.
-2. Both the standard Dataverse SP (object `567ae524-268d-4de9-8054-7e26da9fa7f0`)
-   and the Dataverse Resource Provider SP (object
-   `4f026a85-a88e-4674-baf4-45833854f411`) hold `Key Vault Secrets User`
-   at the Vault. The Resource Provider SP is the one that actually
-   authenticates during the save; the standard SP is retained as
-   defense-in-depth.
-3. The user clicking Save in the maker portal holds `Key Vault Secrets
-   User` (or higher) at the Vault.
-
-If any of those three is missing, the symptom is identical: maker-portal
-save returns 403 and the env var either fails to create or silently
-falls back to a String-type record with no value. **The Secret-type env
-var cannot work around an undersized firewall or RBAC — fix those
-first.**
+Key Vault remains the source of truth for the underlying SP client
+secret. The script
+[`../../scripts/sync-sp-secret-to-dataverse.ps1`](../../scripts/sync-sp-secret-to-dataverse.ps1)
+is the only sanctioned writer of the `rm_sqlkvclientsecret` Text
+value -- run after each Vault rotation.
 
 #### Population path (dev)
 
-1. Power Apps maker portal → Solutions → DatastreamBooks → **+ New → More → Environment variable**.
-2. Create each of:
-   - `rm_sqlkvtenantid` (String) — `ca800f2c-47b3-4400-8eb1-fb1db2a39a1e`
-   - `rm_sqlkvclientid` (String) — `a58747ee-f26f-4702-b911-044ee44df9a5`
-   - `rm_sqlkvclientsecret` (**Secret — pointing to Key Vault**) — Data
-     source: **Azure Key Vault**; Vault: `kv-datastream-books`; Secret
-     name: `cicd-sp-client-secret`; Version: (leave blank to track
-     latest). **DO NOT** create this as a String env var with the raw
-     secret pasted into the value — that bypasses encryption at rest
-     and forces a manual update on every rotation. If creating as
-     Secret type fails with 403, fix the Key Vault prerequisites above
-     before retrying — do not fall back to String.
-   - `rm_sqlkvurl` (String) — `https://kv-datastream-books.vault.azure.net/`
-   - `rm_sqlkvsecretname` (String) — `dsb-app-connection-string`
-3. After creating each, set its **Current value** for the dev environment.
-4. Solution → **Publish all customizations**.
+1. Power Apps maker portal -> Solutions -> DatastreamBooks ->
+   **+ New -> More -> Environment variable**.
+2. Create each of these as **Text** type:
+   - `rm_sqlkvtenantid` -- value `ca800f2c-47b3-4400-8eb1-fb1db2a39a1e`
+   - `rm_sqlkvclientid` -- value `a58747ee-f26f-4702-b911-044ee44df9a5`
+   - `rm_sqlkvclientsecret` -- **DO NOT paste the SP client secret in
+     the maker portal manually.** Create the env var definition only
+     (Text type, no current value); then run
+     [`../../scripts/sync-sp-secret-to-dataverse.ps1`](../../scripts/sync-sp-secret-to-dataverse.ps1)
+     to populate the current value from Key Vault. The script is the
+     only sanctioned writer of this value. Re-run after every SP
+     credential rotation.
+   - `rm_sqlkvurl` -- value `https://kv-datastream-books.vault.azure.net/`
+   - `rm_sqlkvsecretname` -- value `dsb-app-connection-string`
+3. After creating each non-secret env var, set its **Current value**
+   for the dev environment.
+4. Run the sync script to populate `rm_sqlkvclientsecret`.
+5. Solution -> **Publish all customizations**.
 
 #### Verification
 
 After population, confirm the type and presence of each env var via
-the Dataverse Web API (safe — never returns raw values):
+the Dataverse Web API (safe -- never returns raw values):
 
 ```powershell
 $env_url = "https://booksdev.crm.dynamics.com"
@@ -191,13 +181,23 @@ $url = "$env_url/api/data/v9.2/environmentvariabledefinitions?`$select=schemanam
     }
 ```
 
-Expected output: four `[String]` lines and one `[Secret]` line, all
-`populated=True`. Any line showing `rm_sqlkvclientsecret [String]` is a
-hard stop — see the Key Vault prerequisites above and try the Secret
-save again.
+**Expected output: all five `[String]` (Text) lines, all
+`populated=True` [§63].** Any line showing `rm_sqlkvclientsecret
+[Secret]` is a hard stop -- §63 pinned this back to Text type; a
+Secret-type record indicates someone reintroduced the pre-§63 design
+and the plugin will throw `0x80040256 Access Denied` at the next post
+attempt.
+
+> **Historical note.** Prior to §63 the expected output was four
+> `[String]` lines and one `[Secret]` line. If you are reading this
+> in a future where Microsoft has fixed the sandbox
+> `prvReadEnvironmentVariableSecretValue` gating, the Secret-type
+> path becomes safe again -- but only after a successful end-to-end
+> validation in PRI-Books-Dev.
 
 After population, the post-op step is ready. The first posted JE in
-PRI-Books-Dev is the end-to-end validation moment.
+PRI-Books-Dev is the end-to-end validation moment -- confirmed live
+2026-05-21 as JE-2026-001005 per §65.
 
 ### 5. Smoke test in the maker portal
 
@@ -233,9 +233,13 @@ This re-exports DatastreamBooks from PRI-Books-Dev and unpacks it into
 
 ```powershell
 git add solution/src/
-git commit -m "Phase 6A: register PostJournalEntryPlugin steps in DatastreamBooks solution"
+git commit -m "Register <PluginName> steps in DatastreamBooks solution"
 git push origin main
 ```
+
+(Replace `<PluginName>` with the actual plugin name and prefix the
+commit with the active phase tag if any -- e.g.,
+"Phase 8: Register ApproveBillPlugin steps...".)
 
 CI will now redeploy the same solution to PRI-Books-Dev with no
 behavioural change — but every future code-only change to the plugin

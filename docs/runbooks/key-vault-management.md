@@ -1,8 +1,20 @@
-# Runbook — Key Vault Management
+# Runbook -- Key Vault Management
 
 > Single source of truth for `kv-datastream-books`. Covers the Vault's
 > configuration, RBAC, diagnostic logging, secret inventory, rotation
 > procedures, and break-glass recovery.
+>
+> **Amended 2026-05-21 per decision §63.** The Power Platform <-> Key
+> Vault integration path (Secret-type Dataverse env vars resolving to
+> Vault secrets at runtime) is **no longer used by Books today**. The
+> `rm_sqlkvclientsecret` env var was pivoted to plain-Text type after
+> the plugin sandbox identity was found to lack
+> `prvReadEnvironmentVariableSecretValue`. Sections that describe the
+> integration prerequisites + RBAC grants for that path are retained
+> as **historical** context (Microsoft may fix the sandbox gating
+> later; the prod managed-identity story may also reuse parts of this
+> design). Sections affected are flagged inline with **[§63 --
+> historical]**.
 
 ## Vault
 
@@ -98,14 +110,23 @@ Expected:
 |---|---|---|---|
 | `ryanm@plastic-recycling.net` (object id `46ae0175-c6d7-473b-8d6d-1e90b99c194b`) | `Key Vault Administrator` | Vault | Full control during setup, rotation, and break-glass. Reviewed quarterly. |
 | `datastream-books-cicd` SP (object id `510f68ee-1d89-46b1-bc4b-9f127d8e9f62`, app id `a58747ee-f26f-4702-b911-044ee44df9a5`) | `Key Vault Secrets User` | Vault | `Get` permission on secrets only. Used by the Phase 6B plugin runtime (and CI/CD) to read the dsb_app connection string at runtime. |
-| **Dataverse SP** (object id `567ae524-268d-4de9-8054-7e26da9fa7f0`) | `Key Vault Secrets User` | Vault | Granted as part of Power Platform Key Vault integration troubleshooting. May not be strictly necessary — the Resource Provider SP below is the one that actually resolves Secret-type env vars — but is retained as defense-in-depth. |
-| **Dataverse Resource Provider SP** (object id `4f026a85-a88e-4674-baf4-45833854f411`) | `Key Vault Secrets User` | Vault | **The SP that actually handles Secret-type Dataverse Environment Variable resolution.** Without this grant, attempts to save a Secret-type env var pointing at a Key Vault secret fail with HTTP 403. Documented Microsoft prerequisite for Power Platform → Key Vault integration. |
+| **Dataverse SP** (object id `567ae524-268d-4de9-8054-7e26da9fa7f0`) | `Key Vault Secrets User` | Vault | **[§63 -- historical]** Granted during Phase 6B Power Platform Key Vault integration setup. Not used by Books today (the `rm_sqlkvclientsecret` env var is plain-Text and does not invoke this resolver). Retained as defense-in-depth in case Microsoft fixes the sandbox `prvReadEnvironmentVariableSecretValue` gating later. |
+| **Dataverse Resource Provider SP** (object id `4f026a85-a88e-4674-baf4-45833854f411`) | `Key Vault Secrets User` | Vault | **[§63 -- historical]** The SP that handles Secret-type Dataverse Environment Variable resolution. Not used by Books today (`rm_sqlkvclientsecret` is plain-Text per §63). Retained as defense-in-depth. |
 
 No standing grants beyond the four above. RBAC propagation typically takes
 5–10 minutes after assignment; do not perform retrieval tests immediately
 after an assignment changes.
 
-### Dataverse → Key Vault integration prerequisites
+### Dataverse -> Key Vault integration prerequisites [§63 -- historical]
+
+> **Historical -- not used by Books today.** Per §63, the only Books
+> consumer of this integration (`rm_sqlkvclientsecret`) was pivoted
+> to plain-Text. The plain-Text value is now populated by
+> [`../../scripts/sync-sp-secret-to-dataverse.ps1`](../../scripts/sync-sp-secret-to-dataverse.ps1)
+> reading from Key Vault directly. The prerequisites below describe
+> the Microsoft-documented Power Platform <-> Key Vault integration
+> path, retained for future reference (Microsoft may fix the sandbox
+> gating; prod managed-identity story may reuse parts of this).
 
 For Secret-type Dataverse Environment Variables that reference a Key
 Vault secret to save and resolve correctly:
@@ -114,8 +135,8 @@ Vault secret to save and resolve correctly:
    dev this is achieved via `defaultAction = Allow` (see Firewall
    section above). In prod, via Private Endpoint joined to a Dataverse
    enterprise policy.
-2. **Both Dataverse SPs** (the standard Dataverse SP `567ae524-…` and
-   the Dataverse Resource Provider SP `4f026a85-…`) must hold
+2. **Both Dataverse SPs** (the standard Dataverse SP `567ae524-...` and
+   the Dataverse Resource Provider SP `4f026a85-...`) must hold
    `Key Vault Secrets User` (or higher) at vault scope. In practice the
    Resource Provider SP is the one that authenticates when the maker
    portal saves a Secret-type env var; granting only the standard
@@ -130,6 +151,14 @@ If any of the three is missing, the symptom is the same: maker-portal
 "Save" of a Secret-type env var pointing at the Vault returns 403 and
 the env var either does not get created or gets created as a String
 type with no value.
+
+**The §63 wall this does NOT solve.** Even with all three
+prerequisites in place, a Secret-type env var resolved from inside
+the Dataverse plugin sandbox returns `0x80040256 Access Denied`
+because the sandbox identity lacks
+`prvReadEnvironmentVariableSecretValue`. The save-time resolution
+above works for maker-portal context; the plugin-runtime resolution
+does not. §63 documents the unfixable nature of this gating.
 
 Verify the current state:
 
@@ -289,21 +318,31 @@ az ad app credential delete --id a58747ee-f26f-4702-b911-044ee44df9a5 --key-id <
 > after creation, and patch the Vault tag if needed via
 > `az keyvault secret set-attributes`.
 
-> **Consumer fan-out reminder.** The SP client secret has THREE
-> consumers that must stay in sync on every rotation:
+> **Consumer fan-out reminder [§63 update].** The SP client secret
+> has THREE consumers that must stay in sync on every rotation:
 >
-> 1. Key Vault secret `cicd-sp-client-secret` (this Vault).
+> 1. Key Vault secret `cicd-sp-client-secret` (this Vault). Updated
+>    by the rotation procedure above.
 > 2. GitHub Actions repository secret `AZURE_CLIENT_SECRET` (the
->    `datastream-books` repo).
-> 3. Dataverse Environment Variable `rm_sqlkvclientsecret` — Secret type
->    pointing at the Key Vault secret above; updates automatically when
->    the Vault secret is updated, **provided the resolver SPs hold
->    `Key Vault Secrets User`** at vault scope (see Dataverse → Key
->    Vault integration prerequisites above).
+>    `datastream-books` repo). **Manual update required** -- the
+>    rotation procedure does NOT touch this.
+> 3. Dataverse Environment Variable `rm_sqlkvclientsecret`
+>    (plain-Text per §63). **Manual rerun required** of
+>    [`../../scripts/sync-sp-secret-to-dataverse.ps1`](../../scripts/sync-sp-secret-to-dataverse.ps1)
+>    after the Vault rotation. The script reads the new value from
+>    Vault and writes it into the Dataverse env var value. This is
+>    NOT automatic (the pre-§63 Secret-type design was supposed to
+>    auto-resolve, but §63 broke that path -- see [§63 -- historical]
+>    sections above for context).
 >
 > Skipping #2 is the most common error: the Vault gets the new secret
 > but CI continues authenticating with the old one until the next time
 > someone notices a 401 in a workflow run.
+>
+> Skipping #3 is the §63-era equivalent: the Vault gets the new
+> secret but the plugin runtime continues authenticating with the old
+> one until the JE-posting plugin fires and throws a 401 from the
+> token endpoint.
 
 ### Safe diagnostic queries — DO NOT log raw secret values
 
