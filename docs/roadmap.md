@@ -5,46 +5,87 @@
 
 ## Current Phase
 
-**Two tracks active in parallel as of 2026-05-21 (provisional, per §66):**
+**Single track active as of 2026-05-22 (strict sequential per §58, reaffirmed by §67).**
 
-### Track A: Phase 7 (Backend Track) — Vendor / Customer Integration with ERP
+### Phase 7 (Backend Track) -- Vendor / Customer Integration with ERP
 
-Phase 6B closed on 2026-05-21 (see Completed Phases). Next backend
-focus: Books AR references `rm_customer` from PRI-Datastream rather
-than duplicating it.
+Phase 6B closed on 2026-05-21 (see Completed Phases). Architectural ownership question for vendor / customer master closed by §70 on 2026-05-22: Books is system of record; ERP receives a downstream projection of Books-mastered fields via plugin-driven push; ERP retains write authority on operations-only fields (site locations, transportation, operational flags). Same record, two writers, field-level lanes.
 
-- Design the cross-solution lookup from Books to ERP's `rm_customer`
-  master (read-only relationship; Books does not own the customer
-  record). Pattern reference:
-  [`architecture/erp-pattern-notes.md`](architecture/erp-pattern-notes.md)
-  Pattern 3.
-- Confirm Books-owned vendor master scope per decision §22 before AP
-  design begins; finalize whether vendor records originate in Books or
-  ERP.
-- Document the ownership boundary in the data-model file so future
-  contributors do not accidentally write to the ERP-owned side.
+Next backend focus:
 
-### Track B: Phase 7A (UI Foundation) — research items only
+- **Pam conversation (week of 2026-05-25)** -- consult on the Books-mastered field list, new-vendor intake workflow, 1099 rules, and approval routing per [`memos/pam-conversation-prep-2026-05-w22.md`](memos/pam-conversation-prep-2026-05-w22.md) Item 1. Architectural ownership is settled by §70; this conversation finalizes the Pam-consult inputs that Phase 8 AP scoping depends on.
+- **Books AR references `rm_customer` from PRI-Datastream** rather than duplicating it. Cross-solution read-only lookup; pattern reference: [`architecture/erp-pattern-notes.md`](architecture/erp-pattern-notes.md) Pattern 3. Per §70, customer master ownership now mirrors vendor master (Books is system of record; ERP read-only on Books-mastered fields).
+- **Document the ownership boundary** in the data-model file so future contributors do not write to the ERP-owned (operations-only) side of the record. Tracked as BL-38 in [`backlog.md`](backlog.md).
+- **Backlog items opened under §70:** BL-52 (Books -> ERP push plugin design), BL-53 (ERP-side write-permission lockdown), BL-54 (cutover-day reconciliation of existing ERP records with Macola-migrated Books data; P1 Phase 10, Pam owns the dedup review). See [`backlog.md`](backlog.md) for the full descriptions.
 
-Per decision **§66** (parallel-track override of §58, *provisional*):
-documentation + research items in Phase 7A Sessions S1-S3 run in
-parallel with backend, scope-bounded. **No build work yet -- S4 app
-module construction and everything past it require separate operator
-confirmation in a new session.**
-
-- S1 (complete 2026-05-21): credential cleanup + Phase 6B carry-forward
-  state verified. See [`architecture/immutability-validation.md`](architecture/immutability-validation.md) 2026-05-21 follow-up section.
-- S2 (complete 2026-05-21): visual identity extraction. See [`architecture/ui-styling.md`](architecture/ui-styling.md).
-- S3 (complete 2026-05-21): sitemap design. See [`architecture/ui-sitemap.md`](architecture/ui-sitemap.md).
-
-Phase 8 (AP / AR Core) picks up after backend Phase 7 lands. The
-rest of the UI track (Phase 7A S4 onward and Phase 7B-7F) remains
-gated on the §66 follow-up decision and -- separately -- on §58's
-original strict-sequential mandate for transactional pages.
+Phase 8 (AP / AR Core) picks up after backend Phase 7 lands. The UI track (Phase 7A S4 onward and Phase 7B-7F) remains deferred per §67 -- revisit is a fresh decision once Backend Track A lands and the [`memos/executive-questionnaire.md`](memos/executive-questionnaire.md) §17 Pam-consult portion has been answered (the architectural §17 question is already closed by §70).
 
 ## Completed Phases
 
 > Newest first.
+
+### Governance + role-definition session (2026-05-22 afternoon)
+
+**Focus:** Define the Technical Strategic Lead role and stand up the concurrence-log structure so cross-domain decisions made under §71 authority have a defined stakeholder visibility + concern-raising channel.
+
+**Outcome:**
+- **§72 -- Technical Strategic Lead role definition.** Ryan M designated Technical Strategic Lead for Datastream Books -- a combined engineering + strategy + maintenance + architectural-authority role, distinct from a traditional IT support role. Read-this-as-that rule: references to "IT" in earlier decisions read as "Technical Strategic Lead" going forward. President is the executive reporting line; CFO sponsors the project per §32 but does not direct technical decisions.
+- **§71 lead sentence rephrased in place** to "Architectural decisions sit with the Technical Strategic Lead (engineering + strategy); Pam consults; COO concurs on cross-domain impact." Body retained; no other prior decisions retroactively rewritten.
+- **New file [`decisions/concurrence-log.md`](decisions/concurrence-log.md)** -- captures the 5-business-day stakeholder concern window for decisions made under §71 authority. Three active entries opened (§70 / §71 / §72), all windows close 2026-05-29; notification statuses currently "pending" (Friday status update + exec rollout meeting not yet sent).
+- **Master decisions sheet categorization labels updated** from "IT-decides" to "Technical Strategic Lead-decides"; §72 row added to Status Tracking Table.
+- **Cross-doc references added:** README.md Project Identity bullet for Technical Strategic Lead; AGENTS.md "Key Principles to Remember" gains principles #8 and #9 (architectural authority + role definition); master decisions sheet "How To Use" gains a "Raising concerns about a Section 1 decision" paragraph pointing at the concurrence log.
+
+**Decisions made:** §72.
+
+**Next:** Phase 7 (Backend Track) -- Pam conversation week of 2026-05-25 (consult portion of §17, per [`memos/pam-conversation-prep-2026-05-w22.md`](memos/pam-conversation-prep-2026-05-w22.md)).
+
+### Governance + ownership session (2026-05-22 early afternoon)
+
+**Focus:** Close the latent §22 ambiguity around vendor / customer master ownership and codify the governance pattern that should have framed it.
+
+**Outcome:**
+- **§70 -- Vendor / customer master ownership architecture.** Books is system of record; ERP receives a downstream projection of Books-mastered fields via plugin-driven push (legal name, EIN, tax classification, W-9 status, 1099 reportable flag, banking / NACHA, payment terms, hold-payment flag, credit terms, approval status, AP / AR routing). ERP retains write authority on operations-only fields (site locations and shipping points, transportation routing, operational approval flags for PO eligibility, operational notes, preferred-vendor flags, operational status). Same record, two writers, field-level lanes -- not table-level read-only. Resolves [`memos/executive-questionnaire.md`](memos/executive-questionnaire.md) §17 architectural question.
+- **§71 -- Governance principle:** Architectural decisions sit with the Technical Strategic Lead (lead phrasing was originally "IT" -- updated in the afternoon session under §72); Pam consults on finance-domain detail; COO concurs on cross-domain impact. Retroactively reframes §67 as a Technical Strategic Lead decision with Pam consult; §67's substantive outcome (return to §58 strict sequential) is not disturbed. §30 (Pam as Finance System Owner) stands unchanged.
+- **Master decisions sheet [`memos/decisions-required-master-list.md`](memos/decisions-required-master-list.md) restructured** into three primary sections (Technical Strategic Lead-decides / Pam-decides / Exec-decides) plus Section 4 for items mostly settled. Entry #3 (vendor master ownership) moved from Pam-decides to Technical Strategic Lead-decides and marked [Confirmed: §70].
+- **Executive questionnaire [`memos/executive-questionnaire.md`](memos/executive-questionnaire.md) §17** marked Resolved with citation to §70; top-of-file governance framing note added explaining §71's reframing of some historical "Pam decides X" items as Technical Strategic Lead decisions with Pam consult.
+- **Pam conversation prep [`memos/pam-conversation-prep-2026-05-w22.md`](memos/pam-conversation-prep-2026-05-w22.md) Item 1 rewritten** from "decide who owns vendor records" to "consult on field list, intake workflow, 1099 rules, approval routing." Item-1 time budget reduced from ~10 to ~7 minutes.
+- **Three backlog items opened** under §70: BL-52 (push plugin design, P2 Phase 8), BL-53 (ERP write-permission lockdown, P2 Phase 8), BL-54 (cutover-day reconciliation, P1 Phase 10, Pam-input-needed Y).
+
+**Decisions made:** §70, §71.
+
+**Next:** Continuation session same afternoon -- §72 + concurrence log (above).
+
+### Governance / process session (2026-05-22 morning)
+
+**Focus:** Close out the §66 reaffirmation gate from yesterday's handoff, codify operating principles for routine vs high-stakes work, and ship the CI deploy-dev fix that surfaced overnight.
+
+**Outcome:**
+- **§67 -- §66 reaffirmation gate resolved.** Phase 7A S4-S11 deferred until Backend Track A lands AND executive-questionnaire §17 (vendor master) has a Pam answer. Phase 7A S1-S3 artifacts remain valid; the 17 Phase 7 UX decisions (§46-§62) remain in force. Per the §68 annotation appended to §67 the same day, in retrospect Option C (continue S4 only, then defer) had a stronger concrete-artifact case than Option B (strict sequential) credited; §67 stands but future reaffirmation gates should weight visible-artifact bias more heavily.
+- **§68 -- Operating principles codified in CLAUDE.md.** Five principles governing routine vs high-stakes work, surfacing of concerns, scope discipline, bias toward concrete artifacts for accounting-team feedback, and operator-driven hours. High-stakes work (plugin code, SQL migrations, prod deploys, schema, hash chain, JE-2026-001005, audit-trail anchors, prior decisions) continues to require step-by-step approval; routine work executes as a batch with single end-of-session review.
+- **§69 -- CI workflow async-import pattern adopted as default.** Four consecutive deploy-dev runs had reported import failures while Dataverse Solution History showed actual success -- root cause was `pac solution import` synchronous mode connection dropping at the Dataverse gateway's ~5-minute timeout. Fixed by switching to `--async --max-async-wait-time 30`. Post-fix run (097da24, GitHub run #39) completed successfully in 13m 35s with the import step taking 10m 31s.
+- **R-A-19 mitigation design** committed at [`architecture/form-readonly-enforcement.md`](architecture/form-readonly-enforcement.md); implementation runbook at [`runbooks/r-a-19-business-rule-implementation.md`](runbooks/r-a-19-business-rule-implementation.md) (BL-47 status: Ready -- operator handoff for a 30-45 min maker-portal session).
+- **AGENTS.md "What NOT to Do" row** added for PRT-vs-CI/CD (R-A-20 mitigation; BL-50 closed).
+- **Backlog Priority Index** added to [`backlog.md`](backlog.md) (50 items ranked P0-P3; later updated to 53 items in the afternoon §70 session).
+
+**Decisions made:** §67, §68, §69.
+
+**Next:** Same-day afternoon §70 + §71 session (above).
+
+### Phase 7A Sessions S1-S3 (research artifacts only; S4-S11 deferred per §67) -- completed 2026-05-21
+
+**Focus:** Three documentation / research items in Phase 7A that ran in parallel with backend under the §66 provisional override. S1 (credential cleanup), S2 (visual identity extraction), S3 (sitemap design). All three landed as documentation artifacts only -- no app module, no PCF, no security role scaffolding, no Dataverse schema changes.
+
+**Outcome:**
+- **S1 -- Credential cleanup verification** ([`architecture/immutability-validation.md`](architecture/immutability-validation.md) 2026-05-21 follow-up section). Confirmed live state of `datastream-books-cicd` app reg matches the §45-era cleanup -- one password credential (`987e5ce6-934e-48db-a3d0-8972e98c7d63`, expires 2028-05-19), one federated credential (`github-main`); the unrecognized "secret" credential surfaced under §36 has been removed.
+- **S2 -- Visual identity extraction** ([`architecture/ui-styling.md`](architecture/ui-styling.md)). Finding: PRI-Datastream ERP has no custom theme; the three legacy `theme` records are stock Microsoft. Books defines its own minimal CSS-variable-based theme; logo continuity preserved via the shared PRI corporate logo. §49 amended in place.
+- **S3 -- Sitemap design** ([`architecture/ui-sitemap.md`](architecture/ui-sitemap.md)). Accounting-workflow-first 8-group structure; persona visibility deferred to 7B.
+- **Autonomous documentation audit** ([`audits/audit-2026-05-21-evening.md`](audits/audit-2026-05-21-evening.md)) during 2-hour operator gap window. 46-item backlog consolidated; risk register R-A-17 through R-A-20 added.
+
+**Deferred per §67 (2026-05-22 morning):** Phase 7A S4 (app module + theme + logo packaging), S5-S10 sessions, status pill placement, Innovation Team logo binary. Captured as BL-26 through BL-29 in [`backlog.md`](backlog.md) at P3 priority. Revisit is a fresh decision once Backend Track A lands and exec questionnaire §17 has a Pam answer (consult portion -- architectural portion already closed by §70).
+
+**Decisions made:** §66 (provisional parallel-track override -- subsequently closed by §67).
+
+**Next:** Phase 7A S1-S3 outputs feed forward to whenever full Phase 7A actually resumes. In the interim, Backend Track A continues as the single active phase.
 
 ### Phase 6B (validation closed) — first real JE posted end-to-end (2026-05-21)
 
@@ -517,7 +558,7 @@ brief).
 
 ### Phase 7 (Backend Track) — Vendor / Customer Integration with ERP
 
-Books AR references `rm_customer` from PRI-Datastream rather than duplicating. Cross-solution lookup design. Read-only relationship; ownership boundary documented per `erp-pattern-notes.md` Pattern 3. Books-owned vendor master decision per decision log §22 — confirm scope before AP design.
+> Promoted to Current Phase at the top of this file. Retained here for the Future-Phases numbering continuity. Architectural ownership question closed by §70 (Books is system of record; ERP receives Books-mastered field projection via plugin-driven push; ERP retains write authority on operations-only fields). Pam-consult portion (field list, intake workflow, 1099 rules, approval routing) lands in the week-of-2026-05-25 conversation. Books AR / vendor cross-solution lookup design follows; ownership boundary documented per `erp-pattern-notes.md` Pattern 3.
 
 ### Phase 8 — AP / AR Core
 
@@ -570,10 +611,16 @@ UX direction is owned by IT; Pam exercises ownership via the in-app Change Reque
 ## See Also
 
 - [`decisions/datastream-books-decisions.md`](decisions/datastream-books-decisions.md) — full decision log
+- [`decisions/concurrence-log.md`](decisions/concurrence-log.md) — stakeholder visibility + 5-business-day concern window for decisions made under §71 authority (Technical Strategic Lead architecture)
 - [`decisions/phase-7-ui-design.md`](decisions/phase-7-ui-design.md) — Phase 7 (UI Track) planning artifact
-- [`risk-register.md`](risk-register.md) — live risk register (Phase 7 risks R-7-01 through R-7-05)
-- [`runbooks/phase-7a-foundation-prompt.md`](runbooks/phase-7a-foundation-prompt.md) — DRAFT prompt for the first Phase 7 (UI Track) session
+- [`memos/decisions-required-master-list.md`](memos/decisions-required-master-list.md) — master decisions sheet with Technical Strategic Lead-decides / Pam-decides / Exec-decides categorization
+- [`memos/pam-conversation-prep-2026-05-w22.md`](memos/pam-conversation-prep-2026-05-w22.md) — consolidated agenda for the upcoming Pam conversation (week of 2026-05-25)
+- [`backlog.md`](backlog.md) — 53-item backlog with Priority Index (P0-P3)
+- [`risk-register.md`](risk-register.md) — live risk register (Phase 7 risks R-7-01 through R-7-05; audit risks R-A-17 through R-A-20)
+- [`runbooks/phase-7a-foundation-prompt.md`](runbooks/phase-7a-foundation-prompt.md) — DRAFT prompt for the first Phase 7 (UI Track) session (deferred per §67)
+- [`runbooks/r-a-19-business-rule-implementation.md`](runbooks/r-a-19-business-rule-implementation.md) — BL-47 maker-portal handoff for R-A-19 mitigation (Pam-demo-blocker)
 - [`architecture/`](architecture/) — data model, security, immutability, ERP patterns
 - [`controls/`](controls/) — SoD matrix, approval policies, audit controls
 - [`reference/erp-metadata/`](reference/erp-metadata/) — ERP solution metadata snapshot (REFERENCE ONLY)
 - [`../AGENTS.md`](../AGENTS.md) — operating instructions for AI coding agents
+- [`../CLAUDE.md`](../CLAUDE.md) — Claude-specific extensions including the Operating Principles section codified under §68
