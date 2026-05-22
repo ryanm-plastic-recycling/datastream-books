@@ -17,18 +17,18 @@
 
 ## Stakeholder groups
 
-- **Finance** -- Pam (Finance System Owner per [§30](./datastream-books-decisions.md))
-- **Operations** -- COO and operations leadership
-- **Strategy** -- President (executive sponsor per [§32](./datastream-books-decisions.md))
+- **Finance** -- Finance Lead (role defined in [§30](./datastream-books-decisions.md); to be named by CFO/Fred post executive working session per [§32](./datastream-books-decisions.md) and [§32a](./datastream-books-decisions.md))
+- **Operations** -- COO (Marco) and operations leadership
+- **Strategy** -- President (Brandon) (Executive Sponsor per [§32](./datastream-books-decisions.md))
 - **Sales / CRM** -- to be defined as relevant
 
 ## Active entries
 
 | Decision | Decided | Window closes | Stakeholders notified | Notification method | Concerns raised | Resolution | Status |
 |---|---|---|---|---|---|---|---|
-| [§70](./datastream-books-decisions.md) -- Vendor / customer master ownership (Books-as-master, ERP downstream projection) | 2026-05-22 | 2026-05-29 | Pam, COO, President | Friday status update (pending), explicit verbal in upcoming exec rollout meeting | (pending) | (pending) | Open |
-| [§71](./datastream-books-decisions.md) -- Governance principle: Technical Strategic Lead decides architecture; Pam consults; COO concurs | 2026-05-22 | 2026-05-29 | Pam, COO, President | Friday status update (pending), explicit framing in upcoming exec rollout meeting | (pending) | (pending) | Open |
-| [§72](./datastream-books-decisions.md) -- Technical Strategic Lead role definition | 2026-05-22 | 2026-05-29 | President, COO, CFO, Pam | Friday status update (pending), explicit verbal in upcoming exec rollout meeting | (pending) | (pending) | Open |
+| [§70](./datastream-books-decisions.md) -- Vendor / customer master ownership (Books-as-master, ERP downstream projection) | 2026-05-22 | 2026-05-29 | Finance Lead, Marco (COO), Brandon (President) | Friday status update (pending), explicit verbal in upcoming exec rollout meeting | (pending) | (pending) | Open |
+| [§71](./datastream-books-decisions.md) -- Governance principle: Technical Strategic Lead decides architecture; the Finance Lead consults; the COO (Marco) concurs | 2026-05-22 | 2026-05-29 | Finance Lead, Marco (COO), Brandon (President) | Friday status update (pending), explicit framing in upcoming exec rollout meeting | (pending) | (pending) | Open |
+| [§72](./datastream-books-decisions.md) -- Technical Strategic Lead role definition | 2026-05-22 | 2026-05-29 | Brandon (President), Marco (COO), Fred (CFO), Finance Lead | Friday status update (pending), explicit verbal in upcoming exec rollout meeting | (pending) | (pending) | Open |
 
 ## Locked entries (archive)
 

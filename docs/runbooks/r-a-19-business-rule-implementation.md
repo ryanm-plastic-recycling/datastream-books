@@ -12,7 +12,7 @@
 Author a Dataverse Business Rule on the `rm_journalentry` main form
 that locks five stamp fields when `rm_status = Posted`. Closes
 BL-47 in the backlog; closes R-A-19 in the risk register; satisfies
-the precondition for any Pam-facing demo of Phase 7A or Phase 7A.5
+the precondition for any Finance Lead-facing demo of Phase 7A or Phase 7A.5
 artifacts.
 
 ## Pre-flight checklist

@@ -1,7 +1,7 @@
-# Pam Conversation Prep -- Week of 2026-05-25
+# Finance Lead Conversation Prep -- Week of 2026-05-25
 
 > Consolidated agenda for the upcoming Datastream Books conversation
-> with Pam. Drafted 2026-05-22 per audit Section C recommendation and
+> with the Finance Lead. Drafted 2026-05-22 per audit Section C recommendation and
 > decision §67's call for §17 to land alongside the existing §1 / §3
 > / §11 agenda. Revised 2026-05-22 in the §70 / §71 session: Item 1
 > rewritten from "decide who owns vendor records" to "consult on field
@@ -12,26 +12,26 @@
 
 ## Meeting metadata
 
-- **Audience:** Pam (Finance System Owner) + Ryan (IT)
+- **Audience:** the Finance Lead (once named) + Ryan (IT)
 - **Duration:** 42 minutes (30 minutes minimum; 50 if Item 3 entity
   list discussion runs long). Item 1 trimmed from ~10 min to ~7 min
   after §70 closed the architectural question.
 - **Format:** In person if possible; Teams as fallback
 - **Decision authority (per [§71](../decisions/datastream-books-decisions.md)):**
-  Pam authorizes operational finance answers (workflows, field lists,
+  The Finance Lead authorizes operational finance answers (workflows, field lists,
   thresholds, COA, period close mechanics). IT authorizes architecture
   (cross-system data flow, schema ownership, integration patterns,
-  system-of-record boundaries). Pam consults on architectural items
+  system-of-record boundaries). The Finance Lead consults on architectural items
   that touch finance; COO concurs on cross-domain impact. Item 1 of
-  this agenda is now a Pam-consult item (architecture decided under
-  §70); Items 2-4 remain Pam-authorize.
+  this agenda is now a Finance Lead-consult item (architecture decided under
+  §70); Items 2-4 remain Finance Lead-authorize.
 
 ## Pre-read (please review before the meeting)
 
 1. The standard 54-row Chart of Accounts already loaded in
    PRI-Books-Dev under "Default Operating Entity"
    ([`../architecture/data-model.md`](../architecture/data-model.md)
-   §`rm_chartofaccount` lists the structure). Pam should be ready
+   §`rm_chartofaccount` lists the structure). The Finance Lead should be ready
    to react to it as a draft.
 2. [`./executive-questionnaire.md`](./executive-questionnaire.md)
    §1, §3, §11, §17 -- the four agenda items below. Each section's
@@ -50,7 +50,7 @@
 - A working opinion on the Books-mastered field list for vendors and
   customers (per §70 the AP team owns new vendor creation in Books;
   the operations team retains write authority on operations-only
-  fields on the same record -- the question for Pam is whether the
+  fields on the same record -- the question for the Finance Lead is whether the
   field list is correct and complete).
 - A working opinion on the new-vendor intake workflow (who fills in
   what, in what order, with what approvals).
@@ -59,7 +59,7 @@
 
 ## Agenda
 
-### Item 1 -- §17 Vendor Master Scope -- Pam-consult portion (~7 min)
+### Item 1 -- §17 Vendor Master Scope -- Finance Lead-consult portion (~7 min)
 
 > **Architectural decision made under [§70](../decisions/datastream-books-decisions.md)
 > on 2026-05-22 -- Books is system of record for vendor and customer
@@ -67,7 +67,7 @@
 > Books-mastered fields via plugin-driven push, and ERP retains write
 > authority on operations-only fields (site locations, transportation,
 > operational flags). Same record, two writers, field-level lanes.**
-> This Item 1 is the Pam-consult portion: confirm the field list and
+> This Item 1 is the Finance Lead-consult portion: confirm the field list and
 > nail down the operational details that IT needs from finance before
 > Phase 8 AP scoping can finalize.
 
@@ -97,7 +97,7 @@
   4. Approval routing for new vendor setup -- single or dual
      approval, what roles, what dollar / risk threshold (if any)
      for dual approval.
-- **What we're proposing you sign off on (Pam-consult outputs, not
+- **What we're proposing you sign off on (Finance Lead-consult outputs, not
   architecture):** the Books-mastered field list (confirmed or
   amended), the new-vendor intake workflow, the 1099 rules, the
   approval-routing rules for new vendor setup. IT will roll these
@@ -110,12 +110,12 @@
   decision (that's already made). Phase 8 (AP Core) scoping
   finalizes once 1099 rules and approval routing are nailed down.
   The push plugin design itself (Books -> ERP) is a Phase 8 or
-  earlier scoping item -- not asking for Pam input on the plugin
+  earlier scoping item -- not asking for Finance Lead input on the plugin
   internals.
 
 ### Item 2 -- §3 Approval Thresholds (~10 min)
 
-> Pam-owned thresholds. We need working numbers, not perfect ones.
+> Finance Lead-owned thresholds. We need working numbers, not perfect ones.
 > They will be configurable and adjustable; the question is what to
 > start with.
 
@@ -185,14 +185,14 @@ IT will, within 48 hours:
 - Write a decision-log row for each item you signed off on
   (anticipated §72+ approval thresholds, §73+ entity structure if
   substantively different from current placeholder, §74+ COA
-  sign-off, plus a §-numbered row for the Item 1 Pam-consult
+  sign-off, plus a §-numbered row for the Item 1 Finance Lead-consult
   outputs -- field list, intake workflow, 1099 rules, approval
   routing for new vendor setup -- captured as one row separate
   from §70's architectural decision). Decision numbering will pick
   up from the latest committed row in the decision log; §70 / §71
   occupy the next two slots.
 - Update the [`./executive-questionnaire.md`](./executive-questionnaire.md)
-  status flags from `[Active] [Pending Pam]` to `[Confirmed]` with
+  status flags from `[Active] [Pending Finance Lead]` to `[Confirmed]` with
   citations.
 - Mark the corresponding backlog items (BL-01, BL-04, BL-37, BL-38,
   BL-46) as actionable for the next IT-side work session. BL-46
@@ -206,8 +206,8 @@ and flag it for the next conversation rather than letting it drift.
 ## Linked artifacts
 
 - [`./executive-questionnaire.md`](./executive-questionnaire.md) -- §1, §3, §11, §17 in full (§17 now confirmed under §70; consult content retained for traceability)
-- [`./decisions-required-master-list.md`](./decisions-required-master-list.md) -- master decisions sheet (IT-decides / Pam-decides / Exec-decides categorization per §71)
-- [`../decisions/datastream-books-decisions.md`](../decisions/datastream-books-decisions.md) -- §22 (vendors as needed; preserved for "as-needed creation, no batch pre-load" intent), §23 (pre-populate COA), §30 (Pam as Finance System Owner), §67 (Phase 7A deferral), §70 (vendor / customer master ownership architecture -- closes Item 1's architectural question), §71 (governance principle -- IT-decides / Pam-consults / COO-concurs on cross-domain impact)
-- [`../backlog.md`](../backlog.md) -- Next Pam Conversation Agenda subsection; BL-52 / BL-53 / BL-54 added for §70 follow-on plugin design, ERP write-permission lockdown, and cutover-day reconciliation
+- [`./decisions-required-master-list.md`](./decisions-required-master-list.md) -- master decisions sheet (IT-decides / Finance Lead-decides / Exec-decides categorization per §71)
+- [`../decisions/datastream-books-decisions.md`](../decisions/datastream-books-decisions.md) -- §22 (vendors as needed; preserved for "as-needed creation, no batch pre-load" intent), §23 (pre-populate COA), §30 (Finance Lead role), §67 (Phase 7A deferral), §70 (vendor / customer master ownership architecture -- closes Item 1's architectural question), §71 (governance principle -- IT-decides / Finance Lead-consults / COO-concurs on cross-domain impact)
+- [`../backlog.md`](../backlog.md) -- Next Finance Lead Conversation Agenda subsection; BL-52 / BL-53 / BL-54 added for §70 follow-on plugin design, ERP write-permission lockdown, and cutover-day reconciliation
 - [`../architecture/data-model.md`](../architecture/data-model.md) -- `rm_chartofaccount` structure for the COA review item
 - [`../architecture/erp-pattern-notes.md`](../architecture/erp-pattern-notes.md) §3 -- the `rm_customer` cross-solution pattern; §70's push plugin design draws on or diverges from this in Phase 8 scoping

@@ -5,7 +5,7 @@
 .DESCRIPTION
     Loads a conventional five-section COA (Assets 1xxxx, Liabilities 2xxxx,
     Equity 3xxxx, Revenue 4xxxx, Expenses 5xxxx-7xxxx) hung off the placeholder
-    "Default Operating Entity" (rm_entitycode = 'DEFAULT'). Pam will modify
+    "Default Operating Entity" (rm_entitycode = 'DEFAULT'). The Finance Lead will modify
     in place per decision log §23 ("Pre-populate standard COA; finance modifies").
 
     Two-pass insert:
@@ -133,7 +133,7 @@ $coa = @(
     @{ Number='20200'; Name='Accrued Expenses';                 Short='Accrued Exp';     Type='LIAB';  Parent='20000';  IsCashBank=$false; NormalBalance=$CREDIT;Desc='Expenses incurred but not yet invoiced.' }
 
     @{ Number='21000'; Name='Accrued Liabilities';              Short='Accrued Liab';    Type='LIAB';  Parent=$null;    IsCashBank=$false; NormalBalance=$null;  Desc='Parent rollup for accrued liabilities.' }
-    @{ Number='21100'; Name='Payroll Liabilities';              Short='Payroll Liab';    Type='LIAB';  Parent='21000';  IsCashBank=$false; NormalBalance=$CREDIT;Desc='Wages payable plus employee/employer payroll-tax withholdings. Detail expansion will be defined by Pam.' }
+    @{ Number='21100'; Name='Payroll Liabilities';              Short='Payroll Liab';    Type='LIAB';  Parent='21000';  IsCashBank=$false; NormalBalance=$CREDIT;Desc='Wages payable plus employee/employer payroll-tax withholdings. Detail expansion will be defined by the Finance Lead.' }
     @{ Number='21200'; Name='Sales Tax Payable';                Short='Sales Tax Pay';   Type='LIAB';  Parent='21000';  IsCashBank=$false; NormalBalance=$CREDIT;Desc='Sales tax collected but not yet remitted.' }
 
     @{ Number='22000'; Name='Short-term Debt';                  Short='ST Debt';         Type='LIAB';  Parent=$null;    IsCashBank=$false; NormalBalance=$CREDIT;Desc='Debt due within twelve months.' }

@@ -85,8 +85,8 @@ additional sessions across 2-3 weeks** to complete Phase 7A.
 
 **Tip-indicators that this is the right call:**
 - You expect the Backend Track A vendor/customer work to take meaningful calendar time (vs. landing in 1-2 sessions).
-- You want a navigable shell in PRI-Books-Dev for the §66 "shell-only demo" to Pam earlier rather than later.
-- You are willing to commit to the R-7-01 risk shift ("shell-without-data dissatisfaction") and the R-A-19 mitigation deadline (form-level read-only before any Pam demo).
+- You want a navigable shell in PRI-Books-Dev for the §66 "shell-only demo" to the Finance Lead earlier rather than later.
+- You are willing to commit to the R-7-01 risk shift ("shell-without-data dissatisfaction") and the R-A-19 mitigation deadline (form-level read-only before any Finance Lead demo).
 - You have appetite for parallel-track context switching between backend and UI work.
 
 **Counter-indicators:**
@@ -108,7 +108,7 @@ starts. **0 additional Phase 7A sessions in the near term.**
 
 **Counter-indicators:**
 - The §66 partial-parallel approach was actually working well.
-- Pam expressed interest in seeing the shell.
+- The Finance Lead expressed interest in seeing the shell.
 
 ### Option C -- Hybrid: continue S4 only, then defer S5-S11
 
@@ -140,11 +140,11 @@ The audit author has no skin in the game beyond producing the artifacts.
 | # | Question | Tip |
 |---|---|---|
 | G2 | When does §63 propagation cleanup land? | **Done tonight** as commit `b480abf`. G2 closed -- you can skip it. |
-| G3 | Pam-facing conversation -- when scheduled? | **Schedule before Phase 8 design opens.** §1 + §3 + §11 batched per `executive-questionnaire.md` new agenda section. Tip: 30-45 min conversation, in person if possible, before Track A vendor design solidifies. |
-| G4 | Pam first encounter timing -- the shell demo | Depends on G1. **Option A or C: end of S4** (when shell is navigable). **Option B: not until Phase 7B+** (months out). Either way -- §66 framing language is mandatory. |
-| G5 | R-A-19 form-level read-only -- can it land cheaply? | **Yes** -- maker-portal form-level read-only attributes on 4 columns of the JE form. Single S4-companion session, 30-60 min. **Required before any Pam-facing demo** per R-A-19. |
-| G6 | §22 vendors-as-needed specifics | **Added as §17 of `executive-questionnaire.md`.** Three sub-questions: who creates new vendors, ERP-vs-Books canonical, what fields Books needs beyond ERP. Pam answer unblocks Track A. |
-| G7 | Innovation Team logo -- source and approval | **No source yet.** S4 needs the binary in hand. Defer until Pam or executives can supply a brand asset. Until then, ship S4 with the PRI logo only and `rm_InnovationTeamLogo` reserved as an empty web resource placeholder. |
+| G3 | Finance Lead-facing conversation -- when scheduled? | **Schedule before Phase 8 design opens.** §1 + §3 + §11 batched per `executive-questionnaire.md` new agenda section. Tip: 30-45 min conversation, in person if possible, before Track A vendor design solidifies. |
+| G4 | Finance Lead first encounter timing -- the shell demo | Depends on G1. **Option A or C: end of S4** (when shell is navigable). **Option B: not until Phase 7B+** (months out). Either way -- §66 framing language is mandatory. |
+| G5 | R-A-19 form-level read-only -- can it land cheaply? | **Yes** -- maker-portal form-level read-only attributes on 4 columns of the JE form. Single S4-companion session, 30-60 min. **Required before any Finance Lead-facing demo** per R-A-19. |
+| G6 | §22 vendors-as-needed specifics | **Added as §17 of `executive-questionnaire.md`.** Three sub-questions: who creates new vendors, ERP-vs-Books canonical, what fields Books needs beyond ERP. Finance Lead answer unblocks Track A. |
+| G7 | Innovation Team logo -- source and approval | **No source yet.** S4 needs the binary in hand. Defer until the Finance Lead or executives can supply a brand asset. Until then, ship S4 with the PRI logo only and `rm_InnovationTeamLogo` reserved as an empty web resource placeholder. |
 
 ---
 
@@ -152,19 +152,19 @@ The audit author has no skin in the game beyond producing the artifacts.
 
 These are commitments and gates that must not slip. In priority order:
 
-### 1. R-A-19 mitigation required before any Pam-facing shell demo
+### 1. R-A-19 mitigation required before any Finance Lead-facing shell demo
 
-**Form-level read-only on `rm_postedby_user`, `rm_journalentrynumber`, `rm_totaldebit`, `rm_totalcredit`** on the JE main form. Plugin layer enforces today; the maker-portal form does not. Pam will try to edit a stamped field during a shell demo of JE-2026-001005 if this is not addressed. Mitigation is cheap (maker-portal form property toggle on 4 columns). Tracked as **BL-47 in `docs/backlog.md`** with the deadline locked to "before any Pam-facing shell demo of Phase 7A artifacts."
+**Form-level read-only on `rm_postedby_user`, `rm_journalentrynumber`, `rm_totaldebit`, `rm_totalcredit`** on the JE main form. Plugin layer enforces today; the maker-portal form does not. The Finance Lead will try to edit a stamped field during a shell demo of JE-2026-001005 if this is not addressed. Mitigation is cheap (maker-portal form property toggle on 4 columns). Tracked as **BL-47 in `docs/backlog.md`** with the deadline locked to "before any Finance Lead-facing shell demo of Phase 7A artifacts."
 
 Do not schedule the shell demo until BL-47 lands.
 
-### 2. Executive questionnaire Pam-facing conversation needs scheduling
+### 2. Executive questionnaire Finance Lead-facing conversation needs scheduling
 
 The consolidated agenda is at the top of `docs/memos/executive-questionnaire.md`:
 
 - **§1 Legal Entity Structure** -- blocks `rm_entity` real seeding and Phase 10 cutover.
 - **§3 Approval Thresholds** -- blocks `rm_approvalpolicy` row authoring for Phase 8.
-- **§11 Chart of Accounts** -- confirms Pam owns the 54-row seed already loaded.
+- **§11 Chart of Accounts** -- confirms the Finance Lead owns the 54-row seed already loaded.
 
 30-45 min batched conversation. Track A (vendor/customer integration) is the next backend phase; the new **§17 Vendor Master Scope** question should be on the same call if scheduling allows, or a follow-up call.
 
@@ -219,7 +219,7 @@ Maintenance-window backlog item (BL-19). Brief plugin outage window required. No
 | The S9 kickoff prompt (when §66 reaffirmed for S4+) | `pcf/NEXT-SESSION-S9-PROMPT.md` |
 | The §66 decision text | `docs/decisions/datastream-books-decisions.md` row 66 |
 | Phase 7A artifacts (S2, S3) | `docs/architecture/ui-styling.md`, `docs/architecture/ui-sitemap.md` |
-| Pam-facing conversation agenda | `docs/memos/executive-questionnaire.md` (top section) |
+| Finance Lead-facing conversation agenda | `docs/memos/executive-questionnaire.md` (top section) |
 | New §17 vendor scope question | `docs/memos/executive-questionnaire.md` §17 |
 | Updated risk register (R-7-01, R-7-05 amended; R-A-17 through R-A-20 added) | `docs/risk-register.md` |
 | Updated roadmap (Phase 8 scope note + Phase 11/12+ note) | `docs/roadmap.md` |
@@ -238,7 +238,7 @@ You stopped and asked at every gate. That discipline kept the §66
 gate intact and the backlog comprehensive.
 
 If you are unsure tomorrow morning -- start with §66 reaffirmation
-(G1), then schedule the Pam conversation, then everything else
+(G1), then schedule the Finance Lead conversation, then everything else
 follows.
 
 ## See also
@@ -248,4 +248,4 @@ follows.
 - [`../roadmap.md`](../roadmap.md) -- live phase state
 - [`../risk-register.md`](../risk-register.md) -- live risk register
 - [`../decisions/datastream-books-decisions.md`](../decisions/datastream-books-decisions.md) -- decision log (§66 is the central decision for tomorrow)
-- [`../memos/executive-questionnaire.md`](../memos/executive-questionnaire.md) -- Pam conversation agenda
+- [`../memos/executive-questionnaire.md`](../memos/executive-questionnaire.md) -- Finance Lead conversation agenda

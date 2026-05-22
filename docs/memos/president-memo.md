@@ -1,5 +1,7 @@
 # Finance System Replacement: Decision Memo
 
+> **Historical document — preserved as sent.** Current terminology and role assignments are tracked in [`docs/decisions/datastream-books-decisions.md`](../decisions/datastream-books-decisions.md). The role names and terms used in the body below reflect the language at the time the memo was sent (May 19, 2026) and have not been updated to match later decisions.
+
 **To:** Brandon Shaw
 **From:** Ryan McCauley
 **Re:** Macola Replacement — Build Datastream Books vs. HoosAI or Business Central

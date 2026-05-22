@@ -58,12 +58,12 @@ problem visible at the moment of action is a feature.
 ## Pending: Threshold Values
 
 The "below threshold" / "above threshold" rows depend on dollar values
-set in [`approval-policies.md`](approval-policies.md). Pam owns those
-values — see executive questionnaire §3.
+set in [`approval-policies.md`](approval-policies.md). The Finance Lead owns those
+values (once named) — see executive questionnaire §3.
 
 ## Quarterly Access Review
 
-Owner: TBD (likely Pam + IT, jointly).
+Owner: TBD (likely the Finance Lead + IT, jointly, once the Finance Lead is named).
 Cadence: quarterly.
 Output: a written attestation (stored in `docs/controls/access-reviews/`
 once the first review runs) listing each role's members and confirming

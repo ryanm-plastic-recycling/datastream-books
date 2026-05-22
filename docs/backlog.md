@@ -3,7 +3,7 @@
 > Consolidated backlog of work items deferred / planned across the
 > project. Each item has a description, a source reference (where the
 > TODO / "deferred to" / "planned" marker lives in the repo today), a
-> suggested target phase, a priority field, and a Pam-input-needed
+> suggested target phase, a priority field, and a Finance Lead-input-needed
 > flag.
 >
 > Compiled 2026-05-21 from the documentation audit at
@@ -40,25 +40,25 @@
 
 > Ranking applied 2026-05-22 in the doc-only session following decision
 > [§67](decisions/datastream-books-decisions.md). **P0** = blocking
-> Backend Track A (critical path). **P1** = Pam-input required or
-> Pam-demo-blocker. **P2** = phase-tied technical work, including
+> Backend Track A (critical path). **P1** = Finance Lead-input required or
+> Finance Lead-demo-blocker. **P2** = phase-tied technical work, including
 > R-A-17 / R-A-18 / R-A-19 mitigations. **P3** = polish,
 > deferred-per-§67, maintenance-window, or long-term. Sorted by
 > priority, then by phase.
 
-| BL | Subject (short) | Priority | Target phase | Pam-input |
+| BL | Subject (short) | Priority | Target phase | Finance Lead-input |
 |---|---|---|---|---|
 | 38 | Vendor / customer integration design + ownership boundary doc | **P0** | 7-Backend Track A | Y (gated by §17) |
 | 46 | Explicit decision row for §22 vendors (ERP-synced vs Books-owned) | **P0** | 7-Backend Track A | Y (gated by §17) |
 | 01 | Approval threshold values $X / $Y / $Z | **P1** | Before Phase 8 | Y |
 | 04 | `rm_basecurrency` / `rm_isconsolidationtarget` / `rm_legalname` on `rm_entity` | **P1** | Phase 10 (entity seeding) | Y (gated by §1) |
-| 22 | `runbooks/change-management.md` | **P1** | Pre-cutover | Y (Pam triages CRs) |
-| 23 | `runbooks/period-close.md` | **P1** | Phase 9 | Y (Pam authors) |
-| 24 | `runbooks/year-end-close.md` | **P1** | Phase 10 | Y (Pam authors) |
+| 22 | `runbooks/change-management.md` | **P1** | Pre-cutover | Y (Finance Lead triages CRs) |
+| 23 | `runbooks/period-close.md` | **P1** | Phase 9 | Y (Finance Lead authors) |
+| 24 | `runbooks/year-end-close.md` | **P1** | Phase 10 | Y (Finance Lead authors) |
 | 34 | Posted-ledger field-level security on restricted accounts | **P1** | Phase 8 | Y (driven by approval policy) |
 | 37 | Field-level security on `rm_entity.rm_ein` | **P1** | Phase 10 (before real entity seeding) | Y (gated by §1) |
-| 47 | Form-level read-only on JE form (R-A-19 mitigation) | **P1** | Phase 7A.5 (any session) | N (Pam-demo-blocker) |
-| 54 | Cutover-day reconciliation: existing ERP vendor / customer records vs Books-migrated Macola data | **P1** | Phase 10 (cutover) | Y (Pam owns dedup review) |
+| 47 | Form-level read-only on JE form (R-A-19 mitigation) | **P1** | Phase 7A.5 (any session) | N (Finance Lead-demo-blocker) |
+| 54 | Cutover-day reconciliation: existing ERP vendor / customer records vs Books-migrated Macola data | **P1** | Phase 10 (cutover) | Y (Finance Lead owns dedup review) |
 | 02 | `rm_isintercompany` flag on `rm_chartofaccount` | P2 | Phase 8 | N |
 | 06 | `ApproveJournalEntryPlugin` (SoD-enforced) | P2 | Phase 7B / 8 | N |
 | 07 | `ClosePeriodPlugin` + `ReopenPeriodPlugin` | P2 | Phase 9 | N |
@@ -75,9 +75,9 @@
 | 18 | Re-run negative tests against newly-written EntryIds | P2 | Phase 8 (any session) | N |
 | 20 | `runbooks/disaster-recovery.md` | P2 | Pre-cutover | N |
 | 21 | `runbooks/data-recovery.md` | P2 | Pre-cutover | N |
-| 25 | `user-guides/` (ap-clerk, ar-clerk, controller, admin) | P2 | Phase 7E (can start at 7B) | Y (Pam reviews + approves) |
+| 25 | `user-guides/` (ap-clerk, ar-clerk, controller, admin) | P2 | Phase 7E (can start at 7B) | Y (Finance Lead reviews + approves) |
 | 30 | AAD-only auth for `priadmin` | P2 | Pre-cutover | N |
-| 31 | Quarterly access review owner + cadence + first review | P2 | Phase 7B | N (structure IT-built; Pam joins review later) |
+| 31 | Quarterly access review owner + cadence + first review | P2 | Phase 7B | N (structure IT-built; Finance Lead joins review later) |
 | 32 | PIM workflow design | P2 | Pre-cutover | N |
 | 33 | Vendor banking field-level security | P2 | Phase 8 | N |
 | 36 | Single rotation script (KV + GH Actions + Dataverse) | P2 | Pre-cutover | N |
@@ -89,7 +89,7 @@
 | 03 | Memo-only JE lines | P3 | Phase 8+ (when use case surfaces) | N |
 | 05 | `rm_accountnumberingscheme` table | P3 | When COA validation plugin lands | N |
 | 19 | POST-branch test of `sync-sp-secret-to-dataverse.ps1` | P3 | Maintenance window | N |
-| 26 | Innovation Team logo binary | P3 | Deferred per §67 (was Phase 7A S4) | Y (Pam or exec sources) |
+| 26 | Innovation Team logo binary | P3 | Deferred per §67 (was Phase 7A S4) | Y (Finance Lead or exec sources) |
 | 27 | Status pill placement decision | P3 | Deferred per §67 (was Phase 7A S10) | N |
 | 28 | App module + theme application + logo packaging (S4) | P3 | Deferred per §67 | N |
 | 29 | Phase 7A S5-S10 sessions | P3 | Deferred per §67 | N |
@@ -104,9 +104,9 @@
 
 **Bucket totals:** P0 = 2, P1 = 9, P2 = 27, P3 = 8, Done = 7. Total = 53. (Updated 2026-05-22 §70 session: +BL-52 P2 Phase 8 push plugin design, +BL-53 P2 Phase 8 ERP write-permission lockdown, +BL-54 P1 Phase 10 cutover-day reconciliation.)
 
-### Next Pam Conversation Agenda
+### Next Finance Lead Conversation Agenda
 
-The Pam-input items gating the upcoming Pam conversation (week of
+The Finance Lead-input items gating the upcoming Finance Lead conversation (week of
 2026-05-25). Consolidated prep at
 [`memos/pam-conversation-prep-2026-05-w22.md`](memos/pam-conversation-prep-2026-05-w22.md)
 (drafted in the same 2026-05-22 session as this Priority Index).
@@ -128,7 +128,7 @@ The Pam-input items gating the upcoming Pam conversation (week of
 - **Source:** `roadmap.md` Track A; `erp-pattern-notes.md` §3.
 - **Target phase:** Phase 7-Backend (Track A).
 - **Priority:** P0 (blocking Backend Track A) -- follows BL-46.
-- **Pam-input-needed:** Y -- gated by executive-questionnaire §17 (vendor master scope).
+- **Finance Lead-input-needed:** Y -- gated by executive-questionnaire §17 (vendor master scope).
 - **Status:** [Open]
 
 ### BL-46 -- Explicit confirmation row for §22 vendors
@@ -137,7 +137,7 @@ The Pam-input items gating the upcoming Pam conversation (week of
 - **Source:** Audit Section A6, Section B; executive-questionnaire.md §17 (new).
 - **Target phase:** Phase 7-Backend (Track A) before AP design.
 - **Priority:** P0 (blocking Backend Track A) -- precedes BL-38.
-- **Pam-input-needed:** Y -- gated by executive-questionnaire §17 (vendor master scope).
+- **Finance Lead-input-needed:** Y -- gated by executive-questionnaire §17 (vendor master scope).
 - **Status:** [Open]
 
 ---
@@ -146,7 +146,7 @@ The Pam-input items gating the upcoming Pam conversation (week of
 
 > All items in this section were originally gated by the §66
 > reaffirmation. Decision §67 (2026-05-22) deferred Phase 7A S4-S11
-> until Backend Track A lands and §17 has a Pam answer. Items below
+> until Backend Track A lands and §17 has a Finance Lead answer. Items below
 > remain captured for the eventual revisit decision but are not
 > scheduled.
 
@@ -156,7 +156,7 @@ The Pam-input items gating the upcoming Pam conversation (week of
 - **Source:** `ui-styling.md` O4, O5.
 - **Target phase:** Deferred per §67 (was Phase 7A S4).
 - **Priority:** P3 (deferred + dependent on external asset).
-- **Pam-input-needed:** Y -- Pam (or executive team) sources the logo binary.
+- **Finance Lead-input-needed:** Y -- Finance Lead (or executive team) sources the logo binary.
 - **Status:** [Open]
 
 ### BL-27 -- Status pill placement decision (which forms / which views)
@@ -165,7 +165,7 @@ The Pam-input items gating the upcoming Pam conversation (week of
 - **Source:** `ui-sitemap.md`, `ui-styling.md`.
 - **Target phase:** Deferred per §67 (was Phase 7A S10).
 - **Priority:** P3 (deferred).
-- **Pam-input-needed:** N.
+- **Finance Lead-input-needed:** N.
 - **Status:** [Open]
 
 ### BL-28 -- App module + theme application + logo packaging (S4)
@@ -174,7 +174,7 @@ The Pam-input items gating the upcoming Pam conversation (week of
 - **Source:** `ui-styling.md` "Books Theme Record" section; `ui-sitemap.md`.
 - **Target phase:** Deferred per §67 (was Phase 7A S4).
 - **Priority:** P3 (deferred).
-- **Pam-input-needed:** N.
+- **Finance Lead-input-needed:** N.
 - **Status:** [Open]
 
 ### BL-29 -- Phase 7A S5-S10 sessions (breadcrumb / recent / dashboard / patterns / toolchain / status pill)
@@ -183,16 +183,16 @@ The Pam-input items gating the upcoming Pam conversation (week of
 - **Source:** `ui-styling.md`, `ui-sitemap.md`, S0 kickoff conversation.
 - **Target phase:** Deferred per §67.
 - **Priority:** P3 (deferred).
-- **Pam-input-needed:** N.
+- **Finance Lead-input-needed:** N.
 - **Status:** [Open]
 
 ### BL-47 -- (NEW per audit risk R-A-19) Form-level read-only fields on JE form
 
-- **Description:** Make `rm_postedby_user`, `rm_journalentrynumber`, `rm_totaldebit`, `rm_totalcredit` read-only at the form level (maker portal property), not just at the plugin layer. Currently the maker portal accepts edits to these fields and the save throws -- confusing during Pam-facing demo. Design committed 2026-05-22 in [`architecture/form-readonly-enforcement.md`](architecture/form-readonly-enforcement.md) (Business Rule on the JE main form recommended). Implementation runbook committed 2026-05-22 in [`runbooks/r-a-19-business-rule-implementation.md`](runbooks/r-a-19-business-rule-implementation.md) (30-45 min operator-driven session; includes `rm_posteddatetime` as a fifth target field per the design doc's "default YES" recommendation).
+- **Description:** Make `rm_postedby_user`, `rm_journalentrynumber`, `rm_totaldebit`, `rm_totalcredit` read-only at the form level (maker portal property), not just at the plugin layer. Currently the maker portal accepts edits to these fields and the save throws -- confusing during Finance Lead-facing demo. Design committed 2026-05-22 in [`architecture/form-readonly-enforcement.md`](architecture/form-readonly-enforcement.md) (Business Rule on the JE main form recommended). Implementation runbook committed 2026-05-22 in [`runbooks/r-a-19-business-rule-implementation.md`](runbooks/r-a-19-business-rule-implementation.md) (30-45 min operator-driven session; includes `rm_posteddatetime` as a fifth target field per the design doc's "default YES" recommendation).
 - **Source:** Risk-register R-A-19 (added 2026-05-21). Audit Section G5.
 - **Target phase:** Phase 7A.5 (any session) -- independent of S4-S11 deferral per §67.
-- **Priority:** P1 (Pam-demo-blocker; precondition for any Pam-facing shell demo).
-- **Pam-input-needed:** N -- IT-side technical fix; removes a blocker to showing Pam future artifacts rather than asking her for input.
+- **Priority:** P1 (Finance Lead-demo-blocker; precondition for any Finance Lead-facing shell demo).
+- **Finance Lead-input-needed:** N -- IT-side technical fix; removes a blocker to showing the Finance Lead future artifacts rather than asking them for input.
 - **Status:** [Ready -- operator handoff] -- runbook in [`runbooks/r-a-19-business-rule-implementation.md`](runbooks/r-a-19-business-rule-implementation.md) waiting for a 30-45 min operator-driven implementation session.
 
 ---
@@ -205,7 +205,7 @@ The Pam-input items gating the upcoming Pam conversation (week of
 - **Source:** `sod-matrix.md`, `security-model.md`.
 - **Target phase:** Phase 7B (Core Transactional Screens) or Phase 8 (AP/AR Core), whichever comes first.
 - **Priority:** P2 (phase-tied technical work).
-- **Pam-input-needed:** N.
+- **Finance Lead-input-needed:** N.
 - **Status:** [Open]
 
 ### BL-48 -- (NEW per audit risk R-A-18) Per-JE line numbering plugin (Option B)
@@ -214,7 +214,7 @@ The Pam-input items gating the upcoming Pam conversation (week of
 - **Source:** Risk-register R-A-18 (added 2026-05-21). Carry-forward from Phase 6B closure conversation.
 - **Target phase:** Phase 7B (before JE hybrid grid+form UI lands).
 - **Priority:** P2 (R-A-18 mitigation; phase-tied).
-- **Pam-input-needed:** N.
+- **Finance Lead-input-needed:** N.
 - **Status:** [Open]
 
 ### BL-49 -- (NEW per audit risk R-A-17) User-guide documentation of "Saving in Progress" UI hiccup
@@ -223,7 +223,7 @@ The Pam-input items gating the upcoming Pam conversation (week of
 - **Source:** Risk-register R-A-17 (added 2026-05-21).
 - **Target phase:** Phase 7B documentation; can also be addressed inline by the Phase 7B form-level UX work.
 - **Priority:** P2 (R-A-17 mitigation; phase-tied).
-- **Pam-input-needed:** N.
+- **Finance Lead-input-needed:** N.
 - **Status:** [Open]
 
 ### BL-50 -- (NEW per audit risk R-A-20) AGENTS.md "What NOT to Do" row for PRT-vs-CI/CD
@@ -232,16 +232,16 @@ The Pam-input items gating the upcoming Pam conversation (week of
 - **Source:** Risk-register R-A-20 (added 2026-05-21).
 - **Target phase:** Any session (doc-only, low cost).
 - **Priority:** _(N/A)_
-- **Pam-input-needed:** _(N/A)_
+- **Finance Lead-input-needed:** _(N/A)_
 - **Status:** [Done 2026-05-22] -- landed in commit `e3b3b91` (item 2 of the 2026-05-22 morning execution session).
 
 ### BL-31 -- Quarterly access review owner + cadence + first review
 
-- **Description:** Assign owner (likely Pam + IT jointly per `sod-matrix.md`); establish cadence; run first access review covering all 7 finance-specific roles + the 4 SQL `dsb_*` users + the SP grants on KV.
+- **Description:** Assign owner (likely Finance Lead + IT jointly per `sod-matrix.md`); establish cadence; run first access review covering all 7 finance-specific roles + the 4 SQL `dsb_*` users + the SP grants on KV.
 - **Source:** `sod-matrix.md`, `security-model.md`, `key-vault-management.md` "Quarterly review checklist".
 - **Target phase:** Phase 7B (when roles land + first wave of users get assigned).
 - **Priority:** P2 (phase-tied; gated by 7B role assignment).
-- **Pam-input-needed:** N -- structure IT-built; Pam joins the review activity later.
+- **Finance Lead-input-needed:** N -- structure IT-built; Finance Lead joins the review activity later.
 - **Status:** [Open]
 
 ---
@@ -254,7 +254,7 @@ The Pam-input items gating the upcoming Pam conversation (week of
 - **Source:** `sod-matrix.md`, `approval-policies.md`.
 - **Target phase:** Phase 8.
 - **Priority:** P2 (phase-tied technical work).
-- **Pam-input-needed:** N.
+- **Finance Lead-input-needed:** N.
 - **Status:** [Open]
 
 ### BL-09 -- `ApproveWirePlugin`
@@ -263,7 +263,7 @@ The Pam-input items gating the upcoming Pam conversation (week of
 - **Source:** `sod-matrix.md`.
 - **Target phase:** Phase 8.
 - **Priority:** P2 (phase-tied technical work).
-- **Pam-input-needed:** N.
+- **Finance Lead-input-needed:** N.
 - **Status:** [Open]
 
 ### BL-12 -- V0005 migration: `audit.AuditEvents`
@@ -272,7 +272,7 @@ The Pam-input items gating the upcoming Pam conversation (week of
 - **Source:** `immutability-design.md` §F; `audit-controls.md`.
 - **Target phase:** Phase 8 / 9.
 - **Priority:** P2 (phase-tied technical work).
-- **Pam-input-needed:** N.
+- **Finance Lead-input-needed:** N.
 - **Status:** [Open]
 
 ### BL-33 -- Vendor banking field-level security
@@ -281,7 +281,7 @@ The Pam-input items gating the upcoming Pam conversation (week of
 - **Source:** `security-model.md`.
 - **Target phase:** Phase 8.
 - **Priority:** P2 (phase-tied technical work).
-- **Pam-input-needed:** N.
+- **Finance Lead-input-needed:** N.
 - **Status:** [Open]
 
 ### BL-34 -- Posted-ledger field-level security on restricted accounts
@@ -289,8 +289,8 @@ The Pam-input items gating the upcoming Pam conversation (week of
 - **Description:** Field-level security on posted ledger amounts in restricted accounts (e.g., payroll suspense, M&A). Driven by approval policy.
 - **Source:** `security-model.md`.
 - **Target phase:** Phase 8 (once approval-policies rows exist).
-- **Priority:** P1 (driven by approval policy which Pam owns).
-- **Pam-input-needed:** Y -- Pam owns approval-policy definition which determines which accounts are restricted.
+- **Priority:** P1 (driven by approval policy which Finance Lead owns).
+- **Finance Lead-input-needed:** Y -- Finance Lead owns approval-policy definition which determines which accounts are restricted.
 - **Status:** [Open]
 
 ### BL-45 -- Explicit decision row for Phase 8 email + Teams Graph API scope
@@ -299,7 +299,7 @@ The Pam-input items gating the upcoming Pam conversation (week of
 - **Source:** Audit Section B; `roadmap.md` Phase 8 (newly annotated).
 - **Target phase:** Phase 8 kickoff.
 - **Priority:** P2 (phase-tied scoping decision).
-- **Pam-input-needed:** N.
+- **Finance Lead-input-needed:** N.
 - **Status:** [Open]
 
 ### BL-02 -- `rm_isintercompany` flag on `rm_chartofaccount`
@@ -308,7 +308,7 @@ The Pam-input items gating the upcoming Pam conversation (week of
 - **Source:** `data-model.md`; decision §34.
 - **Target phase:** Phase 8 (when AR/AP land; IC plugin behavior defined).
 - **Priority:** P2 (phase-tied technical work).
-- **Pam-input-needed:** N.
+- **Finance Lead-input-needed:** N.
 - **Status:** [Open]
 
 ### BL-52 -- Books -> ERP vendor / customer push plugin design (§70)
@@ -317,7 +317,7 @@ The Pam-input items gating the upcoming Pam conversation (week of
 - **Source:** Decision [§70](decisions/datastream-books-decisions.md) -- "Detailed plugin design is a Phase 8 (or earlier) scoping item -- not specified here."
 - **Target phase:** Phase 8 (AP / AR core).
 - **Priority:** P2 (phase-tied technical work).
-- **Pam-input-needed:** N -- IT-side plugin design. Pam-consult inputs on the field list itself flow through the upcoming conversation (per [`memos/pam-conversation-prep-2026-05-w22.md`](memos/pam-conversation-prep-2026-05-w22.md) Item 1).
+- **Finance Lead-input-needed:** N -- IT-side plugin design. Finance Lead-consult inputs on the field list itself flow through the upcoming conversation (per [`memos/pam-conversation-prep-2026-05-w22.md`](memos/pam-conversation-prep-2026-05-w22.md) Item 1).
 - **Status:** [Open]
 
 ### BL-53 -- ERP-side write-permission lockdown on Books-mastered fields (§70)
@@ -326,7 +326,7 @@ The Pam-input items gating the upcoming Pam conversation (week of
 - **Source:** Decision [§70](decisions/datastream-books-decisions.md) -- "ERP retains write authority on operations-only fields. Same record, two writers, field-level lanes -- not table-level read-only."
 - **Target phase:** Phase 8 (paired with BL-52 push plugin landing; lockdown follows verified sync).
 - **Priority:** P2 (phase-tied security + UX work).
-- **Pam-input-needed:** N -- IT + COO + operations coordination.
+- **Finance Lead-input-needed:** N -- IT + COO + operations coordination.
 - **Status:** [Open]
 
 ---
@@ -339,7 +339,7 @@ The Pam-input items gating the upcoming Pam conversation (week of
 - **Source:** `immutability-design.md` §C, §D.
 - **Target phase:** Phase 9.
 - **Priority:** P2 (phase-tied technical work).
-- **Pam-input-needed:** N.
+- **Finance Lead-input-needed:** N.
 - **Status:** [Open]
 
 ### BL-11 -- V0004 migration: `audit.PeriodCloseAttestation`
@@ -348,7 +348,7 @@ The Pam-input items gating the upcoming Pam conversation (week of
 - **Source:** `immutability-design.md` §D.
 - **Target phase:** Phase 9.
 - **Priority:** P2 (phase-tied technical work).
-- **Pam-input-needed:** N.
+- **Finance Lead-input-needed:** N.
 - **Status:** [Open]
 
 ### BL-13 -- V0006 migration: `ReportSnapshots`
@@ -357,7 +357,7 @@ The Pam-input items gating the upcoming Pam conversation (week of
 - **Source:** `immutability-design.md` §G; decision §55.
 - **Target phase:** Phase 9.
 - **Priority:** P2 (phase-tied technical work).
-- **Pam-input-needed:** N.
+- **Finance Lead-input-needed:** N.
 - **Status:** [Open]
 
 ### BL-15 -- `verify-integrity.ps1` (on-demand hash chain verification)
@@ -366,7 +366,7 @@ The Pam-input items gating the upcoming Pam conversation (week of
 - **Source:** `immutability-design.md` §B.
 - **Target phase:** Phase 8 / 9.
 - **Priority:** P2 (phase-tied technical work).
-- **Pam-input-needed:** N.
+- **Finance Lead-input-needed:** N.
 - **Status:** [Open]
 
 ### BL-16 -- Nightly hash chain verification job
@@ -375,7 +375,7 @@ The Pam-input items gating the upcoming Pam conversation (week of
 - **Source:** `immutability-design.md` §B; `audit-controls.md`.
 - **Target phase:** Phase 9.
 - **Priority:** P2 (phase-tied technical work).
-- **Pam-input-needed:** N.
+- **Finance Lead-input-needed:** N.
 - **Status:** [Open]
 
 ### BL-17 -- Re-hash EntryIds 3 and 4 offline (Phase 6B integrity post-check)
@@ -384,7 +384,7 @@ The Pam-input items gating the upcoming Pam conversation (week of
 - **Source:** `immutability-validation.md` "Still-pending follow-up checks".
 - **Target phase:** Phase 8 (any session) -- before any further posts that would extend the chain.
 - **Priority:** P2 (phase-tied technical verification).
-- **Pam-input-needed:** N.
+- **Finance Lead-input-needed:** N.
 - **Status:** [Open]
 
 ### BL-18 -- Re-run negative tests against newly-written EntryIds
@@ -393,16 +393,16 @@ The Pam-input items gating the upcoming Pam conversation (week of
 - **Source:** `immutability-validation.md` "Still-pending follow-up checks".
 - **Target phase:** Phase 8 (any session).
 - **Priority:** P2 (phase-tied technical verification).
-- **Pam-input-needed:** N.
+- **Finance Lead-input-needed:** N.
 - **Status:** [Open]
 
 ### BL-23 -- `runbooks/period-close.md`
 
-- **Description:** Month-end close runbook. Authored by Pam (with IT support) per the Ownership Artifacts table.
+- **Description:** Month-end close runbook. Authored by the Finance Lead (with IT support) per the Ownership Artifacts table.
 - **Source:** `repo-structure.md`; ownership table.
 - **Target phase:** Phase 9.
-- **Priority:** P1 (Pam-input required; Pam authors per Ownership Artifacts table).
-- **Pam-input-needed:** Y -- Pam authors with IT support.
+- **Priority:** P1 (Finance Lead-input required; Finance Lead authors per Ownership Artifacts table).
+- **Finance Lead-input-needed:** Y -- Finance Lead authors with IT support.
 - **Status:** [Open]
 
 ---
@@ -414,8 +414,8 @@ The Pam-input items gating the upcoming Pam conversation (week of
 - **Description:** Three nice-to-have columns deferred from Phase 3. Add before real entity seeding.
 - **Source:** `data-model.md` "Out of Phase 3 scope (deferred)".
 - **Target phase:** Phase 10 (real entity seeding).
-- **Priority:** P1 (gated by §1 entity definitions from Pam).
-- **Pam-input-needed:** Y -- entity definitions come from executive-questionnaire §1 (Pam-bound).
+- **Priority:** P1 (gated by §1 entity definitions from the Finance Lead).
+- **Finance Lead-input-needed:** Y -- entity definitions come from executive-questionnaire §1 (Finance Lead-bound).
 - **Status:** [Open]
 
 ### BL-24 -- `runbooks/year-end-close.md`
@@ -423,8 +423,8 @@ The Pam-input items gating the upcoming Pam conversation (week of
 - **Description:** Annual close runbook.
 - **Source:** `repo-structure.md`.
 - **Target phase:** Phase 10.
-- **Priority:** P1 (Pam-input required; analogous to BL-23 period-close runbook).
-- **Pam-input-needed:** Y -- Pam authors with IT support.
+- **Priority:** P1 (Finance Lead-input required; analogous to BL-23 period-close runbook).
+- **Finance Lead-input-needed:** Y -- Finance Lead authors with IT support.
 - **Status:** [Open]
 
 ### BL-37 -- Field-level security on `rm_entity.rm_ein`
@@ -432,17 +432,17 @@ The Pam-input items gating the upcoming Pam conversation (week of
 - **Description:** Add column encryption (premium tier) or field-level security to `rm_entity.rm_ein`. Currently plain text per Phase 3 build; placeholder noted that no real EIN values should be entered until this is set up.
 - **Source:** `data-model.md` `rm_entity` rationale; `security-model.md`.
 - **Target phase:** Phase 10 (before real entity seeding -- §1 of exec questionnaire answer triggers).
-- **Priority:** P1 (gated by §1 entity definitions from Pam).
-- **Pam-input-needed:** Y -- triggered when real EIN values are entered, which is gated by executive-questionnaire §1.
+- **Priority:** P1 (gated by §1 entity definitions from the Finance Lead).
+- **Finance Lead-input-needed:** Y -- triggered when real EIN values are entered, which is gated by executive-questionnaire §1.
 - **Status:** [Open]
 
 ### BL-54 -- Cutover-day reconciliation of existing ERP vendor / customer records with Books-migrated Macola data (§70)
 
-- **Description:** At cutover, two sources of truth for vendor and customer records collide: (a) the Books vendor / customer master, freshly populated from the Macola migration pass (now system of record per [§70](decisions/datastream-books-decisions.md)); and (b) the existing ERP-side vendor / customer records, which have been the operations-side master for some time and carry operations-only attributes (site locations, transportation routing, operational flags) that must survive cutover intact. Design the merge / dedup pass: (a) identify the join keys (legal name + EIN preferred; fuzzy match where keys are missing or dirty); (b) decide the policy for orphans on each side (ERP record with no Macola match -- keep, since operations relies on it; Books record with no ERP match -- create the ERP shell so the §70 push plugin has somewhere to land); (c) preserve ERP operations-only attributes for matched records (the merge must not overwrite site lists, transportation routing, etc.); (d) generate a reconciliation report for Pam's dedup review *before* cutover commits; (e) define the cutover sequencing -- when the §70 push plugin first fires for a vendor that already exists in ERP, the plugin must update-in-place not create-duplicate. Phase 10 (cutover) timeline; depends on §1 entity definitions (Macola migration plan), BL-52 (push plugin landed), and BL-53 (ERP write-permission lockdown in effect).
+- **Description:** At cutover, two sources of truth for vendor and customer records collide: (a) the Books vendor / customer master, freshly populated from the Macola migration pass (now system of record per [§70](decisions/datastream-books-decisions.md)); and (b) the existing ERP-side vendor / customer records, which have been the operations-side master for some time and carry operations-only attributes (site locations, transportation routing, operational flags) that must survive cutover intact. Design the merge / dedup pass: (a) identify the join keys (legal name + EIN preferred; fuzzy match where keys are missing or dirty); (b) decide the policy for orphans on each side (ERP record with no Macola match -- keep, since operations relies on it; Books record with no ERP match -- create the ERP shell so the §70 push plugin has somewhere to land); (c) preserve ERP operations-only attributes for matched records (the merge must not overwrite site lists, transportation routing, etc.); (d) generate a reconciliation report for the Finance Lead's dedup review *before* cutover commits; (e) define the cutover sequencing -- when the §70 push plugin first fires for a vendor that already exists in ERP, the plugin must update-in-place not create-duplicate. Phase 10 (cutover) timeline; depends on §1 entity definitions (Macola migration plan), BL-52 (push plugin landed), and BL-53 (ERP write-permission lockdown in effect).
 - **Source:** Decision [§70](decisions/datastream-books-decisions.md) -- "the cutover-day reconciliation between Macola-migrated Books data and existing ERP records is a separate scoping item."
 - **Target phase:** Phase 10 (cutover).
-- **Priority:** P1 (cutover-blocker; Pam owns the dedup review).
-- **Pam-input-needed:** Y -- Pam owns the dedup review and the final accept/reject on each ambiguous match.
+- **Priority:** P1 (cutover-blocker; Finance Lead owns the dedup review).
+- **Finance Lead-input-needed:** Y -- Finance Lead owns the dedup review and the final accept/reject on each ambiguous match.
 - **Status:** [Open]
 
 ---
@@ -455,7 +455,7 @@ The Pam-input items gating the upcoming Pam conversation (week of
 - **Source:** `key-vault-management.md` rotation procedure (TBD marker on the script reference).
 - **Target phase:** Pre-cutover.
 - **Priority:** P2 (phase-tied operational work).
-- **Pam-input-needed:** N.
+- **Finance Lead-input-needed:** N.
 - **Status:** [Open]
 
 ### BL-20 -- `runbooks/disaster-recovery.md`
@@ -464,7 +464,7 @@ The Pam-input items gating the upcoming Pam conversation (week of
 - **Source:** `immutability-design.md` §I; `repo-structure.md`.
 - **Target phase:** Pre-cutover.
 - **Priority:** P2 (phase-tied operational doc).
-- **Pam-input-needed:** N.
+- **Finance Lead-input-needed:** N.
 - **Status:** [Open]
 
 ### BL-21 -- `runbooks/data-recovery.md`
@@ -473,7 +473,7 @@ The Pam-input items gating the upcoming Pam conversation (week of
 - **Source:** `immutability-design.md` §I; `repo-structure.md`.
 - **Target phase:** Pre-cutover.
 - **Priority:** P2 (phase-tied operational doc).
-- **Pam-input-needed:** N.
+- **Finance Lead-input-needed:** N.
 - **Status:** [Open]
 
 ### BL-22 -- `runbooks/change-management.md`
@@ -481,8 +481,8 @@ The Pam-input items gating the upcoming Pam conversation (week of
 - **Description:** Operational change-management runbook documenting the in-app ChangeRequest flow + approval gates + the deploy-prod CR-reference requirement.
 - **Source:** `security-model.md`; `repo-structure.md`.
 - **Target phase:** Pre-cutover.
-- **Priority:** P1 (Pam co-owns; she triages CRs per ownership table).
-- **Pam-input-needed:** Y -- Pam owns CR triage and signs off on the operational flow.
+- **Priority:** P1 (Finance Lead co-owns; the Finance Lead triages CRs per ownership table).
+- **Finance Lead-input-needed:** Y -- Finance Lead owns CR triage and signs off on the operational flow.
 - **Status:** [Open]
 
 ### BL-25 -- `user-guides/` (ap-clerk, ar-clerk, controller, admin)
@@ -491,7 +491,7 @@ The Pam-input items gating the upcoming Pam conversation (week of
 - **Source:** `repo-structure.md`; decision §27.
 - **Target phase:** Phase 7E (TalentLMS modules), but can start as soon as 7B transactional screens land.
 - **Priority:** P2 (phase-gated; cannot write AP clerk guide before AP screens exist).
-- **Pam-input-needed:** Y -- Pam reviews and approves per Ownership Artifacts table.
+- **Finance Lead-input-needed:** Y -- Finance Lead reviews and approves per Ownership Artifacts table.
 - **Status:** [Open]
 
 ### BL-30 -- AAD-only auth for `priadmin`
@@ -500,7 +500,7 @@ The Pam-input items gating the upcoming Pam conversation (week of
 - **Source:** `sql-account-management.md`; `immutability-validation.md` Critical Finding.
 - **Target phase:** Pre-cutover.
 - **Priority:** P2 (phase-tied security hardening).
-- **Pam-input-needed:** N.
+- **Finance Lead-input-needed:** N.
 - **Status:** [Open]
 
 ### BL-32 -- PIM workflow design
@@ -509,7 +509,7 @@ The Pam-input items gating the upcoming Pam conversation (week of
 - **Source:** `security-model.md`.
 - **Target phase:** Pre-cutover.
 - **Priority:** P2 (phase-tied security hardening).
-- **Pam-input-needed:** N.
+- **Finance Lead-input-needed:** N.
 - **Status:** [Open]
 
 ### BL-36 -- Single rotation script that touches all three SP-secret consumers
@@ -518,7 +518,7 @@ The Pam-input items gating the upcoming Pam conversation (week of
 - **Source:** `credential-access-design.md` "Open items"; `key-vault-management.md` fan-out reminder.
 - **Target phase:** Pre-cutover.
 - **Priority:** P2 (phase-tied operational tooling).
-- **Pam-input-needed:** N.
+- **Finance Lead-input-needed:** N.
 - **Status:** [Open]
 
 ---
@@ -531,7 +531,7 @@ The Pam-input items gating the upcoming Pam conversation (week of
 - **Source:** `immutability-validation.md` (logged 2026-05-21 maintenance backlog).
 - **Target phase:** Dedicated maintenance window with documented rollback plan.
 - **Priority:** P3 (operator's discretion; non-blocking).
-- **Pam-input-needed:** N.
+- **Finance Lead-input-needed:** N.
 - **Status:** [Open]
 
 ---
@@ -540,12 +540,12 @@ The Pam-input items gating the upcoming Pam conversation (week of
 
 ### BL-01 -- Approval threshold values $X / $Y / $Z
 
-- **Description:** Pam-owned dollar thresholds for bills, JEs, write-offs. Blocks `rm_approvalpolicy` row authoring.
+- **Description:** Finance Lead-owned dollar thresholds for bills, JEs, write-offs. Blocks `rm_approvalpolicy` row authoring.
 - **Source:** Executive questionnaire §3.1, §3.2, §3.3; `approval-policies.md`; `sod-matrix.md` "Pending: Threshold Values".
 - **Target phase:** Before Phase 8.
-- **Priority:** P1 (Pam-input required; conversation-imminent per Next Pam Conversation Agenda).
-- **Pam-input-needed:** Y -- Pam owns threshold definition per Ownership Artifacts table.
-- **Status:** [Open -- Pending Pam]
+- **Priority:** P1 (Finance Lead-input required; conversation-imminent per Next Finance Lead Conversation Agenda).
+- **Finance Lead-input-needed:** Y -- Finance Lead owns threshold definition per Ownership Artifacts table.
+- **Status:** [Open -- Pending Finance Lead]
 
 ---
 
@@ -557,7 +557,7 @@ The Pam-input items gating the upcoming Pam conversation (week of
 - **Source:** `credential-access-design.md`; `security-model.md`.
 - **Target phase:** Long-term -- watch Microsoft roadmap.
 - **Priority:** P3 (long-term; gated by external platform support).
-- **Pam-input-needed:** N.
+- **Finance Lead-input-needed:** N.
 - **Status:** [Open]
 
 ### BL-03 -- Memo-only JE lines
@@ -566,7 +566,7 @@ The Pam-input items gating the upcoming Pam conversation (week of
 - **Source:** `data-model.md`.
 - **Target phase:** Phase 8+ when first concrete use case surfaces.
 - **Priority:** P3 (deferred; gated by use-case surfacing).
-- **Pam-input-needed:** N.
+- **Finance Lead-input-needed:** N.
 - **Status:** [Deferred]
 
 ### BL-05 -- `rm_accountnumberingscheme` table
@@ -575,7 +575,7 @@ The Pam-input items gating the upcoming Pam conversation (week of
 - **Source:** `data-model.md`; decision §34.
 - **Target phase:** When COA validation plugin lands.
 - **Priority:** P3 (deferred; gated by COA validation plugin).
-- **Pam-input-needed:** N.
+- **Finance Lead-input-needed:** N.
 - **Status:** [Deferred]
 
 ### BL-10 -- `ChangeRequestApprovalPlugin`
@@ -584,7 +584,7 @@ The Pam-input items gating the upcoming Pam conversation (week of
 - **Source:** `immutability-design.md` §J; `security-model.md`.
 - **Target phase:** Phase 7D (when ChangeRequest UI lands) or earlier if the table is wired up.
 - **Priority:** P2 (phase-tied technical work).
-- **Pam-input-needed:** N.
+- **Finance Lead-input-needed:** N.
 - **Status:** [Open]
 
 ---
@@ -597,7 +597,7 @@ The Pam-input items gating the upcoming Pam conversation (week of
 - **Source:** Audit Section F1.
 - **Target phase:** Doc-only.
 - **Priority:** _(N/A)_
-- **Pam-input-needed:** _(N/A)_
+- **Finance Lead-input-needed:** _(N/A)_
 - **Status:** [Done 2026-05-21]
 
 ### BL-40 -- seed-data.md history fill completed 2026-05-21
@@ -606,7 +606,7 @@ The Pam-input items gating the upcoming Pam conversation (week of
 - **Source:** Audit Section F.
 - **Target phase:** Doc-only.
 - **Priority:** _(N/A)_
-- **Pam-input-needed:** _(N/A)_
+- **Finance Lead-input-needed:** _(N/A)_
 - **Status:** [Done 2026-05-21]
 
 ### BL-41 -- repo-structure.md branching strategy alignment completed 2026-05-21
@@ -615,7 +615,7 @@ The Pam-input items gating the upcoming Pam conversation (week of
 - **Source:** Audit Section A6.
 - **Target phase:** Doc-only.
 - **Priority:** _(N/A)_
-- **Pam-input-needed:** _(N/A)_
+- **Finance Lead-input-needed:** _(N/A)_
 - **Status:** [Done 2026-05-21]
 
 ### BL-42 -- phase-7-ui-design.md update for §66 + §49 amendment
@@ -624,7 +624,7 @@ The Pam-input items gating the upcoming Pam conversation (week of
 - **Source:** Audit Section A1, A2.
 - **Target phase:** Doc-only.
 - **Priority:** _(N/A)_
-- **Pam-input-needed:** _(N/A)_
+- **Finance Lead-input-needed:** _(N/A)_
 - **Status:** [Done 2026-05-21]
 
 ### BL-43 -- phase-7a-foundation-prompt.md amendment banner
@@ -633,7 +633,7 @@ The Pam-input items gating the upcoming Pam conversation (week of
 - **Source:** Audit Section A2.
 - **Target phase:** Doc-only.
 - **Priority:** _(N/A)_
-- **Pam-input-needed:** _(N/A)_
+- **Finance Lead-input-needed:** _(N/A)_
 - **Status:** [Done 2026-05-21]
 
 ### BL-44 -- risk-register.md update completed 2026-05-21
@@ -642,7 +642,7 @@ The Pam-input items gating the upcoming Pam conversation (week of
 - **Source:** Audit Section D.
 - **Target phase:** Doc-only.
 - **Priority:** _(N/A)_
-- **Pam-input-needed:** _(N/A)_
+- **Finance Lead-input-needed:** _(N/A)_
 - **Status:** [Done 2026-05-21]
 
 ---
@@ -652,7 +652,7 @@ The Pam-input items gating the upcoming Pam conversation (week of
 | Date | Backlog change | Session / commit |
 |---|---|---|
 | 2026-05-21 | Backlog file created from audit Section E. 46 items consolidated. Items BL-39 through BL-44 are doc-hygiene items completed during the same cleanup session. | Phase 7A audit cleanup (commit `09f833b`) |
-| 2026-05-22 | Priority Index added (50 items ranked P0-P3). Next Pam Conversation Agenda sub-section added. Inline Priority + Pam-input-needed fields populated on all items. BL-50 marked Done (closed by AGENTS.md What NOT to Do entry committed earlier this session as `e3b3b91`). BL-26-BL-29 reclassified P3 + "deferred per §67" target phase per decision §67. | 2026-05-22 morning execution session (item 4) |
+| 2026-05-22 | Priority Index added (50 items ranked P0-P3). Next Finance Lead Conversation Agenda sub-section added. Inline Priority + Finance Lead-input-needed fields populated on all items. BL-50 marked Done (closed by AGENTS.md What NOT to Do entry committed earlier this session as `e3b3b91`). BL-26-BL-29 reclassified P3 + "deferred per §67" target phase per decision §67. | 2026-05-22 morning execution session (item 4) |
 | 2026-05-22 | BL-47 status changed from `[Open]` to `[Ready -- operator handoff]`. Implementation runbook drafted at [`runbooks/r-a-19-business-rule-implementation.md`](runbooks/r-a-19-business-rule-implementation.md). `rm_posteddatetime` added as a fifth target field per the design doc's default-yes recommendation. Bucket totals unchanged (BL-47 not closing yet). | 2026-05-22 continuation session (item 4) |
 | 2026-05-22 | BL-52 (Books -> ERP vendor / customer push plugin design, P2 Phase 8), BL-53 (ERP-side write-permission lockdown on Books-mastered fields, P2 Phase 8), and BL-54 (cutover-day reconciliation of existing ERP vendor / customer records with Macola-migrated Books data, P1 Phase 10) added as follow-on items under [§70](decisions/datastream-books-decisions.md). Bucket totals updated: P0 = 2, P1 = 9 (+1), P2 = 27 (+2), P3 = 8, Done = 7. Total = 53 (+3). BL-46 (explicit decision row for §22 vendors) is logically closed by §70 but is left at `[Open]` in this session per the operator-driven scope discipline; close-out captured for the next backlog hygiene pass. | 2026-05-22 §70 / §71 session |
 
@@ -662,4 +662,4 @@ The Pam-input items gating the upcoming Pam conversation (week of
 - [`roadmap.md`](roadmap.md) -- phase sequencing
 - [`risk-register.md`](risk-register.md) -- some backlog items are risk mitigations
 - [`decisions/datastream-books-decisions.md`](decisions/datastream-books-decisions.md) -- decisions that gate backlog items
-- [`memos/pam-conversation-prep-2026-05-w22.md`](memos/pam-conversation-prep-2026-05-w22.md) -- consolidated prep for the upcoming Pam conversation (drafted in the 2026-05-22 morning session)
+- [`memos/pam-conversation-prep-2026-05-w22.md`](memos/pam-conversation-prep-2026-05-w22.md) -- consolidated prep for the upcoming Finance Lead conversation (drafted in the 2026-05-22 morning session; filename retained for repo history)

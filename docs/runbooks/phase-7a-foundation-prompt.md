@@ -32,7 +32,7 @@ Confirm **all** of the following before launching this session:
 - [ ] Backend Phase 10 (Macola Data Migration + Cutover) complete — at least one full close cycle reconciled penny-perfect against Macola
 - [ ] Any Phase 11/12+ backend items (whatever they end up being — see `roadmap.md` for the current state) complete
 - [ ] PRI-Books-Test sandbox provisioned (per [`../decisions/datastream-books-decisions.md`](../decisions/datastream-books-decisions.md) — three-environment ALM before UAT)
-- [ ] Pam aware that Phase 7 is opening and the CR-based ownership flow is about to activate (per decision §57)
+- [ ] Finance Lead aware that Phase 7 is opening and the CR-based ownership flow is about to activate (per decision §57)
 - [ ] All 17 Phase 7 UX decisions (§46-§62) reviewed and still current — if any have shifted since 2026-05-20, update the decision log first
 
 ## What this session will do
@@ -107,7 +107,7 @@ TODAY'S SCOPE (orientation only — no code):
      deferred / merged / split?
    - Is the strict-sequential timing (§58) still in force, or did some
      parallel work happen during the backend phases?
-   - Is Pam's biggest pain point still navigation (§62), or did
+   - Is the Finance Lead's biggest anticipated pain point still navigation (§62), or did
      parallel-run / UAT surface a different top pain?
 
 4. Propose a sequenced task list for the 3-week Phase 7A sub-phase:
@@ -138,12 +138,12 @@ TODAY'S SCOPE (orientation only — no code):
      become a "custom page"? (Influences how the global search and the
      recent items widget are packaged.)
 
-6. Propose how Pam's first encounter with the UI will happen. Per
-   decision §57, no design review during construction — Pam first sees
+6. Propose how the Finance Lead's first encounter with the UI will happen. Per
+   decision §57, no design review during construction — the Finance Lead first sees
    pages when they land in dev. The sequence matters: Phase 7A produces
    shell + homepage + navigation but no transactional screens, so
    "landing in dev" is a meaningful but limited experience. Should we
-   invite Pam in at end of Phase 7A or wait until first transactional
+   invite the Finance Lead in at end of Phase 7A or wait until first transactional
    screen lands in Phase 7B?
 
 REPORTING:
@@ -179,7 +179,7 @@ session, prompted from the task list produced by the kickoff:
    (decision §49, §59).
 2. **Global search PCF session** — build the PCF control; decide live
    ledger access vs. Dataverse-only based on the architectural answer
-   from kickoff. Addresses decision §62 (Pam's navigation pain).
+   from kickoff. Addresses decision §62 (Finance Lead's anticipated navigation pain).
 3. **Breadcrumb + recent items session** — both are small enough to
    share a session; both feed the navigation story.
 4. **Role-aware homepage session** — single shared dashboard, widgets

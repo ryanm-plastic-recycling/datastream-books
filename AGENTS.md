@@ -18,7 +18,7 @@ If a decision in this file conflicts with `docs/decisions/datastream-books-decis
 
 ## Project Context (One-Paragraph Summary)
 
-Datastream Books is an internal finance/accounting application replacing the legacy Macola system. Built on Microsoft Dataverse (model-driven app) + Azure SQL (immutable ledger). Multi-entity from day one. Sister application to Datastream ERP (operations). Finance System Owner is Pam. Built with audit-defensibility as a core architectural requirement, not an afterthought.
+Datastream Books is an internal finance/accounting application replacing the legacy Macola system. Built on Microsoft Dataverse (model-driven app) + Azure SQL (immutable ledger). Multi-entity from day one. Sister application to Datastream ERP (operations). Finance Lead role to be named by CFO (Fred) following executive working session. Built with audit-defensibility as a core architectural requirement, not an afterthought.
 
 ## Branching Policy
 
@@ -298,19 +298,19 @@ All production-affecting changes go through the in-app `ChangeRequest` workflow 
 - **Decision-level question:** Stop and ask. Update `docs/decisions/datastream-books-decisions.md` once decided.
 - **Convention question:** Check this file. If not covered, add it once decided.
 - **Architecture question:** Check `docs/architecture/`. If not covered, design and document before building.
-- **Finance domain question:** Defer to Pam (the Finance System Owner) via the Change Request system. Don't guess at accounting rules.
+- **Finance domain question:** Defer to the Finance Lead once named, via the Change Request system; until then, document the question and route to the executive working session or follow-up list. Don't guess at accounting rules.
 
 ## Key Principles to Remember
 
 1. **Audit-defensibility is non-negotiable.** Every design decision is evaluated against "could we defend this to an auditor?"
-2. **Pam owns the finance system.** IT builds it for her. Her name is on every finance deliverable.
+2. **The Finance Lead owns the finance system. IT builds it for them.** Once the CFO (Fred) names the Finance Lead, the named individual's name lands on every finance deliverable.
 3. **Multi-entity from day one.** No retrofitting later.
 4. **Server-side over client-side.** Plugins over Power Automate.
 5. **Immutability through architecture.** Not through promises.
 6. **Documentation in the repo.** Not in chat, not in email, not in heads.
 7. **Verification is mandatory, not optional.** When a prompt or runbook asks you to verify a value — publisher, prefix, environment name, credential, schema — run the verification before proceeding. Do not substitute a value from `AGENTS.md`, training data, or a prior prompt for an actual lookup. Documented values can be stale; live environments are the source of truth. If verification surfaces a discrepancy, **stop and surface it** rather than silently picking one. The cost of an extra `pac` (or equivalent) command is seconds; the cost of an incorrect configuration baked into a solution is hours of cleanup. This principle was added after a real incident on this project where assumed publisher values (`dsb` prefix) had to be reverted to the correct ERP-matching values (`rm` prefix) after a solution rebuild.
-8. **Architectural authority sits with the Technical Strategic Lead** (per [`docs/decisions/datastream-books-decisions.md`](docs/decisions/datastream-books-decisions.md) §71). Cross-system data flow, schema ownership, integration patterns, and system-of-record boundaries are decided by the Technical Strategic Lead. Pam consults on finance-domain detail; the COO concurs on cross-domain impact. References to "IT" in earlier decisions and elsewhere in this file read as "Technical Strategic Lead" going forward; principle #2 above is the operational counterpart -- Pam owns the finance system, the Technical Strategic Lead owns the architecture that surrounds and connects it.
-9. **The Technical Strategic Lead role is a combined engineering + strategy + maintenance function** (per [`docs/decisions/datastream-books-decisions.md`](docs/decisions/datastream-books-decisions.md) §72), not a traditional IT support role. Ryan M holds this role for Datastream Books; the President is the executive to whom this role reports for this project. Cross-domain decisions made under §71 authority are logged in [`docs/decisions/concurrence-log.md`](docs/decisions/concurrence-log.md) with a 5-business-day stakeholder concern window before they lock. Future contributors / AI agents should understand this role structure when interpreting decision-log rows or proposing changes that cross system boundaries.
+8. **Architectural authority sits with the Strategic Lead** (per [`docs/decisions/datastream-books-decisions.md`](docs/decisions/datastream-books-decisions.md) §71; the Strategic Lead is the operational name for the Technical Strategic Lead role defined in §72). Cross-system data flow, schema ownership, integration patterns, and system-of-record boundaries are decided by the Strategic Lead. The Finance Lead (once named by CFO/Fred) consults on finance-domain detail; the COO (Marco) concurs on cross-domain impact. References to "IT" in earlier decisions and elsewhere in this file read as "Strategic Lead" going forward; principle #2 above is the operational counterpart -- the Finance Lead owns the finance system, the Strategic Lead owns the architecture that surrounds and connects it.
+9. **The Strategic Lead role is a combined engineering + strategy + maintenance function** (per [`docs/decisions/datastream-books-decisions.md`](docs/decisions/datastream-books-decisions.md) §72), not a traditional IT support role. Ryan M holds this role for Datastream Books; the President (Brandon) is the executive to whom this role reports for this project. Cross-domain decisions made under §71 authority are logged in [`docs/decisions/concurrence-log.md`](docs/decisions/concurrence-log.md) with a 5-business-day stakeholder concern window before they lock. Future contributors / AI agents should understand this role structure when interpreting decision-log rows or proposing changes that cross system boundaries.
 
 ## File Maintenance
 

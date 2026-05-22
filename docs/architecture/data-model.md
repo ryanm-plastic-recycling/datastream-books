@@ -48,7 +48,7 @@ ApprovalRequest, ApprovalPolicy.
 ### `rm_entity` (Dataverse)
 
 Legal-entity master. One row per legal entity (operating company, real-estate
-holding, etc.). See executive questionnaire §1 — exact list pending Pam +
+holding, etc.). See executive questionnaire §1 — exact list pending Finance Lead +
 executive input.
 
 As built in Phase 3 (2026-05-19):

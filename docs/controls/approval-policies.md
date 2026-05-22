@@ -1,6 +1,6 @@
 # Datastream Books — Approval Policies
 
-> Placeholder structure. Threshold dollar values are TBD — Pam owns these
+> Placeholder structure. Threshold dollar values are TBD — the Finance Lead owns these (once named)
 > per the decision log and executive questionnaire §3.
 
 ## How Policies Are Implemented
@@ -22,7 +22,7 @@ policy row at action time and apply its rules.
 Editing approval policy rows is itself a privileged operation — see the
 ChangeRequest workflow and the `Controller` role.
 
-## Policies to Define (Values TBD by Pam)
+## Policies to Define (Values TBD by Finance Lead)
 
 | Subject | Criteria | Approver Role(s) | # Approvers | SoD |
 |---|---|---|---|---|
@@ -36,7 +36,7 @@ ChangeRequest workflow and the `Controller` role.
 | Write-offs (bad debt, AP forgiveness) | `amount >= $Z` | Controller | 1 | CreatedBy != ApprovedBy |
 | Recurring JE setup / modification | ALL | Controller | 1 | CreatedBy != ApprovedBy |
 
-Values for $X, $Y, $Z: **pending Pam (executive questionnaire §3.1, §3.2, §3.3).**
+Values for $X, $Y, $Z: **pending Finance Lead (executive questionnaire §3.1, §3.2, §3.3).**
 
 ## Out-of-Band Verification (Vendor Bank Change)
 
@@ -69,7 +69,7 @@ including:
 - Whether bill approval routes through a "direct supervisor" or a fixed
   approver pool — depends on org chart we haven't captured
 - Whether write-off approval should escalate to executive sponsor above
-  a higher threshold (e.g., $25K) — Pam to weigh in
+  a higher threshold (e.g., $25K) — Finance Lead to weigh in
 
 ## See Also
 

@@ -29,10 +29,10 @@ simplifies SoD audits: each app's roles are reviewable in isolation.
 
 | Role | Persona | Primary scope |
 |---|---|---|
-| **Controller** | Pam (today); future delegate | Holds elevated finance privileges: approve high-threshold JEs, close periods, reopen closed (not locked) periods, approve vendor bank changes, approve wires. Inherits across the SoD-enforced roles `JE Approve`, `Period Close`, `Period Reopen`. |
+| **Controller** | Finance Lead (target); future delegate | Holds elevated finance privileges: approve high-threshold JEs, close periods, reopen closed (not locked) periods, approve vendor bank changes, approve wires. Inherits across the SoD-enforced roles `JE Approve`, `Period Close`, `Period Reopen`. |
 | **AP Clerk** | AP staff | Create and edit bills, enter vendor payments, generate NACHA file, manage AP master data updates (NOT bank info changes — separate role per SoD). |
 | **AR Clerk** | AR staff | Create and edit invoices and receipts, apply receipts, aging analysis. Customer master maintenance (reads ERP `rm_customer`, writes Books-side metadata only). |
-| **Approver** | Designated approver (often Pam, may be CFO or COO depending on amount + policy) | Approves bills, JEs, and vendor bank info changes above thresholds defined in [`../controls/approval-policies.md`](../controls/approval-policies.md). SoD-enforced: cannot approve own creations. |
+| **Approver** | Designated approver (often the Finance Lead, may be CFO/Fred or COO/Marco depending on amount + policy) | Approves bills, JEs, and vendor bank info changes above thresholds defined in [`../controls/approval-policies.md`](../controls/approval-policies.md). SoD-enforced: cannot approve own creations. |
 | **Casual Contributor** | Operational staff filing CRs or referencing reports | Read-only on most surfaces; can file Change Requests with multi-image attachments; cannot view restricted fields (e.g., vendor banking info, payroll-suspense balances). |
 | **System Admin** | IT (Ryan) | Privileged operations: deploy solutions, manage security roles, manage approval policies. Does **not** post JEs (separation between platform admin and finance operations). |
 | **Read-Only Auditor** | External auditor at audit time | Read-only access across all financial tables, audit trails, and report snapshots. No write privileges anywhere. Time-bound activation per the audit engagement letter. |
@@ -78,7 +78,7 @@ From decision log §E — Segregation of Duties:
 A separate **Controller** role inherits across `JE Approve`, `Period Close`,
 `Period Reopen`, and the right to approve high-threshold approvals per
 [`../controls/approval-policies.md`](../controls/approval-policies.md). The
-person holding Controller is the same person in real-world terms (Pam, today),
+person holding Controller is expected to be the Finance Lead once named,
 but the *role* exists independently so the same SoD rules apply if Controller
 duties are delegated.
 

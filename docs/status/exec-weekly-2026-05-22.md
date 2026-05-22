@@ -2,9 +2,9 @@
 
 > **DRAFT — for Friday send. Review and adjust before sending.**
 
-**To:** President, COO, CFO  
-**From:** Ryan M (IT)  
-**System owner (finance):** Pam
+**To:** President (Brandon), COO (Marco), CFO (Fred)  
+**From:** Ryan M (Strategic Lead)  
+**Finance Lead:** TBD — to be named by Fred post executive working session
 
 ---
 
@@ -30,8 +30,8 @@ project positioned for the next phase.
   agreed on X" surprise from the rest of the build.
 - **The form-lockdown UX mitigation is designed and ready for 
   implementation.** Closes the only known precondition for showing 
-  Pam any working screen — a 30-45 minute focused session away.
-- **Next week's Pam conversation is scoped and prepped.** A 45-minute 
+  the Finance Lead any working screen — a 30-45 minute focused session away.
+- **Next week's Finance Lead conversation is scoped and prepped.** A 45-minute 
   agenda covering the four items that gate the next build phase: 
   vendor master scope, approval thresholds, the legal entity list, 
   and the chart of accounts review.
@@ -43,19 +43,19 @@ project positioned for the next phase.
 
 ## What's next week
 
-- **Pam conversation, week of May 25.** Her answers on vendor master 
+- **Finance Lead conversation, week of May 25** (assuming Finance Lead is named by then). Answers on vendor master 
   scope unblock the backend integration with the ERP (the next 
   active build track). Approval thresholds unblock the AP approval 
   workflow design. Entity list and COA review move the cutover 
   preparation forward.
 - **Form-lockdown mitigation deployed** in a 30-45 minute focused 
   session — closes the demo precondition.
-- **Backend integration scoping resumes** as soon as Pam's vendor 
+- **Backend integration scoping resumes** as soon as the Finance Lead's vendor 
   decision lands.
 
 ## Risks I'm watching
 
-- **Pam's calendar.** Backup slots offered alongside the primary 
+- **Finance Lead naming + calendar.** Backup slots offered alongside the primary 
   request. If the conversation slips past May 29, the backend 
   integration start compresses by roughly a week.
 - **Form-lockdown has a known edge case on user-lookup fields.** The 

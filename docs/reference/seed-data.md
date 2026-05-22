@@ -46,7 +46,7 @@ PRI-Books-Dev under the placeholder "Default Operating Entity"
 (`rm_entitycode = DEFAULT`) during Phase 4 (2026-05-19) per decision
 §23 + §34. Source data in
 [`chart-of-accounts.csv`](chart-of-accounts.csv) (if committed) or
-inline in the seed script. Pam owns COA review and modification per
+inline in the seed script. The Finance Lead owns COA review and modification (once named) per
 the Ownership Artifacts table in
 [`../decisions/datastream-books-decisions.md`](../decisions/datastream-books-decisions.md).
 

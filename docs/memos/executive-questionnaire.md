@@ -4,36 +4,36 @@
 
 **Format note:** Reply inline under each question. If a question is not applicable or needs delegation, mark accordingly.
 
-**Governance framing note (added 2026-05-22 per [§71](../decisions/datastream-books-decisions.md)):** Some items historically framed in this questionnaire as "for Pam to decide" are architectural decisions that IT owns under §71 (IT-decides / Pam-consults / COO-concurs on cross-domain impact). The substantive content of those items is unchanged; the framing of *who authorizes the decision* is now explicit. The Pam-consult portion (field lists, intake workflow, finance-domain detail) remains a Pam item. Items affected by this reframing carry an inline note where it changes the response expected from Pam -- see §17 below for the worked example. The master decisions sheet [`./decisions-required-master-list.md`](./decisions-required-master-list.md) now categorizes every item as IT-decides / Pam-decides / Exec-decides; consult it for the authoritative who-decides view.
+**Governance framing note (added 2026-05-22 per [§71](../decisions/datastream-books-decisions.md)):** Some items historically framed in this questionnaire as "for the Finance Lead to decide" are architectural decisions that IT owns under §71 (IT-decides / Finance Lead-consults / COO-concurs on cross-domain impact). The substantive content of those items is unchanged; the framing of *who authorizes the decision* is now explicit. The Finance Lead-consult portion (field lists, intake workflow, finance-domain detail) remains a Finance Lead item. Items affected by this reframing carry an inline note where it changes the response expected from the Finance Lead -- see §17 below for the worked example. The master decisions sheet [`./decisions-required-master-list.md`](./decisions-required-master-list.md) now categorizes every item as IT-decides / Finance Lead-decides / Exec-decides; consult it for the authoritative who-decides view.
 
 **Status flag legend (added 2026-05-21 per audit):**
 
 - **[Active]** -- still needs an answer; downstream work depends on it.
-- **[Pending Pam]** -- specific to Finance System Owner; on the Pam agenda.
+- **[Pending Finance Lead]** -- specific to the Finance Lead role; on the Finance Lead agenda (once named).
 - **[Confirmed]** -- answered in a decision or other doc; retained for traceability with a citation.
 - **[Archived]** -- moved to the "Archived Questions" section near the end of this doc.
 
 ---
 
-## Recommended Pam-facing conversation agenda (added 2026-05-21 per audit)
+## Recommended Finance Lead-facing conversation agenda (added 2026-05-21 per audit)
 
-Three questions block the largest amount of downstream work and could be batched into a single 30-45 minute Pam conversation:
+Three questions block the largest amount of downstream work and could be batched into a single 30-45 minute Finance Lead conversation (once named):
 
 1. **§1 Legal Entity Structure** -- unblocks `rm_entity` real seeding; blocks Phase 10 cutover.
 2. **§3 Approval Thresholds** -- unblocks `rm_approvalpolicy` row authoring; blocks Phase 8 approval workflows.
 3. **§11 Chart of Accounts** -- confirms ownership of the 54-row seed already loaded in PRI-Books-Dev; blocks COA review acceptance.
 
-Recommend scheduling this conversation before Phase 8 design kickoff. §1 and §11 are also relevant to Pam's Finance System Owner framing -- both are deliverables where her name lands on the artifact (per the Ownership Artifacts table in [`../decisions/datastream-books-decisions.md`](../decisions/datastream-books-decisions.md) "Finance System Owner -- Pam" section).
+Recommend scheduling this conversation after the Finance Lead is named by the CFO (Fred). §1 and §11 are also relevant to the Finance Lead framing -- both are deliverables where the Finance Lead's name lands on the artifact once named (per the Ownership Artifacts table in [`../decisions/datastream-books-decisions.md`](../decisions/datastream-books-decisions.md) "Finance Lead -- Role Definition" section).
 
 Out-of-agenda follow-ups (kept separate so they do not bloat the core conversation):
 
-- **§6 Banking and Payments** -- requires a banking-specific deep dive; blocks Phase 8 NACHA decisions but is not Pam-only (involves IT + treasury function).
+- **§6 Banking and Payments** -- requires a banking-specific deep dive; blocks Phase 8 NACHA decisions but is not Finance Lead-only (involves IT + treasury function).
 - **§12 Reporting Requirements** -- affects Phase 7C report scope; can be a written response since the question is descriptive ("what reports do we currently rely on").
-- **§17 Vendor Master Scope** [Confirmed: §70 -- 2026-05-22] -- architectural decision resolved (Books is system of record; ERP receives Books-mastered field projection via plugin-driven push; ERP retains write authority on operations-only fields). Pam-consult portion (field list, intake workflow, 1099 rules, approval routing) now lives in the Pam conversation as a field-and-workflow item, not as an ownership decision. See §17 below for the decision summary and pointer to [§70](../decisions/datastream-books-decisions.md) + [`./decisions-required-master-list.md`](./decisions-required-master-list.md) entry #3.
+- **§17 Vendor Master Scope** [Confirmed: §70 -- 2026-05-22] -- architectural decision resolved (Books is system of record; ERP receives Books-mastered field projection via plugin-driven push; ERP retains write authority on operations-only fields). Finance Lead-consult portion (field list, intake workflow, 1099 rules, approval routing) now lives in the Finance Lead conversation as a field-and-workflow item, not as an ownership decision. See §17 below for the decision summary and pointer to [§70](../decisions/datastream-books-decisions.md) + [`./decisions-required-master-list.md`](./decisions-required-master-list.md) entry #3.
 
 ---
 
-## 1. Legal Entity Structure [Active] [Pending Pam + Executives]
+## 1. Legal Entity Structure [Active] [Pending Finance Lead + Executives]
 
 Datastream Books needs to be built with multi-entity support from day one. We need a clear picture of the legal structure.
 
@@ -55,7 +55,7 @@ Datastream Books needs to be built with multi-entity support from day one. We ne
 
 ---
 
-## 2. Currency [Active] [Pending Pam]
+## 2. Currency [Active] [Pending Finance Lead]
 
 **2.1.** Do we have any transactions, vendors, customers, or bank accounts in non-USD currency?
 
@@ -67,7 +67,7 @@ Datastream Books needs to be built with multi-entity support from day one. We ne
 
 ---
 
-## 3. Approval Thresholds [Active] [Pending Pam]
+## 3. Approval Thresholds [Active] [Pending Finance Lead]
 
 We need dollar thresholds for system-enforced approvals.
 
@@ -88,7 +88,7 @@ We need dollar thresholds for system-enforced approvals.
 
 ---
 
-## 4. Data Retention and Physical Documents [Active] [Pending Pam]
+## 4. Data Retention and Physical Documents [Active] [Pending Finance Lead]
 
 **4.1.** Do we have an existing data retention policy? Default proposal is 7 years for tax records and supporting documents.
 
@@ -98,7 +98,7 @@ We need dollar thresholds for system-enforced approvals.
 
 ---
 
-## 5. External Audit [Active] [Pending Pam + Executives]
+## 5. External Audit [Active] [Pending Finance Lead + Executives]
 
 **5.1.** Do we engage an external auditor today? If yes, what is the scope (full audit / review / compilation / agreed-upon procedures)?
 
@@ -108,7 +108,7 @@ We need dollar thresholds for system-enforced approvals.
 
 ---
 
-## 6. Banking and Payments [Active] [Pending Pam + Treasury]
+## 6. Banking and Payments [Active] [Pending Finance Lead + Treasury]
 
 The current Macola system uses an add-on service called "Unknown Leahy Product Name" for ACH payments. This service is tied to Macola's SQL Server and will not be available after Macola is retired. We need a replacement.
 
@@ -122,7 +122,7 @@ The current Macola system uses an add-on service called "Unknown Leahy Product N
 
 ---
 
-## 7. Sales Tax [Active] [Pending Pam]
+## 7. Sales Tax [Active] [Pending Finance Lead]
 
 **7.1.** Do we currently collect sales tax on any transactions?
 
@@ -136,7 +136,7 @@ Archived because §17 of the decision log explicitly defers credit limit managem
 
 ---
 
-## 9. Insurance and Compliance [Active] [Pending Pam + IT]
+## 9. Insurance and Compliance [Active] [Pending Finance Lead + IT]
 
 **9.1.** Does our cyber insurance policy specify any controls or requirements for our financial systems?
 
@@ -152,21 +152,21 @@ Archived because §12 of the decision log explicitly identifies Claude API as th
 
 ---
 
-## 11. Chart of Accounts [Active] [Pending Pam]
+## 11. Chart of Accounts [Active] [Pending Finance Lead]
 
 **11.1.** Is the current Macola chart of accounts considered fit-for-purpose, or do we have known issues we want to fix during migration?
 
 **11.2.** We propose pre-populating Datastream Books with a standard chart of accounts (covering operating companies and real estate entities) and having the finance team modify it. Acceptable approach?
 
-*Implicit answer pending confirmation:* §23 of the decision log adopted the pre-populate approach; the 54-row standard COA was seeded into PRI-Books-Dev under "Default Operating Entity" during Phase 4 (2026-05-19). Pam's role is to review and approve.
+*Implicit answer pending confirmation:* §23 of the decision log adopted the pre-populate approach; the 54-row standard COA was seeded into PRI-Books-Dev under "Default Operating Entity" during Phase 4 (2026-05-19). The Finance Lead's role (once named) is to review and approve.
 
 **11.3.** Who from the finance team will own COA review?
 
-*Implicit answer pending confirmation:* Pam, as Finance System Owner (per the Ownership Artifacts table in [`../decisions/datastream-books-decisions.md`](../decisions/datastream-books-decisions.md)).
+*Implicit answer pending confirmation:* the Finance Lead, once named (per the Ownership Artifacts table in [`../decisions/datastream-books-decisions.md`](../decisions/datastream-books-decisions.md)).
 
 ---
 
-## 12. Reporting Requirements [Active] [Pending Pam]
+## 12. Reporting Requirements [Active] [Pending Finance Lead]
 
 **12.1.** Beyond standard financial statements (Balance Sheet, P&L, Cash Flow, Trial Balance, Aging reports), are there specific reports the finance team or executives currently rely on that we need to replicate?
 
@@ -178,11 +178,11 @@ Archived because §12 of the decision log explicitly identifies Claude API as th
 
 ## 13. Project Sponsorship and Resources [Archived 2026-05-21]
 
-Archived because the Sponsorship and Owner roles are now confirmed in the decision log (§30 Pam as Finance System Owner, §32 President as Executive Sponsor) and documented in both README and AGENTS.md. See "Archived Questions" section near the end of this doc for the full text.
+Archived because the Sponsorship and Owner roles are now confirmed in the decision log (§30 Finance Lead role definition, §32 President (Brandon) as Executive Sponsor) and documented in both README and AGENTS.md. See "Archived Questions" section near the end of this doc for the full text.
 
 ---
 
-## 14. Cutover Timing [Active] [Pending Pam + Executives]
+## 14. Cutover Timing [Active] [Pending Finance Lead + Executives]
 
 **14.1.** What is the ideal target cutover date? (Recommendation: fiscal year-end for clean accounting break.)
 
@@ -194,7 +194,7 @@ Archived because the Sponsorship and Owner roles are now confirmed in the decisi
 
 ---
 
-## 15. Macola Decommissioning [Active] [Pending Pam + IT]
+## 15. Macola Decommissioning [Active] [Pending Finance Lead + IT]
 
 **15.1.** How long must we retain access to the Macola archive after cutover? (Default proposal: 7 years read-only, then archive to cold storage.)
 
@@ -210,16 +210,16 @@ Archived because §32 of the decision log captures the cascading Lighthouse bene
 
 ---
 
-## 17. Vendor Master Scope [Confirmed: §70 -- 2026-05-22] [Pam-consult on field list and workflow]
+## 17. Vendor Master Scope [Confirmed: §70 -- 2026-05-22] [Finance Lead-consult on field list and workflow]
 
 **Decision summary (per [§70](../decisions/datastream-books-decisions.md)):** Books is the system of record for vendor and customer entity records. ERP receives a downstream projection of Books-mastered fields via plugin-driven push. ERP retains write authority on operations-only fields (site locations, transportation routing, operational status flags). Same record, two writers, field-level lanes -- not table-level read-only.
 
 - **Books-mastered fields** (read-only in ERP after sync): legal name, EIN, tax classification, W-9 status, 1099 reportable flag, banking / NACHA details, payment terms, hold-payment flag, credit terms (customers), approval status, AP / AR routing.
 - **ERP-mastered fields** (writable in ERP only): site locations and shipping points, transportation routing preferences, operational approval flags for PO eligibility, operational notes, preferred-vendor flags by product, operational status.
 
-**Who decided and how (per [§71](../decisions/datastream-books-decisions.md)):** this is an IT architectural decision. Pam consults on the Books-mastered field list and new-vendor intake workflow. COO concurs on operations impact (the two dual-role operations users currently authorized to add vendors / customers on the operations side shift their "add new" pattern to Books going forward). Confirmation expected in the upcoming exec rollout meeting.
+**Who decided and how (per [§71](../decisions/datastream-books-decisions.md)):** this is an IT architectural decision. The Finance Lead (once named) consults on the Books-mastered field list and new-vendor intake workflow. The COO (Marco) concurs on operations impact (the two dual-role operations users currently authorized to add vendors / customers on the operations side shift their "add new" pattern to Books going forward). Confirmation expected in the upcoming executive working session.
 
-**What still needs Pam input (consult, not authorize):**
+**What still needs Finance Lead input (consult, not authorize):**
 - The exact field list above -- is anything missing? anything Books shouldn't own?
 - New-vendor intake workflow design (who fills in what, in what order, with what approvals)
 - 1099 rules (which vendors are 1099-reportable; default behavior; override path)
@@ -229,15 +229,15 @@ Archived because §32 of the decision log captures the cascading Lighthouse bene
 
 **Cross-references:**
 - [§70](../decisions/datastream-books-decisions.md) -- full decision text with rationale
-- [`./decisions-required-master-list.md`](./decisions-required-master-list.md) entry #3 -- the master decisions sheet view (IT-decides / Pam-consult / COO-concur)
-- [`./pam-conversation-prep-2026-05-w22.md`](./pam-conversation-prep-2026-05-w22.md) Item 1 -- the rewritten Pam-consult agenda (field list, intake workflow, 1099 rules, approval routing)
+- [`./decisions-required-master-list.md`](./decisions-required-master-list.md) entry #3 -- the master decisions sheet view (IT-decides / Finance Lead-consult / COO-concur)
+- [`./pam-conversation-prep-2026-05-w22.md`](./pam-conversation-prep-2026-05-w22.md) Item 1 -- the rewritten Finance Lead-consult agenda (field list, intake workflow, 1099 rules, approval routing)
 - [`../architecture/erp-pattern-notes.md`](../architecture/erp-pattern-notes.md) §3 -- the `rm_customer` cross-solution pattern that the push plugin will inform / diverge from
 
 **Original questions (retained for traceability):**
 
 - **17.1 (original):** When a bill arrives from a new vendor, who creates the vendor record? *Resolved by §70: AP in Books. The dual-role operations users shift their pattern.*
 - **17.2 (original):** For vendors that already exist in PRI-Datastream ERP, is the canonical record the ERP one or the Books one? *Resolved by §70: Books is canonical for Books-mastered fields; ERP retains write authority on operations-only fields on the same record. Cutover-day reconciliation of existing ERP records with Macola-migrated Books data is BL-54.*
-- **17.3 (original):** What vendor master fields does Books require beyond ERP's existing schema? *Resolved by §70's Books-mastered field list above; specific column-level design is a Pam-consult item ahead of Phase 8 AP scoping.*
+- **17.3 (original):** What vendor master fields does Books require beyond ERP's existing schema? *Resolved by §70's Books-mastered field list above; specific column-level design is a Finance Lead-consult item ahead of Phase 8 AP scoping.*
 
 ---
 
@@ -247,7 +247,7 @@ Questions retained here for traceability after their substantive content has bee
 
 ### §8 Credit Management [Archived 2026-05-21]
 
-**Archive reason:** Resolved by §17 of the decision log (credit limit management and enforcement deferred to Phase 2; not in v1 scope). Pam may revisit at Phase 2 kickoff if customer credit risk becomes material.
+**Archive reason:** Resolved by §17 of the decision log (credit limit management and enforcement deferred to Phase 2; not in v1 scope). The Finance Lead may revisit at Phase 2 kickoff if customer credit risk becomes material.
 
 Original questions:
 
@@ -259,7 +259,7 @@ Original questions:
 
 ### §10 Document Processing AI [Archived 2026-05-21]
 
-**Archive reason:** Resolved by §12 of the decision log (Claude API selected as Phase 2 document AI; AI Builder is interim v1 pattern). President-memo.md "The Strategic Value Driver: AI-Driven Document Processing" section documents the strategic case and the headcount-reallocation outcome. Pam and executives have signed off on the direction.
+**Archive reason:** Resolved by §12 of the decision log (Claude API selected as Phase 2 document AI; AI Builder is interim v1 pattern). President-memo.md "The Strategic Value Driver: AI-Driven Document Processing" section documents the strategic case and the headcount-reallocation outcome. Executives have signed off on the direction; Finance Lead concurrence will follow naming.
 
 Original questions:
 
@@ -273,9 +273,9 @@ Original questions:
 
 **Archive reason:** Sponsorship and ownership are confirmed:
 
-- Executive Sponsor: President (§32)
-- Finance System Owner: Pam (§30)
-- Technical Lead / IT: Ryan McCauley (AGENTS.md, README.md)
+- Executive Sponsor: President (Brandon) (§32)
+- Finance Lead: TBD — to be named by CFO (Fred) post executive working session (§30, §32a)
+- Strategic Lead / IT: Ryan McCauley (AGENTS.md, README.md)
 - Budget envelope: implied by the cost comparison in president-memo.md ($130K-$255K 5-year total accepted vs $200K-$390K BC alternative)
 
 Original questions:
@@ -290,7 +290,7 @@ Original questions:
 
 ### §16 Lighthouse Alignment [Archived 2026-05-21]
 
-**Archive reason:** Lighthouse alignment is captured in §32 of the decision log and the president-memo.md "Secondary Strategic Benefit: The Lighthouse" section. President + COO confirmed during the rollout meeting (per the decision log Finance System Owner section). Downstream parallel work streams (Entra migration, file server retirement) sequence after Macola cutover.
+**Archive reason:** Lighthouse alignment is captured in §32 of the decision log and the president-memo.md "Secondary Strategic Benefit: The Lighthouse" section. President (Brandon) + COO (Marco) endorsed the framing during the executive working session (per the decision log Finance Lead section). Downstream parallel work streams (Entra migration, file server retirement) sequence after Macola cutover.
 
 Original questions:
 
@@ -308,5 +308,5 @@ For any question that cannot be answered immediately, please respond "TBD" and w
 
 ---
 
-**Contact for clarification:** [Your Name]
+**Contact for clarification:** Strategic Lead
 **Target response date:** [Date]

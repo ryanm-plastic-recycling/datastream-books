@@ -17,8 +17,8 @@ Datastream Books shares the `rm` publisher with Datastream ERP. That means
 both solutions can reference each other's tables and the same `rm_` prefix
 appears in both. Looking at how ERP tables are shaped — naming, column
 count, picklist patterns, shared masters like `rm_customer` — is the
-fastest way to keep Books consistent with the conventions Pam and the
-operations team are already used to seeing.
+fastest way to keep Books consistent with the conventions the Finance Lead and the
+operations team will already be used to seeing.
 
 For the patterns extracted from these files, see
 [`../../architecture/erp-pattern-notes.md`](../../architecture/erp-pattern-notes.md).

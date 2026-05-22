@@ -35,7 +35,7 @@ Skip for trivial tasks. Use judgment.
 Added 2026-05-22 per decision §68. These principles govern how work is sequenced and how concerns are surfaced during a session. They apply to all sessions on this project; the "When to Stop and Ask" section below is a subset that handles the high-stakes case.
 
 - **Progress is the default.** When the operator says "move forward," execute. Surface concerns once, briefly, then proceed. Do not re-raise the same concern across multiple turns. A real concern (failed verification, ambiguous decision, unexpected file in a diff, scope expansion request) is worth surfacing; a procedural concern ("should I commit?", "ready to move to item 3?") is not — just commit, just move.
-- **Concrete artifacts beat design documents for accounting-team feedback.** Pam reacts better to something she can point at and complain about than to something she has to imagine. When the choice is between shipping 50% of a feature that is visible and 10% of a feature that is fully decided but invisible, prefer the visible 50%. Bias sequencing toward visible artifacts.
+- **Concrete artifacts beat design documents for accounting-team feedback.** The Finance Lead reacts better to something they can point at and complain about than to something they have to imagine. When the choice is between shipping 50% of a feature that is visible and 10% of a feature that is fully decided but invisible, prefer the visible 50%. Bias sequencing toward visible artifacts.
 - **Approve-in-batches for routine work; step-by-step for high-stakes.** Routine work = doc updates, design docs, ranking passes, runbook updates, decision-log entries. Complete the full pass, then surface a single end-of-session review. High-stakes work uses step-by-step approval with explicit per-step verification; the definition is:
   - Plugin code changes (C#)
   - SQL migrations (especially DENY grants, append-only constraints)
@@ -52,7 +52,7 @@ Added 2026-05-22 per decision §68. These principles govern how work is sequence
 This is the high-stakes subset of Operating Principles above. For most decisions, choose, document, and proceed. Stop and ask only when:
 
 - A decision would materially change scope, timeline, or cost
-- An accounting/finance rule is ambiguous and Pam should weigh in
+- An accounting/finance rule is ambiguous and the Finance Lead (once named) should weigh in
 - A new risk emerges that wasn't previously identified
 - Multiple reasonable architectures exist and the choice has long-term implications
 - Production deployment is involved

@@ -2,7 +2,7 @@
 
 > Planning artifact. **No code is written until this phase opens.** Phase 7
 > is dormant until all backend work (current Phase 6B through the expected
-> Phase 11/12+ backend items) is complete and Pam has accepted the cutover
+> Phase 11/12+ backend items) is complete and the Finance Lead has accepted the cutover
 > ledger state.
 >
 > Numbering note: this document and the roadmap both use "Phase 7" as the
@@ -20,9 +20,8 @@ genuinely painful — JE entry with hybrid Excel-grid + form modes, financial
 reports with universal drill-down, the multi-entity dashboard, and a few
 specialty screens. Strict sequential after backend phases complete.
 
-IT (Ryan) decides design direction without sign-off; Pam (Finance System
-Owner) exercises ownership via the **Change Request system** once pages
-land in dev. Pam does **NOT** review screens during construction — she
+IT (Ryan) decides design direction without sign-off; Finance Lead exercises ownership via the **Change Request system** once pages
+land in dev. The Finance Lead does **NOT** review screens during construction — they
 reacts after pages are usable. This matches the validated Owner framing
 in [`datastream-books-decisions.md`](datastream-books-decisions.md) and
 the existing CR design (multi-image attachment support per decision §31).
@@ -42,12 +41,12 @@ the existing CR design (multi-image attachment support per decision §31).
 | [§54](datastream-books-decisions.md) | Reports | All three formats equally important — on-screen, Excel, PDF |
 | [§55](datastream-books-decisions.md) | Report drill-down | Universal — every figure drills to underlying transactions, for all roles |
 | [§56](datastream-books-decisions.md) | Save semantics | Explicit Save button with explicit draft state. No auto-save |
-| [§57](datastream-books-decisions.md) | Pam validation model | No initial design sign-off; Pam owns via CR system after pages land in dev |
+| [§57](datastream-books-decisions.md) | Finance Lead validation model | No initial design sign-off; the Finance Lead owns via CR system after pages land in dev |
 | [§58](datastream-books-decisions.md) | Front-end timing | Strict sequential — UI does not begin until all backend phases complete |
 | [§59](datastream-books-decisions.md) | Reference material | Datastream ERP for palette/logo; competitor finance UIs for patterns; otherwise fresh |
 | [§60](datastream-books-decisions.md) | Design system | Fluent UI v9 defaults; minimal custom layer; document conventions as encountered |
 | [§61](datastream-books-decisions.md) | Security roles | Finance-specific only (7 total); not aligned to ERP role structure |
-| [§62](datastream-books-decisions.md) | Pam's biggest Macola pain | Navigation. Drives Phase 7A investments in global search, breadcrumbs, recent items, sitemap |
+| [§62](datastream-books-decisions.md) | Finance Lead's biggest anticipated Macola pain | Navigation. Drives Phase 7A investments in global search, breadcrumbs, recent items, sitemap |
 
 ## Sub-phases
 
@@ -68,8 +67,8 @@ the existing CR design (multi-image attachment support per decision §31).
 **Deliverables:**
 - Sitemap design grouped by user mental model (not by Dataverse table). Reviewed against persona task flows for AP Clerk, AR Clerk, Approver, Controller, Casual Contributor. **S3 artifact 2026-05-21: [`../architecture/ui-sitemap.md`](../architecture/ui-sitemap.md). Accounting-workflow-first; Dataverse-table-second.**
 - Global search PCF control — searches across JEs, bills, invoices, customers, vendors, accounts. Surfaces in the model-driven app shell. Addresses decision §62 (navigation pain). **Descoped per S0 kickoff: Phase 7A leans on Dataverse built-in global search; custom PCF deferred to 7B / 7C alongside drill-down infrastructure.**
-- Breadcrumb component — visible on every page; clickable to ancestor pages. **Tentatively dropped per S0 "Better Option" call: lean on Dataverse built-in breadcrumb behavior; revisit only if Pam's CRs prove insufficient.**
-- Recent items widget — last N items the current user touched, shown on the homepage and as a header dropdown. **Descoped per S0 Q4 answer: lean on Dataverse built-in "Recently viewed"; build custom only if Pam's CRs prove built-in insufficient.**
+- Breadcrumb component — visible on every page; clickable to ancestor pages. **Tentatively dropped per S0 "Better Option" call: lean on Dataverse built-in breadcrumb behavior; revisit only if the Finance Lead's CRs prove insufficient.**
+- Recent items widget — last N items the current user touched, shown on the homepage and as a header dropdown. **Descoped per S0 Q4 answer: lean on Dataverse built-in "Recently viewed"; build custom only if the Finance Lead's CRs prove built-in insufficient.**
 - Role-aware homepage shell — single shared dashboard, widgets selected by current user's role(s). **Gated on §66 reaffirmation for S7.**
 - Datastream ERP visual styling extraction — color hex values, font choices, logo placement, header pattern. Captured as a styling note in this document or a sibling. **S2 artifact 2026-05-21: [`../architecture/ui-styling.md`](../architecture/ui-styling.md). Finding: ERP has no custom theme; Books defines its own CSS-variable minimal theme with logo continuity to ERP. §49 amended in place.**
 - Finance-specific security role scaffolding — the 7 Dataverse security roles per decision §61 created in PRI-Books-Dev (empty privileges, populated as later sub-phases attach pages). **Moved to 7B per S0 kickoff: roles land alongside the transactional pages that attach to them.**
@@ -127,34 +126,34 @@ the existing CR design (multi-image attachment support per decision §31).
 ### Phase 7E: Refinement and CR Burn-down (2-3 weeks)
 
 **Deliverables:**
-- CR triage workflow established by Pam (and clerks once given access) starting at the close of Phase 7B, continuing through 7C/7D.
+- CR triage workflow established by the Finance Lead (and clerks once given access) starting at the close of Phase 7B, continuing through 7C/7D.
 - Phase 7E is a dedicated CR burn-down — no new feature scope; only CR-driven changes against pages already in dev.
 - Sweep across all v1 screens to address:
   - Inconsistencies between screens (terminology, button placement, save behavior).
-  - Performance issues surfaced by Pam / clerks during real usage.
+  - Performance issues surfaced by the Finance Lead / clerks during real usage.
   - Documentation gaps (every screen has at least one TalentLMS module by end of Phase 7E).
 
 **Exit criteria:**
-- Open CRs against Phase 7A-7D pages either implemented or explicitly deferred to Phase 8 with Pam's signoff.
+- Open CRs against Phase 7A-7D pages either implemented or explicitly deferred to Phase 8 with Finance Lead signoff.
 - All screens documented in TalentLMS with Scribe walkthroughs.
 
 ### Phase 7F: UAT (2-3 weeks calendar)
 
 **Deliverables:**
-- UAT test plan authored by Pam (with IT support).
+- UAT test plan authored by the Finance Lead (with IT support).
 - Persona-specific UAT scripts:
   - AP Clerk: enter, route, approve, post a bill; reconcile a payment.
   - AR Clerk: enter, post an invoice; apply a receipt; review aging.
   - Approver: review and approve a queue of pending bills.
-  - Controller (Pam): period close, TB review, multi-entity dashboard, BS/P&L/CF reports with drill-down.
+  - Controller (Finance Lead, target): period close, TB review, multi-entity dashboard, BS/P&L/CF reports with drill-down.
   - Casual Contributor: enter a Change Request with an attached screenshot.
-- Defect log triaged daily with Pam; severity-classified (Blocker / Major / Minor / Cosmetic).
-- Final signoff from Pam (per [`datastream-books-decisions.md`](datastream-books-decisions.md) "Test Acceptance Form Structure").
+- Defect log triaged daily with the Finance Lead; severity-classified (Blocker / Major / Minor / Cosmetic).
+- Final signoff from the Finance Lead (per [`datastream-books-decisions.md`](datastream-books-decisions.md) "Test Acceptance Form Structure").
 
 **Exit criteria:**
 - All Blocker and Major defects resolved.
-- Pam signed off on UAT.
-- Open Minor/Cosmetic defects either implemented or explicitly deferred to Phase 8 with Pam's signoff.
+- The Finance Lead signed off on UAT.
+- Open Minor/Cosmetic defects either implemented or explicitly deferred to Phase 8 with Finance Lead signoff.
 
 ## Total timeline
 
@@ -173,12 +172,12 @@ Phase 7B-7F build -- requires a separate operator confirmation. The
 16-20 week build window remains the same; only the start time has
 potentially shifted earlier by the S1-S3 duration.
 
-Pam first sees UI no earlier than the end of Phase 7A S4 (when the
+The Finance Lead first sees UI no earlier than the end of Phase 7A S4 (when the
 app module shell lands in PRI-Books-Dev). This trade-off was made
 explicitly per §58 -- concentrating front-end attention when it
 happens vs. parallelizing build with backend. The §66 partial-parallel
 shift trades a slightly earlier shell visibility for the
-"shell-without-data Pam dissatisfaction" risk documented in R-7-01.
+"shell-without-data Finance Lead dissatisfaction" risk documented in R-7-01.
 Risks captured below.
 
 ## Roles and ownership
@@ -186,14 +185,14 @@ Risks captured below.
 | Role | Phase 7 responsibility |
 |---|---|
 | IT (Ryan) | Designs direction; builds all pages; owns sitemap, design system, security role privilege population |
-| Pam (Finance System Owner) | **No design review during construction.** Uses CR system after pages land in dev. Owns UAT. Triages and prioritizes finance-side CRs. |
+| Finance Lead | **No design review during construction.** Uses CR system after pages land in dev. Owns UAT. Triages and prioritizes finance-side CRs. |
 | AP / AR clerks | Persona-specific UAT participation in Phase 7F. May exercise pages in dev during Phase 7E refinement window. |
 | President / COO / CFO | Stakeholder updates only — not design review. |
 
 ## CR workflow during Phase 7
 
 - Pages land in dev as Phase 7 sub-phases complete (7A, 7B, 7C, 7D).
-- Pam (and clerks once given access) use pages.
+- the Finance Lead (and clerks once given access) use pages.
 - File CRs via the in-app Change Request system with screenshots — honors decision §31 (multi-image attachment support).
 - IT triages weekly during build (Phase 7A-7D), then daily during Phase 7E (CR burn-down) and 7F (UAT defect log).
 - Phase 7E is the dedicated CR burn-down before UAT begins.
@@ -231,7 +230,7 @@ Phase 7 risks:
 
 | Risk | Severity | Mitigation |
 |---|---|---|
-| Strict sequential creates 7+ month UI invisibility | Medium | Weekly written status to Pam through Phase 6B-11; Pam's CR-based ownership model means she does not need design review during construction. Surface project status at month 1 if Pam expresses anxiety about not seeing UI. |
+| Strict sequential creates 7+ month UI invisibility | Medium | Weekly written status to the Finance Lead through Phase 6B-11; the Finance Lead's CR-based ownership model means they do not need design review during construction. Surface project status at month 1 if the Finance Lead expresses anxiety about not seeing UI. |
 | Heavy CR volume in first weeks of Phase 7B | Medium | Phase 7E (CR burn-down) is built into the plan as 2-3 weeks of no-new-scope CR work. Triage weekly during 7A-7D, daily during 7E. |
 | Universal report drill-down adds architectural complexity | Medium | Phase 7C kickoff has explicit decision points for live-query vs. cached-aggregate. Bench under realistic multi-entity load before committing. |
 | Hybrid JE entry is the most complex screen and a long pole | Medium | Schedule JE entry as the first deliverable in Phase 7B so it has the longest runway. If 7B slips, slip 7B end-date — do not strip the hybrid mode. |
@@ -240,8 +239,8 @@ Phase 7 risks:
 ## Definition of Phase 7 complete
 
 - All 8 v1 screens deployed to production (per decision §48).
-- Pam signed off on UAT (per decision §54).
-- Open CRs either implemented or explicitly deferred to Phase 8 with Pam's signoff.
+- The Finance Lead signed off on UAT (per decision §54).
+- Open CRs either implemented or explicitly deferred to Phase 8 with Finance Lead signoff.
 - User documentation published in TalentLMS (per decision §27).
 - Training rollout to finance team complete.
 

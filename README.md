@@ -9,10 +9,9 @@
 - **Purpose:** Replace Macola accounting with an internally-built finance application on Microsoft Dataverse
 - **Strategic context:** Advances The Lighthouse IT modernization strategy
 - **Companion system:** Datastream ERP (operations)
-- **Finance System Owner:** Pam
-- **Executive Sponsor:** President
-- **Technical Lead:** ryanm@plastic-recycling.net
-- **Technical Strategic Lead:** Ryan M (engineering + strategy + maintenance; see [§72](docs/decisions/datastream-books-decisions.md))
+- **Finance Lead:** TBD — to be named by CFO (Fred) following executive working session
+- **Executive Sponsor:** President (Brandon)
+- **Strategic Lead:** Ryan M (engineering + strategy + maintenance + architectural authority — the Technical Strategic Lead role defined in [§72](docs/decisions/datastream-books-decisions.md); operationally referred to as "Strategic Lead")
 
 ## Why This Exists
 
@@ -142,15 +141,15 @@ This is an internal project. Changes flow:
 4. Merge triggers GitHub Actions deployment
 5. Production deployment requires manual approval
 
-All changes that affect finance behavior require Pam's signoff via the in-app Change Request workflow.
+All changes that affect finance behavior require Finance Lead signoff (once named) via the in-app Change Request workflow.
 
 ## Contact
 
-- **Finance System Owner:** Pam
-- **Technical Lead:** ryanm@plastic-recycling.net
-- **Executive Sponsor:** President
+- **Finance Lead:** TBD — named by CFO (Fred) post executive working session
+- **Strategic Lead:** Project owner (engineering + strategy + architecture)
+- **Executive Sponsor:** President (Brandon)
 
-For issues, use the in-app Change Request system once deployed. Until then, contact the Technical Lead.
+For issues, use the in-app Change Request system once deployed. Until then, contact the Strategic Lead.
 
 ## License
 

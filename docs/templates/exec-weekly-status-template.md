@@ -1,8 +1,8 @@
 # Datastream Books — Weekly Status, Week of [DATE]
 
-**To:** President, COO, CFO  
-**From:** Ryan M (IT)  
-**System owner (finance):** Pam
+**To:** President (Brandon), COO (Marco), CFO (Fred)  
+**From:** Ryan M (Strategic Lead)  
+**Finance Lead:** TBD — to be named by Fred post executive working session
 
 ---
 
@@ -25,10 +25,10 @@ Phase 7 (UI + Backend) is the current focus."
 
 ## What's next week
 
-- [2-3 bullets. Concrete, near-term. If a Pam conversation is scheduled, 
+- [2-3 bullets. Concrete, near-term. If a Finance Lead conversation is scheduled, 
   name it.]
 - [If the next week is mostly waiting on someone else, say so honestly: 
-  "Next week is gated on Pam's input on vendor master scope, approval 
+  "Next week is gated on Finance Lead input on vendor master scope, approval 
   thresholds, and entity structure — 45 min booked for [day]."]
 
 ## Risks I'm watching
@@ -36,7 +36,7 @@ Phase 7 (UI + Backend) is the current focus."
 - [1-3 bullets. Real risks, not theater. If there are no new risks, 
   drop this section entirely — don't fill space.]
 - [Format: risk in plain English + what we're doing about it.]
-- [Example: "Pam's calendar slipping past next week would compress 
+- [Example: "Finance Lead's calendar slipping past next week would compress 
   Phase 8 timeline by 1-2 weeks. Mitigation: 45 min scheduled for 
   Tuesday 5/26; backup slots offered."]
 

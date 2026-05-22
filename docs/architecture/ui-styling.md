@@ -7,13 +7,13 @@
 > and [§59](../decisions/datastream-books-decisions.md); investigation
 > showed ERP has no custom theme (see "Headline Finding" below), so
 > the operative rule is now "Books defines its own minimal theme,
-> editable by Pam / accounting via CSS variables, with logo continuity
+> editable by the Finance Lead / accounting via CSS variables, with logo continuity
 > to ERP." [§49 amendment 2026-05-21]
 
 ## Core Principle
 
 **Every color, font, and density value is a CSS variable with a
-documented default.** Pam, the accounting team, or a future operator
+documented default.** The Finance Lead, the accounting team, or a future operator
 can rebind any value without code edits -- variables resolve at theme
 load time. No hard-coded hex literals in PCF / page TypeScript /
 custom-page React.
@@ -139,7 +139,7 @@ These variables are bound at theme load time. Files consuming them:
 ```css
 :root {
   /* Primary brand blue. Default is Fluent UI v9 brand blue.
-     Editable -- Pam or accounting can rebind to a specific
+     Editable -- the Finance Lead or accounting can rebind to a specific
      Datastream blue when one is selected. */
   --brand-primary: #0078D4;
   --brand-primary-hover: #106EBE;
@@ -286,7 +286,7 @@ Books theme is **not** a Microsoft-shipped theme, so it will not appear
 on the platform alongside the three stock CRM themes -- it is
 solution-owned.
 
-If/when Pam (or an accounting team operator with the System
+If/when the Finance Lead (or an accounting team operator with the System
 Administrator role) wants to rebind a value, the path is either:
 
 1. **Quick fix** -- edit the theme record in the maker portal (Settings
@@ -339,13 +339,13 @@ of the app name. Books mirrors:
 |---|---|---|
 | O1 | Books theme record yes or no? | **Yes.** Minimal, binds CSS variables + logo. Specified in "Books Theme Record" section above. |
 | O2 | Lint `--brand-accent` warnings-only, or doc-only? | **Doc-only for 7A.** Reserved-use rule documented in the variable's comment. If accent-color drift surfaces in CR triage during 7B / 7C, add a lint rule then. |
-| O3 | Ask Pam about status palette before 7B? | **No.** Per [§57](../decisions/datastream-books-decisions.md), no initial design sign-off. Pam reacts via CR after pages land. Palette is variable-bound -- rebind costs nothing if she does file a CR. |
+| O3 | Ask the Finance Lead about status palette before 7B? | **No.** Per [§57](../decisions/datastream-books-decisions.md), no initial design sign-off. The Finance Lead reacts via CR after pages land. Palette is variable-bound -- rebind costs nothing if a CR is filed. |
 | O4 | Books logo name? | **`rm_DatastreamBooksLogo`** for the PRI corporate logo. **`rm_InnovationTeamLogo`** placeholder for the new Innovation Team logo, sourced and packaged in S4. |
 | O5 | Logo SHA-256 in this doc? | **Capture during S4** when binaries land on disk. Placeholder row exists in "Logo Assets" section -- S4 populates. |
 
 ## References
 
-- [`../decisions/datastream-books-decisions.md`](../decisions/datastream-books-decisions.md) §49 (visual identity -- amended 2026-05-21 per the headline finding above), §59 (ERP as primary reference), §60 (Fluent UI v9 + minimal custom layer), §62 (Pam's navigation pain point), §51 (desktop-only v1), §57 (no initial design sign-off)
+- [`../decisions/datastream-books-decisions.md`](../decisions/datastream-books-decisions.md) §49 (visual identity -- amended 2026-05-21 per the headline finding above), §59 (ERP as primary reference), §60 (Fluent UI v9 + minimal custom layer), §62 (Finance Lead's anticipated navigation pain point), §51 (desktop-only v1), §57 (no initial design sign-off)
 - [`../decisions/phase-7-ui-design.md`](../decisions/phase-7-ui-design.md) Phase 7A deliverables
 - [`erp-pattern-notes.md`](erp-pattern-notes.md) §3 (cross-solution reference, contrast with cross-environment constraint)
 - [`data-model.md`](data-model.md) (`rm_journalentry.rm_status` enum driving status pill palette)

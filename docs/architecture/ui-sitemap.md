@@ -5,7 +5,7 @@
 > `Datastream Books` model-driven app module. Implements decisions
 > [§52](../decisions/datastream-books-decisions.md) (single shared
 > dashboard) and [§62](../decisions/datastream-books-decisions.md)
-> (navigation is Pam's biggest Macola pain point).
+> (navigation is the Finance Lead's biggest anticipated Macola pain point).
 
 ## Core Principle
 
@@ -26,12 +26,12 @@ structure; mimic a finance team's mental model.
 | 5 | **Period Close** | Pre-close TB review, close workflow, period lock | Controller |
 | 6 | **Reports** | All reports library (BS, P&L, Cash Flow, agings, audit trail) | Controller, Approver, Auditor |
 | 7 | **Reference Data** | Master data lookups (COA, vendors, customers, entities, fiscal calendar, account types/categories) | All -- read-mostly |
-| 8 | **Admin** | Change requests, approval policies, audit log, security roles, system settings | System Admin, Pam |
+| 8 | **Admin** | Change requests, approval policies, audit log, security roles, system settings | System Admin, Finance Lead |
 
 Rationale for each group ordering choice:
 
 - **Home first** -- per [§52](../decisions/datastream-books-decisions.md),
-  single shared dashboard. Always the first item Pam clicks after sign-in.
+  single shared dashboard. Always the first item the Finance Lead clicks after sign-in.
 - **AP / AR / GL in that order** -- AP and AR are higher-volume daily
   transactional flows than GL; clerks live in their respective area.
   GL precedes Period Close because adjusting journal entries are made
@@ -162,7 +162,7 @@ Request: [link]
 
 Single template, parameterized per item. Built once in S4 / S7,
 re-used everywhere. Reduces 7A shell-build cost dramatically and gives
-Pam something coherent to react to on the placeholder areas without
+the Finance Lead something coherent to react to on the placeholder areas without
 forcing fake widgets.
 
 ## Navigation Conventions
@@ -177,7 +177,7 @@ The modern Unified Interface already surfaces a "Recently viewed"
 section in the sitemap, populated automatically per-user. No custom
 PCF in 7A.
 
-Re-evaluate during 7E (CR burn-down) only if Pam files CRs that the
+Re-evaluate during 7E (CR burn-down) only if the Finance Lead files CRs that the
 built-in is insufficient.
 
 ### Global search
@@ -215,7 +215,7 @@ Form pages add the platform-default command bar above this header.
 
 When S4 builds the app module, the sitemap is **fully scaffolded** --
 all 8 groups and all leaf items visible to the user, even those that
-point to placeholder pages. Rationale: Pam (per [§57](../decisions/datastream-books-decisions.md)
+point to placeholder pages. Rationale: the Finance Lead (per [§57](../decisions/datastream-books-decisions.md)
 shell-only demo framing) should see the full intended map even when
 pages aren't built yet. Empty navigation is more confusing than full
 navigation with "coming Phase X" markers.

@@ -7,7 +7,7 @@
 > (Phase 7A S4-S11 deferred). Design only -- no implementation under
 > this document. Surfaced as a Phase 7A.5 candidate: small UI-flavored
 > task independent of S4-S11 that closes the R-A-19 precondition for
-> any future Pam-facing shell demo.
+> any future Finance Lead-facing shell demo.
 
 ## The Gap
 
@@ -29,7 +29,7 @@ rolls back per decision [§41](../decisions/datastream-books-decisions.md).
 
 The gap is purely UX: the maker-portal main form (FormId
 `91037b32-197b-4ec0-9451-13fe65f36634`) renders these four fields as
-editable controls regardless of `rm_status`. A user (Pam, an
+editable controls regardless of `rm_status`. A user (the Finance Lead, an
 auditor, an admin) opening Posted JE-2026-001005 sees the post-stamp
 fields as editable; their cursor lands inside the value; they can
 type. The save throws -- but the in-form experience suggests the edit
@@ -64,7 +64,7 @@ condition `rm_status equals Posted` and four Lock Field actions
 - Zero code. Authored entirely in the maker portal designer.
 - Lives in the solution as XML; flows through `pull-solution.ps1` +
   CI/CD with no special handling.
-- Visible to Pam and any future maintainer in the form designer --
+- Visible to the Finance Lead and any future maintainer in the form designer --
   the rule appears as a labeled item alongside the form itself.
 - Runs client-side; the user sees the lock immediately on form load.
 - If Phase 7B replaces the main form with a custom page, the business
@@ -142,7 +142,7 @@ disabling in the page's own logic.
 - Couples R-A-19 mitigation to Phase 7B scope -- exactly what
   decision [§67](../decisions/datastream-books-decisions.md)
   deferred.
-- The R-A-19 mitigation deadline is "before any Pam-facing shell
+- The R-A-19 mitigation deadline is "before any Finance Lead-facing shell
   demo", which can land before Phase 7B; coupling them violates the
   Phase 7A.5 framing.
 
@@ -175,9 +175,9 @@ designer.
    [§60](../decisions/datastream-books-decisions.md) commits the
    project to "Fluent UI v9 defaults with minimal custom layer." A
    business rule honors that; a JavaScript web resource bends it.
-3. **Pam can audit the rule visually.** Dataverse renders business
+3. **The Finance Lead can audit the rule visually.** Dataverse renders business
    rules as a labeled flowchart in the maker portal. An auditor or
-   Pam herself can open the rule, read the condition, and verify
+   The Finance Lead can open the rule, read the condition, and verify
    coverage in seconds -- no source-code review required.
 4. **Deployment is identical to existing artifacts.** The business
    rule ships as solution XML under
@@ -220,7 +220,7 @@ This work is **not** part of Phase 7A S4-S11 (deferred by decision
 [§67](../decisions/datastream-books-decisions.md)). It is a one-off
 form-metadata change that:
 
-- Closes the R-A-19 precondition for any Pam-facing demo of any
+- Closes the R-A-19 precondition for any Finance Lead-facing demo of any
   Phase 7A artifact (current or future).
 - Does not depend on the §17 vendor master scope answer.
 - Does not depend on Backend Track A.
