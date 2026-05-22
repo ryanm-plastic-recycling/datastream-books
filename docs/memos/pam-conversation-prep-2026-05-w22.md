@@ -3,16 +3,28 @@
 > Consolidated agenda for the upcoming Datastream Books conversation
 > with Pam. Drafted 2026-05-22 per audit Section C recommendation and
 > decision §67's call for §17 to land alongside the existing §1 / §3
-> / §11 agenda. One-page format: pre-read, agenda, what we need,
-> what she's signing off on, what she should bring.
+> / §11 agenda. Revised 2026-05-22 in the §70 / §71 session: Item 1
+> rewritten from "decide who owns vendor records" to "consult on field
+> list, intake workflow, 1099 rules, approval routing" after the
+> architectural decision was made under §70. One-page format:
+> pre-read, agenda, what we need, what she's signing off on, what
+> she should bring.
 
 ## Meeting metadata
 
 - **Audience:** Pam (Finance System Owner) + Ryan (IT)
-- **Duration:** 45 minutes (30 minutes minimum; 60 if §17 generates discussion)
+- **Duration:** 42 minutes (30 minutes minimum; 50 if Item 3 entity
+  list discussion runs long). Item 1 trimmed from ~10 min to ~7 min
+  after §70 closed the architectural question.
 - **Format:** In person if possible; Teams as fallback
-- **Decision authority:** Pam owns the finance answers. IT defers
-  to her on accounting questions; she defers to IT on architecture.
+- **Decision authority (per [§71](../decisions/datastream-books-decisions.md)):**
+  Pam authorizes operational finance answers (workflows, field lists,
+  thresholds, COA, period close mechanics). IT authorizes architecture
+  (cross-system data flow, schema ownership, integration patterns,
+  system-of-record boundaries). Pam consults on architectural items
+  that touch finance; COO concurs on cross-domain impact. Item 1 of
+  this agenda is now a Pam-consult item (architecture decided under
+  §70); Items 2-4 remain Pam-authorize.
 
 ## Pre-read (please review before the meeting)
 
@@ -35,34 +47,71 @@
   perfect answer, the working answer. We can refine later.
 - Any pain points with the current Macola chart of accounts that
   should be fixed during migration.
-- A working opinion on whether the operations team or the AP team
-  owns new vendor creation.
+- A working opinion on the Books-mastered field list for vendors and
+  customers (per §70 the AP team owns new vendor creation in Books;
+  the operations team retains write authority on operations-only
+  fields on the same record -- the question for Pam is whether the
+  field list is correct and complete).
+- A working opinion on the new-vendor intake workflow (who fills in
+  what, in what order, with what approvals).
+- A working opinion on 1099 rules (default behavior, override path,
+  which vendor types are always-1099 vs never-1099).
 
 ## Agenda
 
-### Item 1 -- §17 Vendor Master Scope (NEW; ~10 min)
+### Item 1 -- §17 Vendor Master Scope -- Pam-consult portion (~7 min)
 
-> Decision §22 of the decision log says "vendors/customers added as
-> needed" -- broad enough that it leaves open who owns the master.
-> This is the only agenda item that has not been previously
-> discussed with you; it surfaced during the 2026-05-21 audit and
-> blocks the current backend track.
+> **Architectural decision made under [§70](../decisions/datastream-books-decisions.md)
+> on 2026-05-22 -- Books is system of record for vendor and customer
+> entity records, ERP receives a downstream projection of
+> Books-mastered fields via plugin-driven push, and ERP retains write
+> authority on operations-only fields (site locations, transportation,
+> operational flags). Same record, two writers, field-level lanes.**
+> This Item 1 is the Pam-consult portion: confirm the field list and
+> nail down the operational details that IT needs from finance before
+> Phase 8 AP scoping can finalize.
 
-- **What we need from you:**
-  1. When a bill arrives from a new vendor, who creates the
-     record -- AP clerk in Books, or operations in ERP first?
-  2. For vendors already in PRI-Datastream (ERP), is the canonical
-     record the ERP one or the Books one?
-  3. What vendor fields does Books need beyond ERP's existing
-     schema? (W-9 status, 1099 reportability, payment terms, NACHA
-     banking, AP-specific approval routing.)
-- **What we're proposing you sign off on:** the operating model
-  for vendor records (one of three: Books-owned, ERP-owned with
-  Books cross-reference, or split by vendor type). IT will write
-  the formal decision row in the decision log.
-- **What is downstream of this:** Phase 7-Backend Track A
-  (vendor/customer integration) and all of Phase 8 (AP Core) wait
-  on this answer.
+- **Architectural decision summary (for awareness; not asking for
+  re-litigation):**
+  - **Books-mastered fields** (read-only in ERP after sync): legal
+    name, EIN, tax classification, W-9 status, 1099 reportable
+    flag, banking / NACHA details, payment terms, hold-payment flag,
+    credit terms (customers), approval status, AP / AR routing.
+  - **ERP-mastered fields** (writable in ERP only): site locations
+    and shipping points, transportation routing preferences,
+    operational approval flags for PO eligibility, operational
+    notes, preferred-vendor flags by product, operational status.
+  - The two dual-role operations users who currently add vendors /
+    customers on the ERP side shift their "add new" pattern to
+    Books going forward.
+- **What we need from you (consult, not authorize):**
+  1. Is the Books-mastered field list above correct and complete?
+     Anything missing? Anything Books shouldn't own?
+  2. New-vendor intake workflow -- who fills in what, in what
+     order, with what approvals? (AP clerk drafts, AP manager
+     reviews, Controller approves? Or single-step for low-risk
+     vendor types?)
+  3. 1099 rules -- which vendor types are always 1099-reportable
+     (LLC, sole prop, etc.); which are never (corporation);
+     override path; default behavior when type is unclear.
+  4. Approval routing for new vendor setup -- single or dual
+     approval, what roles, what dollar / risk threshold (if any)
+     for dual approval.
+- **What we're proposing you sign off on (Pam-consult outputs, not
+  architecture):** the Books-mastered field list (confirmed or
+  amended), the new-vendor intake workflow, the 1099 rules, the
+  approval-routing rules for new vendor setup. IT will roll these
+  into the Phase 8 AP scoping artifacts. The *architectural*
+  ownership question is closed under §70 and is not a sign-off item
+  here.
+- **What is downstream of this:** Backend Track A
+  (vendor/customer integration) unblocks on the field-list +
+  intake-workflow input above, *not* on a fundamental ownership
+  decision (that's already made). Phase 8 (AP Core) scoping
+  finalizes once 1099 rules and approval routing are nailed down.
+  The push plugin design itself (Books -> ERP) is a Phase 8 or
+  earlier scoping item -- not asking for Pam input on the plugin
+  internals.
 
 ### Item 2 -- §3 Approval Thresholds (~10 min)
 
@@ -134,13 +183,21 @@
 IT will, within 48 hours:
 
 - Write a decision-log row for each item you signed off on
-  (anticipated §68 vendor master scope, §69 approval thresholds,
-  §70 entity structure if substantively different from current
-  placeholder, §71 COA sign-off).
-- Update the `executive-questionnaire.md` status flags from
-  `[Active] [Pending Pam]` to `[Confirmed]` with citations.
+  (anticipated §72+ approval thresholds, §73+ entity structure if
+  substantively different from current placeholder, §74+ COA
+  sign-off, plus a §-numbered row for the Item 1 Pam-consult
+  outputs -- field list, intake workflow, 1099 rules, approval
+  routing for new vendor setup -- captured as one row separate
+  from §70's architectural decision). Decision numbering will pick
+  up from the latest committed row in the decision log; §70 / §71
+  occupy the next two slots.
+- Update the [`./executive-questionnaire.md`](./executive-questionnaire.md)
+  status flags from `[Active] [Pending Pam]` to `[Confirmed]` with
+  citations.
 - Mark the corresponding backlog items (BL-01, BL-04, BL-37, BL-38,
-  BL-46) as actionable for the next IT-side work session.
+  BL-46) as actionable for the next IT-side work session. BL-46
+  (explicit decision row for §22 vendors) is already closed by §70
+  -- update its status accordingly during the same backlog pass.
 
 If anything is left unresolved at the end of the conversation, IT
 will track it in [`../backlog.md`](../backlog.md) under a new BL-id
@@ -148,8 +205,9 @@ and flag it for the next conversation rather than letting it drift.
 
 ## Linked artifacts
 
-- [`./executive-questionnaire.md`](./executive-questionnaire.md) -- §1, §3, §11, §17 in full
-- [`../decisions/datastream-books-decisions.md`](../decisions/datastream-books-decisions.md) -- §22 (vendors as needed), §23 (pre-populate COA), §30 (Pam as Finance System Owner), §67 (Phase 7A deferral that makes this conversation the immediate critical path)
-- [`../backlog.md`](../backlog.md) -- Next Pam Conversation Agenda subsection
+- [`./executive-questionnaire.md`](./executive-questionnaire.md) -- §1, §3, §11, §17 in full (§17 now confirmed under §70; consult content retained for traceability)
+- [`./decisions-required-master-list.md`](./decisions-required-master-list.md) -- master decisions sheet (IT-decides / Pam-decides / Exec-decides categorization per §71)
+- [`../decisions/datastream-books-decisions.md`](../decisions/datastream-books-decisions.md) -- §22 (vendors as needed; preserved for "as-needed creation, no batch pre-load" intent), §23 (pre-populate COA), §30 (Pam as Finance System Owner), §67 (Phase 7A deferral), §70 (vendor / customer master ownership architecture -- closes Item 1's architectural question), §71 (governance principle -- IT-decides / Pam-consults / COO-concurs on cross-domain impact)
+- [`../backlog.md`](../backlog.md) -- Next Pam Conversation Agenda subsection; BL-52 / BL-53 / BL-54 added for §70 follow-on plugin design, ERP write-permission lockdown, and cutover-day reconciliation
 - [`../architecture/data-model.md`](../architecture/data-model.md) -- `rm_chartofaccount` structure for the COA review item
-- [`../architecture/erp-pattern-notes.md`](../architecture/erp-pattern-notes.md) §3 -- the `rm_customer` cross-solution pattern that the §17 vendor decision will mirror or diverge from
+- [`../architecture/erp-pattern-notes.md`](../architecture/erp-pattern-notes.md) §3 -- the `rm_customer` cross-solution pattern; §70's push plugin design draws on or diverges from this in Phase 8 scoping
